@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
+import { evidence as allEvidence } from "@/content/board";
 import type { BoardContent } from "@/content/selectors";
 import type { Evidence, Locale } from "@/content/types";
 import { ExploreCamera } from "../camera/ExploreCamera";
@@ -24,7 +25,7 @@ interface SceneProps {
 
 export function Scene({ content, shots, locale, quality }: SceneProps) {
   const rig = useMemo(() => new CameraRig(), []);
-  const textures = useEvidenceTextures(content.evidence, locale, quality.pixelsPerUnit);
+  const textures = useEvidenceTextures(allEvidence, locale, quality.pixelsPerUnit);
   const mode = useExperience((state) => state.mode);
   const focusEvidence = useExperience((state) => state.focusEvidence);
 
