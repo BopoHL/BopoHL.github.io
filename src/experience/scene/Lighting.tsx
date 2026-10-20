@@ -72,7 +72,7 @@ function KeyLight({ quality }: { quality: Quality }) {
     () => ({ uTime: { value: 0 }, uColor: { value: new Color() }, uStrength: { value: 0.085 } }),
     [],
   );
-  const dustUniforms = useMemo(() => ({ uTime: { value: 0 }, uSize: { value: 26 }, uColor: { value: new Color() } }), []);
+  const dustUniforms = useMemo(() => ({ uTime: { value: 0 }, uSize: { value: 9 }, uColor: { value: new Color() } }), []);
   const blinds = useMemo(() => new CanvasTexture(paintBlinds(512)), []);
 
   useEffect(() => {
@@ -91,6 +91,7 @@ function KeyLight({ quality }: { quality: Quality }) {
     m.desired.copy(m.aim).addScaledVector(KEY_DIRECTION, m.reach * KEY_DISTANCE_RATIO);
     m.position.lerp(m.desired, k);
     target.current?.position.copy(m.aim);
+    rig.trackLamp(m.position, m.aim);
     if (light.current) {
       light.current.position.copy(m.position);
       light.current.intensity = KEY_INTENSITY * (m.reach / REFERENCE_DISTANCE) ** 2;

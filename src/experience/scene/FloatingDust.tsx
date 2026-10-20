@@ -2,8 +2,10 @@
 
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
-import { AdditiveBlending, BufferAttribute, BufferGeometry, Color, type ShaderMaterial } from "three";
+import { AdditiveBlending, BufferAttribute, BufferGeometry, Color, Vector3, type ShaderMaterial } from "three";
 import { BOARD_SIZE } from "@/content/board";
+import { useRig } from "../camera/rig";
+import { KEY_ANGLE } from "./constants";
 import { useLook } from "./look";
 import { floatingDustFragmentShader, floatingDustVertexShader } from "./shaders";
 
@@ -27,15 +29,27 @@ const createVolume = (count: number) => {
 
 export function FloatingDust({ count }: { count: number }) {
   const look = useLook();
+  const rig = useRig();
   const material = useRef<ShaderMaterial>(null);
   const geometry = useMemo(() => createVolume(count), [count]);
-  const uniforms = useMemo(() => ({ uTime: { value: 0 }, uColor: { value: new Color() } }), []);
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uColor: { value: new Color() },
+      uLampPosition: { value: new Vector3() },
+      uLampDirection: { value: new Vector3(0, 0, -1) },
+      uCosOuter: { value: Math.cos(KEY_ANGLE) },
+    }),
+    [],
+  );
   useEffect(() => () => geometry.dispose(), [geometry]);
 
   useFrame((state) => {
     if (!material.current) return;
     material.current.uniforms.uTime.value = state.clock.elapsedTime;
     material.current.uniforms.uColor.value.copy(look.hazeColor);
+    material.current.uniforms.uLampPosition.value.copy(rig.lampPosition);
+    material.current.uniforms.uLampDirection.value.copy(rig.lampDirection);
   });
 
   return (
