@@ -26,7 +26,7 @@ import { useReducedMotion } from "./useReducedMotion";
 import { useElementAspect } from "./useViewport";
 import stage from "./stage.module.css";
 
-const SCROLL_PER_SHOT_VH = { classic: 120, cinema: 85 } as const;
+const SCROLL_PER_SHOT_VH = { classic: 120, cinema: 110 } as const;
 
 export function Experience({ locale }: { locale: Locale }) {
   const [quality] = useState(detectQuality);

@@ -92,9 +92,9 @@ const cinematicAngle = (station: Station, shotNumber: number): ShotAngle => {
   const side = shotNumber % 2 === 0 ? 1 : -1;
   const seed = `${station.id}-${shotNumber}`;
   return {
-    yaw: base.yaw * 0.4 + side * (10 + 7 * hash01(`${seed}-yaw`)) * DEGREE,
-    pitch: base.pitch * 0.4 + (hash01(`${seed}-pitch`) - 0.5) * 14 * DEGREE,
-    roll: -side * (2 + 3 * hash01(`${seed}-roll`)) * DEGREE,
+    yaw: base.yaw * 0.4 + side * (7 + 5 * hash01(`${seed}-yaw`)) * DEGREE,
+    pitch: base.pitch * 0.4 + (hash01(`${seed}-pitch`) - 0.5) * 10 * DEGREE,
+    roll: -side * (1 + 1.5 * hash01(`${seed}-roll`)) * DEGREE,
   };
 };
 
