@@ -1,0 +1,54 @@
+:root {
+  --night: #0a0806;
+  --lamp: #ffb46a;
+  --manila: #c9a66b;
+  --paper: #e8dcc0;
+  --ink: #1c1a17;
+  --thread-work: #a3161a;
+  --thread-study: #23477a;
+  --thread-hobby: #3e6b3a;
+  --muted: rgba(232, 220, 192, 0.62);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--night);
+  color: var(--paper);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--night);
+  font-family: var(--font-typewriter), ui-monospace, monospace;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--lamp);
+  outline-offset: 3px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
