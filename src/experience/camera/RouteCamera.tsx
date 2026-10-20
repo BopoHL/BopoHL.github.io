@@ -7,6 +7,7 @@ import { useExperience } from "../state/store";
 import { blendAt, type Shot } from "./framing";
 import { moveTiming, type CameraMotion } from "./motion";
 import { useRig } from "./rig";
+import { ScalarSpring, VectorSpring } from "./spring";
 
 const REVEAL_THRESHOLD = 0.04;
 const OPENING_DOLLY = 9;
@@ -32,7 +33,10 @@ export function RouteCamera({ shots, motion }: RouteCameraProps) {
     side: new Vector3(),
     target: new Vector3(),
     position: new Vector3(),
-    roll: 0,
+    positionSpring: new VectorSpring(),
+    targetSpring: new VectorSpring(),
+    rollSpring: new ScalarSpring(),
+    following: false,
     revealedAt: Number.NEGATIVE_INFINITY,
   });
 
@@ -42,12 +46,22 @@ export function RouteCamera({ shots, motion }: RouteCameraProps) {
     camera.position.set(first.position[0], first.position[1], first.position[2] + OPENING_DOLLY);
     rig.target.set(...first.target);
     camera.lookAt(rig.target);
+    scratch.current.following = false;
   }, [camera, rig, shots]);
 
   useFrame((state, delta) => {
     const store = useExperience.getState();
-    if (store.mode !== "route" || shots.length === 0) return;
     const temp = scratch.current;
+    if (store.mode !== "route" || shots.length === 0) {
+      temp.following = false;
+      return;
+    }
+    if (!temp.following) {
+      temp.positionSpring.reset(state.camera.position);
+      temp.targetSpring.reset(rig.target);
+      temp.rollSpring.reset(0);
+      temp.following = true;
+    }
 
     const blend = blendAt(store.progress, shots.length, motion.hold);
     const from = shots[blend.from];
@@ -81,12 +95,10 @@ export function RouteCamera({ shots, motion }: RouteCameraProps) {
     temp.position.x += state.pointer.x * motion.parallax;
     temp.position.y += state.pointer.y * motion.parallax * 0.6;
 
-    const k = 1 - Math.exp(-delta * motion.follow);
-    state.camera.position.lerp(temp.position, k);
-    rig.target.lerp(temp.target, k);
-    temp.roll = MathUtils.lerp(temp.roll, roll, k);
-    state.camera.lookAt(rig.target);
-    state.camera.rotateZ(temp.roll);
+    const step = Math.min(delta, 0.1);
+    state.camera.position.copy(temp.positionSpring.update(temp.position, motion.settle, step));
+    rig.target.copy(temp.targetSpring.update(temp.target, motion.settle, step));
+    const smoothedRoll = temp.rollSpring.update(roll, motion.settle, step);
 
     const sinceImpact = state.clock.elapsedTime - temp.revealedAt - STAMP_IMPACT_AT;
     if (store.variant.finale === "reveal" && sinceImpact > 0 && sinceImpact < SHAKE_DURATION) {
@@ -94,6 +106,8 @@ export function RouteCamera({ shots, motion }: RouteCameraProps) {
       state.camera.position.x += Math.sin(sinceImpact * 90) * SHAKE_AMPLITUDE * fade;
       state.camera.position.y += Math.cos(sinceImpact * 70) * SHAKE_AMPLITUDE * fade;
     }
+    state.camera.lookAt(rig.target);
+    state.camera.rotateZ(smoothedRoll);
 
     const nearest = shots[blend.nearest];
     if (blend.nearest !== store.shotIndex) store.setShot(blend.nearest, nearest.stationIndex);

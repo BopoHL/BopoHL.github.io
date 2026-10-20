@@ -2,8 +2,6 @@ export type Easing = (t: number) => number;
 
 export const smootherstep: Easing = (t) => t * t * t * (t * (t * 6 - 15) + 10);
 
-export const easeInOutQuint: Easing = (t) => (t < 0.5 ? 16 * t ** 5 : 1 - (-2 * t + 2) ** 5 / 2);
-
 export interface CameraMotion {
   hold: number;
   ease: Easing;
@@ -13,7 +11,7 @@ export interface CameraMotion {
   maxPullback: number;
   swing: number;
   bank: number;
-  follow: number;
+  settle: number;
   parallax: number;
 }
 
@@ -26,21 +24,21 @@ export const CLASSIC_MOTION: CameraMotion = {
   maxPullback: 6,
   swing: 0,
   bank: 0,
-  follow: 4.5,
+  settle: 0.32,
   parallax: 0.18,
 };
 
 export const CINEMA_MOTION: CameraMotion = {
-  hold: 0.42,
-  ease: easeInOutQuint,
-  gazeLead: 0.3,
-  pullback: 0.6,
-  minPullback: 2.5,
-  maxPullback: 10,
-  swing: 0.35,
-  bank: 0.12,
-  follow: 7.5,
-  parallax: 0.1,
+  hold: 0.28,
+  ease: smootherstep,
+  gazeLead: 0.12,
+  pullback: 0.4,
+  minPullback: 1.2,
+  maxPullback: 6,
+  swing: 0.15,
+  bank: 0.04,
+  settle: 0.45,
+  parallax: 0.08,
 };
 
 const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1);
