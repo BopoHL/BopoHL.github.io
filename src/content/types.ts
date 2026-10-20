@@ -153,9 +153,11 @@ export type FinaleVariant = "reveal" | "folder";
 
 export interface Station {
   id: string;
+  label: Localized;
   focus: readonly string[] | "all";
   subtitle: Localized;
   angle?: Vec2;
+  reserveBottom?: number;
 }
 
 export interface Contact {
