@@ -6,6 +6,7 @@ import type { Locale } from "@/content/types";
 import { ui } from "@/content/ui";
 import { useExperience } from "../state/store";
 import styles from "./hud.module.css";
+import { useRevealSound } from "./useRevealSound";
 
 export function FinaleCard({ locale }: { locale: Locale }) {
   const revealed = useExperience((state) => state.revealed);
@@ -15,6 +16,7 @@ export function FinaleCard({ locale }: { locale: Locale }) {
   const setDossierOpen = useExperience((state) => state.setDossierOpen);
   const visible = revealed && mode === "route";
   const resume = contacts.find((contact) => contact.id === "resume");
+  useRevealSound();
 
   return (
     <section className={`${styles.finale} ${visible ? styles.finaleVisible : ""}`} aria-hidden={!visible} inert={!visible}>
