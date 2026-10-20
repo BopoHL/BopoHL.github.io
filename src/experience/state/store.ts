@@ -1,23 +1,8 @@
 import { create } from "zustand";
-import type { FinaleVariant, Locale } from "@/content/types";
+import type { Locale } from "@/content/types";
+import { DEFAULT_VARIANT, type PilotVariant } from "./variant";
 
 export type CameraMode = "route" | "explore";
-
-export interface PilotVariant {
-  finale: FinaleVariant;
-  explore: boolean;
-}
-
-export const variantToQuery = ({ finale, explore }: PilotVariant) =>
-  `?finale=${finale === "reveal" ? "a" : "b"}&route=${explore ? "free" : "linear"}`;
-
-export const variantFromQuery = (search: string): PilotVariant => {
-  const params = new URLSearchParams(search);
-  return {
-    finale: params.get("finale") === "b" ? "folder" : "reveal",
-    explore: params.get("route") !== "linear",
-  };
-};
 
 interface ExperienceState {
   locale: Locale;
@@ -46,7 +31,7 @@ interface ExperienceState {
 
 export const useExperience = create<ExperienceState>()((set) => ({
   locale: "en",
-  variant: { finale: "reveal", explore: true },
+  variant: DEFAULT_VARIANT,
   mode: "route",
   progress: 0,
   shotIndex: 0,
@@ -58,7 +43,11 @@ export const useExperience = create<ExperienceState>()((set) => ({
   soundOn: false,
   focusedEvidence: null,
   setLocale: (locale) => set({ locale }),
-  setVariant: (variant) => set((state) => ({ variant: { ...state.variant, ...variant }, revealed: false, mode: "route" })),
+  setVariant: (variant) =>
+    set((state) => {
+      const next = { ...state.variant, ...variant };
+      return { variant: next, mode: next.explore ? state.mode : "route" };
+    }),
   setMode: (mode) => set({ mode, focusedEvidence: null }),
   setProgress: (progress) => set({ progress }),
   setShot: (shotIndex, stationIndex) => set({ shotIndex, stationIndex }),

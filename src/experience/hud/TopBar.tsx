@@ -3,7 +3,8 @@
 import { LOCALES, type Locale } from "@/content/types";
 import { ui } from "@/content/ui";
 import { unlockAudio } from "@/audio/typewriter";
-import { useExperience, variantToQuery } from "../state/store";
+import { useExperience } from "../state/store";
+import { variantToQuery } from "../state/variant";
 import styles from "./hud.module.css";
 
 export function TopBar({ locale }: { locale: Locale }) {

@@ -42,6 +42,13 @@ export const ui = {
     finale: l("Финал", "Finale"),
     reveal: l("A: капюшон", "A: hood"),
     folder: l("B: папка", "B: folder"),
+    palette: l("Цвет", "Colour"),
+    warm: l("Тёплая лампа", "Warm lamp"),
+    noir: l("Ч/б + цветные нити", "B&W, coloured threads"),
+    mono: l("Чистый ч/б", "Pure B&W"),
+    camera: l("Камера", "Camera"),
+    classic: l("Обзорная", "Overview"),
+    cinema: l("Кино: близко, резкие переезды", "Cinema: close, sharp moves"),
   },
   language: l("Язык", "Language"),
   print: {
