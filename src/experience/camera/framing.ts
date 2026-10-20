@@ -19,6 +19,20 @@ export interface FramingOptions {
 }
 
 const PORTRAIT_ASPECT = 0.9;
+
+export const CAMERA_FOV = 35;
+
+export const framingFor = (aspect: number): FramingOptions => {
+  const portrait = aspect < PORTRAIT_ASPECT;
+  return {
+    aspect,
+    fovDegrees: CAMERA_FOV,
+    padding: portrait ? 1.08 : 1.2,
+    safeTop: portrait ? 0.14 : 0.1,
+    safeBottom: portrait ? 0.2 : 0.16,
+  };
+};
+
 const PORTRAIT_GROUP = 2;
 const BOARD_SURFACE_Z = 0.05;
 const OVERVIEW_PADDING = 1.03;

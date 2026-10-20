@@ -19,12 +19,10 @@ import {
 } from "three";
 import { useRig } from "../camera/rig";
 import type { Quality } from "../quality";
+import { KEY_ANGLE, KEY_DIRECTION as KEY_DIRECTION_TUPLE, KEY_DISTANCE_RATIO, KEY_PENUMBRA, LAMP_COLOR } from "./constants";
 import { beamFragmentShader, beamVertexShader, dustFragmentShader, dustVertexShader } from "./shaders";
 
-const LAMP_COLOR = "#ffb46a";
-const KEY_DIRECTION = new Vector3(-0.38, 0.5, 0.78).normalize();
-const KEY_DISTANCE_RATIO = 1.05;
-const KEY_ANGLE = 0.66;
+const KEY_DIRECTION = new Vector3(...KEY_DIRECTION_TUPLE).normalize();
 const KEY_INTENSITY = 1100;
 const KEY_FOLLOW = 2.2;
 const REFERENCE_DISTANCE = 12;
@@ -107,7 +105,7 @@ function KeyLight({ quality }: { quality: Quality }) {
         distance={0}
         decay={2}
         angle={KEY_ANGLE}
-        penumbra={0.85}
+        penumbra={KEY_PENUMBRA}
         castShadow
         shadow-mapSize={[quality.shadowMapSize, quality.shadowMapSize]}
         shadow-bias={-0.0004}

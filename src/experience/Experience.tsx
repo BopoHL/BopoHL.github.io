@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { PCFShadowMap } from "three";
 import { boardContentFor } from "@/content/selectors";
 import type { Locale } from "@/content/types";
-import { buildShots } from "./camera/framing";
+import { CAMERA_FOV, buildShots, framingFor } from "./camera/framing";
 import { ExploreBar } from "./hud/ExploreBar";
 import { FinaleCard } from "./hud/FinaleCard";
 import { Loader } from "./hud/Loader";
@@ -22,7 +22,6 @@ import { useScrollDriver } from "./useScrollDriver";
 import { useViewportAspect } from "./useViewport";
 import stage from "./stage.module.css";
 
-const FOV = 35;
 const SCROLL_PER_SHOT_VH = 120;
 
 export function Experience({ locale }: { locale: Locale }) {
@@ -41,17 +40,7 @@ export function Experience({ locale }: { locale: Locale }) {
   }, [locale, setLocale, setVariant]);
 
   const content = useMemo(() => boardContentFor(finale), [finale]);
-  const shots = useMemo(
-    () =>
-      buildShots(content.stations, content.evidence, {
-        aspect,
-        fovDegrees: FOV,
-        padding: aspect < 0.9 ? 1.08 : 1.2,
-        safeTop: aspect < 0.9 ? 0.14 : 0.1,
-        safeBottom: aspect < 0.9 ? 0.2 : 0.16,
-      }),
-    [content, aspect],
-  );
+  const shots = useMemo(() => buildShots(content.stations, content.evidence, framingFor(aspect)), [content, aspect]);
   const { scrollToShot } = useScrollDriver(shots.length);
   const firstShotOfStation = (stationIndex: number) => shots.findIndex((shot) => shot.stationIndex === stationIndex);
 
@@ -62,7 +51,7 @@ export function Experience({ locale }: { locale: Locale }) {
           frameloop={ready ? "always" : "demand"}
           shadows={{ type: PCFShadowMap }}
           dpr={quality.dpr}
-          camera={{ fov: FOV, near: 0.1, far: 200, position: [0, 0, 20] }}
+          camera={{ fov: CAMERA_FOV, near: 0.1, far: 200, position: [0, 0, 20] }}
           gl={{ antialias: false, powerPreference: "high-performance", alpha: false, stencil: false }}
         >
           <Scene content={content} shots={shots} locale={locale} quality={quality} />

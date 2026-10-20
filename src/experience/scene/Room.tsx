@@ -4,10 +4,7 @@ import { useEffect, useMemo } from "react";
 import { CanvasTexture, RepeatWrapping, SRGBColorSpace } from "three";
 import { BOARD_SIZE } from "@/content/board";
 import { paintCork, paintWall } from "../textures/procedural";
-
-const FRAME = 0.55;
-const FRAME_DEPTH = 0.35;
-const CORK_TILE = 6;
+import { BOARD_FRAME as FRAME, BOARD_FRAME_DEPTH as FRAME_DEPTH, CORK_TILE, WALL_Z } from "./constants";
 
 const repeating = (canvas: HTMLCanvasElement, repeatX: number, repeatY: number, srgb: boolean) => {
   const texture = new CanvasTexture(canvas);
@@ -48,7 +45,7 @@ export function Room({ textureSize }: { textureSize: number }) {
 
   return (
     <group>
-      <mesh position={[0, 0, -0.3]} receiveShadow>
+      <mesh position={[0, 0, WALL_Z]} receiveShadow>
         <planeGeometry args={[140, 80]} />
         <meshStandardMaterial map={wall} roughness={1} color="#8a7a66" />
       </mesh>
