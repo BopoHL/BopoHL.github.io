@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PCFShadowMap } from "three";
 import { boardContentFor } from "@/content/selectors";
 import type { Locale } from "@/content/types";
@@ -19,7 +19,7 @@ import { detectQuality } from "./quality";
 import { Scene } from "./scene/Scene";
 import { useExperience, variantFromQuery } from "./state/store";
 import { useScrollDriver } from "./useScrollDriver";
-import { useViewportAspect } from "./useViewport";
+import { useElementAspect } from "./useViewport";
 import stage from "./stage.module.css";
 
 const SCROLL_PER_SHOT_VH = 120;
@@ -32,7 +32,8 @@ export function Experience({ locale }: { locale: Locale }) {
   const ready = useExperience((state) => state.ready);
   const setVariant = useExperience((state) => state.setVariant);
   const setLocale = useExperience((state) => state.setLocale);
-  const aspect = useViewportAspect();
+  const stageRef = useRef<HTMLDivElement>(null);
+  const aspect = useElementAspect(stageRef);
 
   useEffect(() => {
     setLocale(locale);
@@ -46,7 +47,7 @@ export function Experience({ locale }: { locale: Locale }) {
 
   return (
     <>
-      <div className={stage.canvas}>
+      <div ref={stageRef} className={stage.canvas}>
         <Canvas
           frameloop={ready ? "always" : "demand"}
           shadows={{ type: PCFShadowMap }}
