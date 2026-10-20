@@ -4,6 +4,7 @@ import { pick } from "@/content/localize";
 import { LOCALES, type Locale } from "@/content/types";
 import { ui } from "@/content/ui";
 import { fontVariables } from "@/fonts";
+import "lenis/dist/lenis.css";
 import "../globals.css";
 
 export const dynamicParams = false;

@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   output: "export",
   trailingSlash: true,
   images: { unoptimized: true },
+  devIndicators: false,
   pageExtensions: isDevelopment ? ["dev.tsx", "tsx", "ts"] : ["tsx", "ts"],
 };
 
