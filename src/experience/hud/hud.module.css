@@ -459,6 +459,20 @@
   accent-color: var(--thread-work);
 }
 
+.pilotAction {
+  margin-top: 6px;
+  padding: 5px 10px;
+  font: inherit;
+  color: var(--paper);
+  background: transparent;
+  border: 1px solid rgba(232, 220, 192, 0.35);
+  cursor: pointer;
+}
+
+.pilotAction:hover {
+  border-color: rgba(232, 220, 192, 0.7);
+}
+
 @media (max-width: 720px) {
   .topBar {
     padding: 14px 16px;

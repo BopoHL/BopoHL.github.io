@@ -1,5 +1,6 @@
 "use client";
 
+import { previewTypewriter } from "@/audio/typewriter";
 import type { Locale, Localized } from "@/content/types";
 import { ui } from "@/content/ui";
 import { useExperience } from "../state/store";
@@ -10,6 +11,7 @@ interface PilotGroup<K extends keyof PilotVariant> {
   key: K;
   legend: Localized;
   options: Array<{ value: PilotVariant[K]; label: Localized }>;
+  action?: { label: Localized; run: (variant: PilotVariant) => void };
 }
 
 type AnyPilotGroup = { [K in keyof PilotVariant]: PilotGroup<K> }[keyof PilotVariant];
@@ -48,6 +50,17 @@ const GROUPS: AnyPilotGroup[] = [
       { value: "cinema", label: ui.pilot.cinema },
     ],
   },
+  {
+    key: "typing",
+    legend: ui.pilot.typing,
+    options: [
+      { value: "heavy", label: ui.pilot.heavy },
+      { value: "crisp", label: ui.pilot.crisp },
+      { value: "metal", label: ui.pilot.metal },
+      { value: "muffled", label: ui.pilot.muffled },
+    ],
+    action: { label: ui.pilot.listen, run: (variant) => previewTypewriter(variant.typing) },
+  },
 ];
 
 export function PilotPanel({ locale }: { locale: Locale }) {
@@ -76,6 +89,11 @@ export function PilotPanel({ locale }: { locale: Locale }) {
               {option.label[locale]}
             </label>
           ))}
+          {group.action && (
+            <button type="button" className={styles.pilotAction} onClick={() => group.action?.run(variant)}>
+              ▶ {group.action.label[locale]}
+            </button>
+          )}
         </fieldset>
       ))}
     </details>
