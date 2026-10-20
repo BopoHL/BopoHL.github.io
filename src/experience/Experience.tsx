@@ -7,6 +7,7 @@ import { evidence as allEvidence } from "@/content/board";
 import { boardContentFor } from "@/content/selectors";
 import type { Locale } from "@/content/types";
 import { CAMERA_FOV, buildShots, framingFor } from "./camera/framing";
+import { CINEMA_MOTION, CLASSIC_MOTION } from "./camera/motion";
 import { ExploreBar } from "./hud/ExploreBar";
 import { FinaleCard } from "./hud/FinaleCard";
 import { Loader } from "./hud/Loader";
@@ -21,15 +22,19 @@ import { Scene } from "./scene/Scene";
 import { useExperience } from "./state/store";
 import { variantFromQuery } from "./state/variant";
 import { useScrollDriver } from "./useScrollDriver";
+import { useReducedMotion } from "./useReducedMotion";
 import { useElementAspect } from "./useViewport";
 import stage from "./stage.module.css";
 
-const SCROLL_PER_SHOT_VH = 120;
+const SCROLL_PER_SHOT_VH = { classic: 120, cinema: 85 } as const;
 
 export function Experience({ locale }: { locale: Locale }) {
   const [quality] = useState(detectQuality);
   const finale = useExperience((state) => state.variant.finale);
   const palette = useExperience((state) => state.variant.palette);
+  const cameraStyle = useExperience((state) => state.variant.camera);
+  const reduceMotion = useReducedMotion();
+  const motion = cameraStyle === "cinema" && !reduceMotion ? CINEMA_MOTION : CLASSIC_MOTION;
   const mode = useExperience((state) => state.mode);
   const revealed = useExperience((state) => state.revealed);
   const ready = useExperience((state) => state.ready);
@@ -48,7 +53,10 @@ export function Experience({ locale }: { locale: Locale }) {
   }, [palette]);
 
   const content = useMemo(() => boardContentFor(finale), [finale]);
-  const shots = useMemo(() => buildShots(content.stations, content.evidence, framingFor(aspect)), [content, aspect]);
+  const shots = useMemo(
+    () => buildShots(content.stations, content.evidence, framingFor(aspect, cameraStyle), cameraStyle),
+    [content, aspect, cameraStyle],
+  );
   const { scrollToShot } = useScrollDriver(shots.length);
   const firstShotOfStation = (stationIndex: number) => shots.findIndex((shot) => shot.stationIndex === stationIndex);
 
@@ -62,10 +70,10 @@ export function Experience({ locale }: { locale: Locale }) {
           camera={{ fov: CAMERA_FOV, near: 0.1, far: 200, position: [0, 0, 20] }}
           gl={{ antialias: false, powerPreference: "high-performance", alpha: false, stencil: false }}
         >
-          <Scene content={content} shots={shots} locale={locale} quality={quality} />
+          <Scene content={content} shots={shots} motion={motion} locale={locale} quality={quality} />
         </Canvas>
       </div>
-      <div className={stage.track} style={{ height: `${(shots.length - 1) * SCROLL_PER_SHOT_VH + 100}vh` }} aria-hidden="true" />
+      <div className={stage.track} style={{ height: `${(shots.length - 1) * SCROLL_PER_SHOT_VH[cameraStyle] + 100}vh` }} aria-hidden="true" />
       <div className={styles.layer}>
         <TopBar locale={locale} />
         {mode === "route" ? (

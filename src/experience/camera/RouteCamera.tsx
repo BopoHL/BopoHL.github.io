@@ -2,23 +2,25 @@
 
 import { useFrame, useThree } from "@react-three/fiber";
 import { useLayoutEffect, useRef } from "react";
-import { Vector3 } from "three";
+import { MathUtils, Vector3 } from "three";
 import { useExperience } from "../state/store";
 import { blendAt, type Shot } from "./framing";
+import { moveTiming, type CameraMotion } from "./motion";
 import { useRig } from "./rig";
 
-const HOLD = 0.32;
-const PULLBACK = 0.28;
-const MAX_PULLBACK = 6;
-const FOLLOW = 4.5;
-const PARALLAX = 0.18;
 const REVEAL_THRESHOLD = 0.04;
 const OPENING_DOLLY = 9;
 const STAMP_IMPACT_AT = 1.12;
 const SHAKE_DURATION = 0.45;
 const SHAKE_AMPLITUDE = 0.08;
+const BOARD_NORMAL = new Vector3(0, 0, 1);
 
-export function RouteCamera({ shots }: { shots: Shot[] }) {
+interface RouteCameraProps {
+  shots: Shot[];
+  motion: CameraMotion;
+}
+
+export function RouteCamera({ shots, motion }: RouteCameraProps) {
   const rig = useRig();
   const camera = useThree((state) => state.camera);
   const scratch = useRef({
@@ -26,8 +28,11 @@ export function RouteCamera({ shots }: { shots: Shot[] }) {
     toTarget: new Vector3(),
     fromPosition: new Vector3(),
     toPosition: new Vector3(),
+    control: new Vector3(),
+    side: new Vector3(),
     target: new Vector3(),
     position: new Vector3(),
+    roll: 0,
     revealedAt: Number.NEGATIVE_INFINITY,
   });
 
@@ -44,25 +49,44 @@ export function RouteCamera({ shots }: { shots: Shot[] }) {
     if (store.mode !== "route" || shots.length === 0) return;
     const temp = scratch.current;
 
-    const blend = blendAt(store.progress, shots.length, HOLD);
+    const blend = blendAt(store.progress, shots.length, motion.hold);
     const from = shots[blend.from];
     const to = shots[blend.to];
+    const { gaze, travel } = moveTiming(blend.raw, motion);
     temp.fromTarget.set(...from.target);
     temp.toTarget.set(...to.target);
     temp.fromPosition.set(...from.position);
     temp.toPosition.set(...to.position);
 
-    temp.target.lerpVectors(temp.fromTarget, temp.toTarget, blend.amount);
-    temp.position.lerpVectors(temp.fromPosition, temp.toPosition, blend.amount);
-    const travel = temp.fromTarget.distanceTo(temp.toTarget);
-    temp.position.z += Math.sin(Math.PI * blend.amount) * Math.min(MAX_PULLBACK, travel * PULLBACK);
-    temp.position.x += state.pointer.x * PARALLAX;
-    temp.position.y += state.pointer.y * PARALLAX * 0.6;
+    const distance = temp.fromTarget.distanceTo(temp.toTarget);
+    const pullback = distance > 0.01 ? MathUtils.clamp(distance * motion.pullback, motion.minPullback, motion.maxPullback) : 0;
+    const swingSide = blend.from % 2 === 0 ? 1 : -1;
+    temp.side.subVectors(temp.toTarget, temp.fromTarget).cross(BOARD_NORMAL).normalize();
+    temp.control
+      .addVectors(temp.fromPosition, temp.toPosition)
+      .multiplyScalar(0.5)
+      .addScaledVector(BOARD_NORMAL, pullback * 2)
+      .addScaledVector(temp.side, swingSide * distance * motion.swing);
 
-    const k = 1 - Math.exp(-delta * FOLLOW);
+    const inverse = 1 - travel;
+    temp.position
+      .copy(temp.fromPosition)
+      .multiplyScalar(inverse * inverse)
+      .addScaledVector(temp.control, 2 * inverse * travel)
+      .addScaledVector(temp.toPosition, travel * travel);
+    temp.target.lerpVectors(temp.fromTarget, temp.toTarget, gaze);
+    const bank = Math.sin(Math.PI * travel) * motion.bank * swingSide;
+    const roll = MathUtils.lerp(from.roll, to.roll, travel) + bank;
+
+    temp.position.x += state.pointer.x * motion.parallax;
+    temp.position.y += state.pointer.y * motion.parallax * 0.6;
+
+    const k = 1 - Math.exp(-delta * motion.follow);
     state.camera.position.lerp(temp.position, k);
     rig.target.lerp(temp.target, k);
+    temp.roll = MathUtils.lerp(temp.roll, roll, k);
     state.camera.lookAt(rig.target);
+    state.camera.rotateZ(temp.roll);
 
     const sinceImpact = state.clock.elapsedTime - temp.revealedAt - STAMP_IMPACT_AT;
     if (store.variant.finale === "reveal" && sinceImpact > 0 && sinceImpact < SHAKE_DURATION) {

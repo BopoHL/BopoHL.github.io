@@ -65,3 +65,33 @@ export const dustFragmentShader = /* glsl */ `
     gl_FragColor = vec4(mix(uColor, vec3(1.0), 0.4) * a, 1.0);
   }
 `;
+
+export const floatingDustVertexShader = /* glsl */ `
+  uniform float uTime;
+  attribute float aSeed;
+  varying float vAlpha;
+  void main() {
+    vec3 p = position;
+    float t = uTime * 0.05 + aSeed * 50.0;
+    p.x += sin(t * 1.7) * 0.6;
+    p.y += cos(t * 1.1) * 0.4 + sin(uTime * 0.03 + aSeed * 9.0) * 0.8;
+    p.z += sin(t * 0.8) * 0.5;
+    vec4 mv = modelViewMatrix * vec4(p, 1.0);
+    gl_Position = projectionMatrix * mv;
+    float depth = -mv.z;
+    gl_PointSize = clamp((14.0 + aSeed * 30.0) / depth, 1.0, 9.0);
+    float near = smoothstep(0.3, 2.0, depth);
+    float far = 1.0 - smoothstep(10.0, 26.0, depth);
+    vAlpha = near * far * (0.35 + 0.65 * aSeed);
+  }
+`;
+
+export const floatingDustFragmentShader = /* glsl */ `
+  uniform vec3 uColor;
+  varying float vAlpha;
+  void main() {
+    float d = length(gl_PointCoord - 0.5);
+    float a = smoothstep(0.5, 0.05, d) * vAlpha * 0.32;
+    gl_FragColor = vec4(mix(uColor, vec3(1.0), 0.5) * a, 1.0);
+  }
+`;

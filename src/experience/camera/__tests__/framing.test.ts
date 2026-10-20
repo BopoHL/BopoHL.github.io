@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { boardContentFor } from "@/content/selectors";
 import { boundsOf, unionBounds } from "@/content/geometry";
-import { blendAt, buildShots, fitsInView, type FramingOptions } from "../framing";
+import { blendAt, buildShots, fitsInView, framingFor, type FramingOptions } from "../framing";
 
 const options = (aspect: number): FramingOptions => ({
   aspect,
@@ -45,16 +45,45 @@ describe("buildShots", () => {
   });
 });
 
+describe("cinematic shots", () => {
+  const { stations, evidence } = boardContentFor("reveal");
+  const landscape = framingFor(16 / 9, "cinema");
+  const shots = buildShots(stations, evidence, landscape, "cinema");
+  const byId = new Map(evidence.map((item) => [item.id, item]));
+
+  it("never frames more than two pieces of evidence at once", () => {
+    const classic = buildShots(stations, evidence, framingFor(16 / 9), "classic");
+    expect(shots.length).toBeGreaterThan(classic.length);
+    for (const station of stations) {
+      if (station.focus === "all") continue;
+      const count = shots.filter((shot) => stations[shot.stationIndex].id === station.id).length;
+      expect(count).toBeGreaterThanOrEqual(Math.ceil(station.focus.length / 2));
+    }
+  });
+
+  it("tilts the horizon on investigation shots and keeps the finale level", () => {
+    expect(shots.some((shot) => shot.roll !== 0)).toBe(true);
+    expect(shots.at(-1)?.roll).toBe(0);
+  });
+
+  it("keeps the first shot's evidence inside the rolled frame", () => {
+    const first = stations[0];
+    if (first.focus === "all") throw new Error("intro must focus evidence");
+    const bounds = boundsOf(byId.get(first.focus[0])!);
+    expect(fitsInView(bounds, shots[0].position, shots[0].target, landscape, shots[0].roll)).toBe(true);
+  });
+});
+
 describe("blendAt", () => {
   it("holds on a shot before moving to the next one", () => {
-    expect(blendAt(2.2, 5, 0.3)).toMatchObject({ from: 2, to: 3, amount: 0, nearest: 2 });
+    expect(blendAt(2.2, 5, 0.3)).toMatchObject({ from: 2, to: 3, raw: 0, nearest: 2 });
   });
 
   it("finishes the move at the next integer", () => {
-    expect(blendAt(2.999, 5, 0.3).amount).toBeGreaterThan(0.99);
+    expect(blendAt(2.999, 5, 0.3).raw).toBeGreaterThan(0.99);
   });
 
   it("clamps to the last shot", () => {
-    expect(blendAt(10, 5, 0.3)).toMatchObject({ from: 3, to: 4, amount: 1, nearest: 4 });
+    expect(blendAt(10, 5, 0.3)).toMatchObject({ from: 3, to: 4, raw: 1, nearest: 4 });
   });
 });

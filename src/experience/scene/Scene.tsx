@@ -7,6 +7,7 @@ import type { BoardContent } from "@/content/selectors";
 import type { Evidence, Locale } from "@/content/types";
 import { ExploreCamera } from "../camera/ExploreCamera";
 import type { Shot } from "../camera/framing";
+import type { CameraMotion } from "../camera/motion";
 import { CameraRig, RigContext } from "../camera/rig";
 import { RouteCamera } from "../camera/RouteCamera";
 import type { Quality } from "../quality";
@@ -15,6 +16,7 @@ import { useExperience } from "../state/store";
 import { useEvidenceTextures } from "../textures/useEvidenceTextures";
 import { CaseBoard } from "./CaseBoard";
 import { Effects } from "./Effects";
+import { FloatingDust } from "./FloatingDust";
 import { Lighting } from "./Lighting";
 import { LOOKS, LookContext, LookState } from "./look";
 import { Room } from "./Room";
@@ -22,6 +24,7 @@ import { Room } from "./Room";
 interface SceneProps {
   content: BoardContent;
   shots: Shot[];
+  motion: CameraMotion;
   locale: Locale;
   quality: Quality;
 }
@@ -32,10 +35,11 @@ function LookController({ look, palette }: { look: LookState; palette: Palette }
   return null;
 }
 
-export function Scene({ content, shots, locale, quality }: SceneProps) {
+export function Scene({ content, shots, motion, locale, quality }: SceneProps) {
   const rig = useMemo(() => new CameraRig(), []);
   const look = useMemo(() => new LookState(), []);
   const palette = useExperience((state) => state.variant.palette);
+  const cinema = useExperience((state) => state.variant.camera === "cinema");
   const textures = useEvidenceTextures(allEvidence, locale, quality.pixelsPerUnit);
   const mode = useExperience((state) => state.mode);
   const focusEvidence = useExperience((state) => state.focusEvidence);
@@ -60,9 +64,10 @@ export function Scene({ content, shots, locale, quality }: SceneProps) {
         <Room textureSize={quality.tier === "high" ? 2048 : 1024} />
         <CaseBoard content={content} textures={textures} locale={locale} onSelect={handleSelect} />
         <Lighting quality={quality} />
-        <RouteCamera shots={shots} />
+        <RouteCamera shots={shots} motion={motion} />
         {mode === "explore" ? <ExploreCamera evidence={content.evidence} /> : null}
-        <Effects quality={quality} palette={palette} />
+        {cinema ? <FloatingDust count={quality.dustCount * 2} /> : null}
+        <Effects quality={quality} palette={palette} depthOfField={cinema && quality.tier === "high"} />
       </LookContext.Provider>
     </RigContext.Provider>
   );
