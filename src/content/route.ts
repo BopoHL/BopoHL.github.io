@@ -6,7 +6,10 @@ const investigation: Station[] = [
     id: "intro",
     label: l("Подозреваемый", "Suspect"),
     focus: ["mugshot", "question"],
-    subtitle: l("Дело открыто. Личность подозреваемого не установлена.", "Case opened. Suspect's identity unknown."),
+    subtitle: l(
+      "В этом городе объявился таинственный разработчик. Кто же он такой?",
+      "A mysterious developer has turned up in this city. Who is he?",
+    ),
   },
   {
     id: "alif",

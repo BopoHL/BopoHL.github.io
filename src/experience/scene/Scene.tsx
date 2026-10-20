@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { evidence as allEvidence } from "@/content/board";
 import type { BoardContent } from "@/content/selectors";
 import type { Evidence, Locale } from "@/content/types";
@@ -37,8 +37,8 @@ function LookController({ look, palette }: { look: LookState; palette: Palette }
 
 export function Scene({ content, shots, motion, locale, quality }: SceneProps) {
   const rig = useMemo(() => new CameraRig(), []);
-  const look = useMemo(() => new LookState(), []);
   const palette = useExperience((state) => state.variant.palette);
+  const [look] = useState(() => new LookState(LOOKS[palette]));
   const cinema = useExperience((state) => state.variant.camera === "cinema");
   const textures = useEvidenceTextures(allEvidence, locale, quality.pixelsPerUnit);
   const mode = useExperience((state) => state.mode);

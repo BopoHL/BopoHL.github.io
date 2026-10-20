@@ -83,21 +83,36 @@ export const saturationShader = (uniform: { value: number }): SaturationShader =
 const BLEND_SPEED = 3;
 
 export class LookState {
-  readonly saturation = { value: 1 };
-  readonly accentSaturation = { value: 1 };
-  readonly worldShader = saturationShader(this.saturation);
-  readonly accentShader = saturationShader(this.accentSaturation);
-  readonly lampColor = new Color(LOOKS.warm.lampColor);
-  readonly hazeColor = new Color(LOOKS.warm.hazeColor);
-  readonly skyColor = new Color(LOOKS.warm.skyColor);
-  readonly groundColor = new Color(LOOKS.warm.groundColor);
+  readonly saturation: { value: number };
+  readonly accentSaturation: { value: number };
+  readonly worldShader: SaturationShader;
+  readonly accentShader: SaturationShader;
+  readonly lampColor: Color;
+  readonly hazeColor: Color;
+  readonly skyColor: Color;
+  readonly groundColor: Color;
   private readonly targetLamp = new Color();
   private readonly targetHaze = new Color();
   private readonly targetSky = new Color();
   private readonly targetGround = new Color();
-  private penumbraValue = LOOKS.warm.lampPenumbra;
-  private ambientValue = LOOKS.warm.ambient;
-  private target: Look = LOOKS.warm;
+  private penumbraValue: number;
+  private ambientValue: number;
+  private target: Look;
+
+  constructor(initial: Look) {
+    this.saturation = { value: initial.saturation };
+    this.accentSaturation = { value: initial.accentSaturation };
+    this.worldShader = saturationShader(this.saturation);
+    this.accentShader = saturationShader(this.accentSaturation);
+    this.lampColor = new Color(initial.lampColor);
+    this.hazeColor = new Color(initial.hazeColor);
+    this.skyColor = new Color(initial.skyColor);
+    this.groundColor = new Color(initial.groundColor);
+    this.penumbraValue = initial.lampPenumbra;
+    this.ambientValue = initial.ambient;
+    this.target = initial;
+    this.setTarget(initial);
+  }
 
   get penumbra() {
     return this.penumbraValue;
