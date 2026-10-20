@@ -53,11 +53,22 @@ const rotate = ([x, y]: Vec2, degrees: number): Vec2 => {
   return [x * Math.cos(r) - y * Math.sin(r), x * Math.sin(r) + y * Math.cos(r)];
 };
 
-export const pinOf = (item: Evidence): Vec2 => {
-  const { height } = sizeOf(item);
-  const [dx, dy] = rotate([0, height / 2 - PIN_INSET], item.rotation);
+export const toWorld = (item: Evidence, local: Vec2): Vec2 => {
+  const [dx, dy] = rotate(local, item.rotation);
   return [item.position[0] + dx, item.position[1] + dy];
 };
+
+export const distanceOutside = (item: Evidence, point: Vec2): number => {
+  const { width, height } = sizeOf(item);
+  const [x, y] = rotate([point[0] - item.position[0], point[1] - item.position[1]], -item.rotation);
+  const dx = Math.max(Math.abs(x) - width / 2, 0);
+  const dy = Math.max(Math.abs(y) - height / 2, 0);
+  return Math.hypot(dx, dy);
+};
+
+export const pinOffsetOf = (item: Evidence): Vec2 => [0, sizeOf(item).height / 2 - PIN_INSET];
+
+export const pinOf = (item: Evidence): Vec2 => toWorld(item, pinOffsetOf(item));
 
 export interface Bounds {
   minX: number;

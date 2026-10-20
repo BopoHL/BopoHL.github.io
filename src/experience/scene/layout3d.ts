@@ -1,10 +1,9 @@
-import { pinOf, sizeOf } from "@/content/geometry";
+import { pinOf, pinOffsetOf } from "@/content/geometry";
 import type { Area, Evidence } from "@/content/types";
 
 export const CARD_BASE_Z = 0.03;
 export const CARD_LAYER_STEP = 0.008;
 export const PIN_HEAD_HEIGHT = 0.11;
-export const PIN_INSET = 0.16;
 
 export const cardZ = (index: number) => CARD_BASE_Z + index * CARD_LAYER_STEP;
 
@@ -13,10 +12,7 @@ export const pinWorld = (item: Evidence, index: number): [number, number, number
   return [x, y, cardZ(index) + PIN_HEAD_HEIGHT];
 };
 
-export const pinLocal = (item: Evidence): [number, number, number] => {
-  const { height } = sizeOf(item);
-  return [0, height / 2 - PIN_INSET, 0];
-};
+export const pinLocal = (item: Evidence): [number, number, number] => [...pinOffsetOf(item), 0];
 
 export const PIN_COLORS: Record<Area, string> = {
   case: "#b08d57",
