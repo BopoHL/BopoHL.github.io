@@ -307,7 +307,14 @@ def build_reveal(scene_data, objects, textures_dir, bump_path):
     stamp_obj.keyframe_insert("scale", frame=final + FLIP_FRAMES + 10)
 
 
-def build_camera_and_lamp(scene_data, scene):
+def lamp_energy(reach, haze, distance_ratio):
+    distance_falloff = (reach / REFERENCE_DISTANCE) ** 2
+    light_and_view_path = 1 + distance_ratio
+    haze_extinction = math.exp(haze * light_and_view_path * (reach - REFERENCE_DISTANCE))
+    return LAMP_POWER * distance_falloff * haze_extinction
+
+
+def build_camera_and_lamp(scene_data, scene, haze):
     camera_data = bpy.data.cameras.new("Investigator")
     camera_data.sensor_fit = "VERTICAL"
     camera_data.sensor_height = 24
@@ -360,7 +367,7 @@ def build_camera_and_lamp(scene_data, scene):
             focus.keyframe_insert("location", frame=frame)
             light.location = to_blender([t + d * reach * lamp["distanceRatio"] for t, d in zip(target, direction)])
             light.keyframe_insert("location", frame=frame)
-            light_data.energy = LAMP_POWER * (reach / REFERENCE_DISTANCE) ** 2
+            light_data.energy = lamp_energy(reach, haze, lamp["distanceRatio"])
             light_data.keyframe_insert("energy", frame=frame)
         marker = scene.timeline_markers.new(station["id"], frame=arrive + HOLD_FRAMES // 2)
         marker.camera = camera
@@ -460,7 +467,7 @@ def main():
     objects = build_evidence(scene_data, textures, bump)
     build_threads(scene_data)
     build_reveal(scene_data, objects, textures, bump)
-    build_camera_and_lamp(scene_data, scene)
+    build_camera_and_lamp(scene_data, scene, args.haze)
     configure_render(scene, args)
 
     bpy.context.preferences.filepaths.save_version = 0
