@@ -24,6 +24,12 @@ const THREAD_STAGGER = 0.28;
 
 const isMugshot = (item: Evidence): item is PhotoEvidence => item.kind === "photo" && item.frame === "mugshot";
 
+const required = <K, V>(map: Map<K, V>, key: K): V => {
+  const value = map.get(key);
+  if (value === undefined) throw new Error(`Board content references unknown key ${String(key)}`);
+  return value;
+};
+
 export function CaseBoard({ content, textures, locale, onSelect }: CaseBoardProps) {
   const stationIndex = useExperience((state) => state.stationIndex);
   const mode = useExperience((state) => state.mode);
@@ -45,14 +51,12 @@ export function CaseBoard({ content, textures, locale, onSelect }: CaseBoardProp
     return content.threads.map((thread) => {
       const order = perStation.get(thread.revealAt) ?? 0;
       perStation.set(thread.revealAt, order + 1);
-      const from = itemById.get(thread.from)!;
-      const to = itemById.get(thread.to)!;
       return {
         key: `${thread.from}->${thread.to}`,
-        from: pinWorld(from, indexById.get(thread.from)!),
-        to: pinWorld(to, indexById.get(thread.to)!),
+        from: pinWorld(required(itemById, thread.from), required(indexById, thread.from)),
+        to: pinWorld(required(itemById, thread.to), required(indexById, thread.to)),
         color: THREAD_COLORS[thread.area],
-        revealIndex: stationOrder.get(thread.revealAt)!,
+        revealIndex: required(stationOrder, thread.revealAt),
         delay: 0.35 + order * THREAD_STAGGER,
       };
     });
@@ -75,6 +79,7 @@ export function CaseBoard({ content, textures, locale, onSelect }: CaseBoardProp
               back={textures.revealedMugshot}
               bumpMap={bumpMap}
               stampText={ui.caseClosed[locale]}
+              onSelect={onSelect}
             />
           );
         }

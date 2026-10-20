@@ -1,10 +1,10 @@
 "use client";
 
-import { useFrame } from "@react-three/fiber";
+import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import { MathUtils, type Group, type Texture } from "three";
 import { sizeOf } from "@/content/geometry";
-import type { PhotoEvidence } from "@/content/types";
+import type { Evidence, PhotoEvidence } from "@/content/types";
 import { useExperience } from "../state/store";
 import { createCardGeometry } from "./cardGeometry";
 import { PIN_COLORS, cardZ, finishFor, pinLocal } from "./layout3d";
@@ -18,11 +18,12 @@ interface MugshotCardProps {
   back: Texture;
   bumpMap: Texture;
   stampText: string;
+  onSelect: (item: Evidence) => void;
 }
 
 const FLIP_LIFT = 0.9;
 
-export function MugshotCard({ item, index, front, back, bumpMap, stampText }: MugshotCardProps) {
+export function MugshotCard({ item, index, front, back, bumpMap, stampText, onSelect }: MugshotCardProps) {
   const flipper = useRef<Group>(null);
   const flip = useRef(0);
   const revealed = useExperience((state) => state.revealed);
@@ -38,9 +39,15 @@ export function MugshotCard({ item, index, front, back, bumpMap, stampText }: Mu
     flipper.current.position.z = Math.sin(flip.current * Math.PI) * FLIP_LIFT;
   });
 
+  const handleClick = (event: ThreeEvent<MouseEvent>) => {
+    if (useExperience.getState().mode !== "explore") return;
+    event.stopPropagation();
+    onSelect(item);
+  };
+
   return (
     <group position={[item.position[0], item.position[1], cardZ(index)]} rotation={[0, 0, rotation]}>
-      <group ref={flipper}>
+      <group ref={flipper} onClick={handleClick}>
         <mesh geometry={geometry} castShadow receiveShadow>
           <meshStandardMaterial map={front} roughness={finish.roughness} bumpMap={bumpMap} bumpScale={finish.bumpScale} />
         </mesh>
