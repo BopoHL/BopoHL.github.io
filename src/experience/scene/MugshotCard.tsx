@@ -7,7 +7,7 @@ import { sizeOf } from "@/content/geometry";
 import type { Evidence, PhotoEvidence } from "@/content/types";
 import { useExperience } from "../state/store";
 import { createCardGeometry } from "./cardGeometry";
-import { PIN_COLORS, cardZ, finishFor, pinLocal } from "./layout3d";
+import { PIN_COLORS, REVEAL_STAMP, cardZ, finishFor, pinLocal } from "./layout3d";
 import { Pin } from "./Pin";
 import { Stamp } from "./Stamp";
 
@@ -55,7 +55,13 @@ export function MugshotCard({ item, index, front, back, bumpMap, stampText, onSe
           <meshStandardMaterial map={back} roughness={finish.roughness} bumpMap={bumpMap} bumpScale={finish.bumpScale} />
         </mesh>
       </group>
-      <Stamp text={stampText} visible={revealed} position={[0, -height * 0.08, 0.06]} width={width * 1.05} rotation={-0.18} />
+      <Stamp
+        text={stampText}
+        visible={revealed}
+        position={[0, height * REVEAL_STAMP.offsetY, REVEAL_STAMP.lift]}
+        width={width * REVEAL_STAMP.widthRatio}
+        rotation={REVEAL_STAMP.rotation}
+      />
       <Pin position={pinLocal(item)} color={PIN_COLORS[item.area]} />
     </group>
   );

@@ -4,9 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import { CanvasTexture, MathUtils, SRGBColorSpace, type Mesh, type MeshStandardMaterial } from "three";
 import { resolveFontFamilies } from "../painters";
-import { seededRandom } from "../painters/random";
-import { drawStamp } from "../painters/stamp";
-import { createSurface } from "../painters/surface";
+import { STAMP_ASPECT, paintStampCanvas } from "../painters/stamp";
 
 interface StampProps {
   text: string;
@@ -17,19 +15,8 @@ interface StampProps {
   delay?: number;
 }
 
-const ASPECT = 0.3;
-
 const paintStampTexture = (text: string) => {
-  const surface = createSurface(1400, 1400 * ASPECT, seededRandom(`stamp-${text}`), resolveFontFamilies());
-  drawStamp(surface, {
-    text,
-    x: surface.width / 2,
-    y: surface.height / 2,
-    height: surface.height * 0.82,
-    rotation: 0,
-    opacity: 1,
-  });
-  const texture = new CanvasTexture(surface.canvas);
+  const texture = new CanvasTexture(paintStampCanvas(text, resolveFontFamilies()));
   texture.colorSpace = SRGBColorSpace;
   return texture;
 };
@@ -53,7 +40,7 @@ export function Stamp({ text, visible, position, width, rotation, delay = 0.9 }:
 
   return (
     <mesh ref={mesh} position={position} rotation={[0, 0, rotation]} visible={false}>
-      <planeGeometry args={[width, width * ASPECT]} />
+      <planeGeometry args={[width, width * STAMP_ASPECT]} />
       <meshStandardMaterial
         map={texture}
         emissive="#ffffff"

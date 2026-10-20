@@ -54,3 +54,10 @@ export const finishFor = (item: Evidence): Finish => {
       return { roughness: 0.86, bumpScale: 0.9, lift: 0.06, curl: 0.03 };
   }
 };
+
+export const REVEAL_STAMP = {
+  offsetY: -0.08,
+  lift: 0.06,
+  widthRatio: 1.05,
+  rotation: -0.18,
+} as const;

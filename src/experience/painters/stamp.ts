@@ -1,5 +1,5 @@
-import { font } from "./fonts";
-import { range } from "./random";
+import { font, type FontFamilies } from "./fonts";
+import { range, seededRandom } from "./random";
 import { createSurface, type Surface } from "./surface";
 
 export const STAMP_RED = "#a3161a";
@@ -71,4 +71,19 @@ export const drawStamp = (target: Surface, options: StampOptions) => {
   t.rotate((options.rotation * Math.PI) / 180);
   t.drawImage(stamp.canvas, -width / 2, -height / 2);
   t.restore();
+};
+
+export const STAMP_ASPECT = 0.3;
+
+export const paintStampCanvas = (text: string, fonts: FontFamilies): HTMLCanvasElement => {
+  const surface = createSurface(1400, 1400 * STAMP_ASPECT, seededRandom(`stamp-${text}`), fonts);
+  drawStamp(surface, {
+    text,
+    x: surface.width / 2,
+    y: surface.height / 2,
+    height: surface.height * 0.82,
+    rotation: 0,
+    opacity: 1,
+  });
+  return surface.canvas;
 };
