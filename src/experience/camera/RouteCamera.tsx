@@ -13,6 +13,10 @@ const MAX_PULLBACK = 6;
 const FOLLOW = 4.5;
 const PARALLAX = 0.18;
 const REVEAL_THRESHOLD = 0.04;
+const OPENING_DOLLY = 9;
+const STAMP_IMPACT_AT = 1.12;
+const SHAKE_DURATION = 0.45;
+const SHAKE_AMPLITUDE = 0.08;
 
 export function RouteCamera({ shots }: { shots: Shot[] }) {
   const rig = useRig();
@@ -24,12 +28,13 @@ export function RouteCamera({ shots }: { shots: Shot[] }) {
     toPosition: new Vector3(),
     target: new Vector3(),
     position: new Vector3(),
+    revealedAt: Number.NEGATIVE_INFINITY,
   });
 
   useLayoutEffect(() => {
     const first = shots[0];
     if (!first) return;
-    camera.position.set(...first.position);
+    camera.position.set(first.position[0], first.position[1], first.position[2] + OPENING_DOLLY);
     rig.target.set(...first.target);
     camera.lookAt(rig.target);
   }, [camera, rig, shots]);
@@ -59,10 +64,20 @@ export function RouteCamera({ shots }: { shots: Shot[] }) {
     rig.target.lerp(temp.target, k);
     state.camera.lookAt(rig.target);
 
+    const sinceImpact = state.clock.elapsedTime - temp.revealedAt - STAMP_IMPACT_AT;
+    if (store.variant.finale === "reveal" && sinceImpact > 0 && sinceImpact < SHAKE_DURATION) {
+      const fade = 1 - sinceImpact / SHAKE_DURATION;
+      state.camera.position.x += Math.sin(sinceImpact * 90) * SHAKE_AMPLITUDE * fade;
+      state.camera.position.y += Math.cos(sinceImpact * 70) * SHAKE_AMPLITUDE * fade;
+    }
+
     const nearest = shots[blend.nearest];
     if (blend.nearest !== store.shotIndex) store.setShot(blend.nearest, nearest.stationIndex);
     const revealed = store.progress >= shots.length - 1 - REVEAL_THRESHOLD;
-    if (revealed !== store.revealed) store.setRevealed(revealed);
+    if (revealed !== store.revealed) {
+      temp.revealedAt = revealed ? state.clock.elapsedTime : Number.NEGATIVE_INFINITY;
+      store.setRevealed(revealed);
+    }
   });
 
   return null;
