@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { playTypewriter } from "@/audio/typewriter";
+import { playStamp } from "@/audio/typewriter";
 import { useExperience } from "../state/store";
 
 const STAMP_DELAY_MS = 1150;
@@ -12,7 +12,8 @@ export const useRevealSound = () => {
   useEffect(() => {
     if (!revealed) return;
     const timer = window.setTimeout(() => {
-      if (useExperience.getState().soundOn) playTypewriter("stamp");
+      const { soundOn, variant } = useExperience.getState();
+      if (soundOn) playStamp(variant.typing);
     }, STAMP_DELAY_MS);
     return () => window.clearTimeout(timer);
   }, [revealed]);

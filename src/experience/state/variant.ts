@@ -1,8 +1,9 @@
+import { TYPEWRITER_PROFILE_IDS, type TypewriterProfileId } from "@/audio/profiles";
 import type { FinaleVariant } from "@/content/types";
 
 export type Palette = "warm" | "noir" | "mono";
 export type CameraStyle = "classic" | "cinema";
-export type TypingSound = "heavy" | "crisp" | "metal" | "muffled";
+export type TypingSound = TypewriterProfileId;
 
 export interface PilotVariant {
   finale: FinaleVariant;
@@ -23,7 +24,6 @@ export const DEFAULT_VARIANT: PilotVariant = {
 const FINALE_QUERY: Record<FinaleVariant, string> = { reveal: "a", folder: "b" };
 const PALETTES: readonly Palette[] = ["warm", "noir", "mono"];
 const CAMERA_STYLES: readonly CameraStyle[] = ["classic", "cinema"];
-const TYPING_SOUNDS: readonly TypingSound[] = ["heavy", "crisp", "metal", "muffled"];
 
 const oneOf = <T extends string>(value: string | null, allowed: readonly T[], fallback: T): T =>
   allowed.includes(value as T) ? (value as T) : fallback;
@@ -46,6 +46,6 @@ export const variantFromQuery = (search: string): PilotVariant => {
     explore: params.get("route") !== "linear",
     palette: oneOf(params.get("look"), PALETTES, DEFAULT_VARIANT.palette),
     camera: oneOf(params.get("camera"), CAMERA_STYLES, DEFAULT_VARIANT.camera),
-    typing: oneOf(params.get("typing"), TYPING_SOUNDS, DEFAULT_VARIANT.typing),
+    typing: oneOf(params.get("typing"), TYPEWRITER_PROFILE_IDS, DEFAULT_VARIANT.typing),
   };
 };

@@ -1,13 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { playTypewriter } from "@/audio/typewriter";
+import { playKeystroke } from "@/audio/typewriter";
 import type { Locale, Station } from "@/content/types";
 import { useExperience } from "../state/store";
 import { useReducedMotion } from "../useReducedMotion";
 import styles from "./hud.module.css";
 
-const CHAR_DELAY = 32;
+const CHAR_DELAY = 34;
+const CHAR_JITTER = 14;
+const WORD_PAUSE = 18;
+const SENTENCE_PAUSE = 160;
+
+const delayAfter = (char: string | undefined) => {
+  const pause = char === " " ? WORD_PAUSE : char && ".,!?:;—".includes(char) ? SENTENCE_PAUSE : 0;
+  return CHAR_DELAY + (Math.random() * 2 - 1) * CHAR_JITTER + pause;
+};
 
 export function Subtitle({ stations, locale, hidden }: { stations: Station[]; locale: Locale; hidden: boolean }) {
   const stationIndex = useExperience((state) => state.stationIndex);
@@ -18,18 +26,19 @@ export function Subtitle({ stations, locale, hidden }: { stations: Station[]; lo
   const count = reduceMotion ? text.length : typed.text === text ? typed.count : 0;
 
   useEffect(() => {
-    if (!ready || reduceMotion) return;
+    if (!ready || reduceMotion || !text) return;
     let index = 0;
-    const timer = window.setInterval(() => {
+    let timer = 0;
+    const typeNext = () => {
+      const char = text[index];
       index += 1;
       setTyped({ text, count: index });
-      if (useExperience.getState().soundOn) {
-        const char = text[index - 1];
-        playTypewriter(index === text.length ? "bell" : char === " " ? "space" : "key");
-      }
-      if (index >= text.length) window.clearInterval(timer);
-    }, CHAR_DELAY);
-    return () => window.clearInterval(timer);
+      const { soundOn, variant } = useExperience.getState();
+      if (soundOn) playKeystroke(variant.typing, char === " " ? "space" : "key");
+      if (index < text.length) timer = window.setTimeout(typeNext, delayAfter(char));
+    };
+    timer = window.setTimeout(typeNext, CHAR_DELAY);
+    return () => window.clearTimeout(timer);
   }, [text, ready, reduceMotion]);
 
   return (
