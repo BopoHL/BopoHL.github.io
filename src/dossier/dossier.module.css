@@ -1,0 +1,207 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: rgba(10, 8, 6, 0.9);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 400ms ease, visibility 400ms;
+}
+
+.overlayOpen {
+  opacity: 1;
+  visibility: visible;
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 28px;
+  background: linear-gradient(rgba(10, 8, 6, 0.95), rgba(10, 8, 6, 0));
+  font-family: var(--font-typewriter), monospace;
+  font-size: 13px;
+  color: var(--paper);
+}
+
+.barTitle {
+  color: var(--muted);
+}
+
+.close {
+  padding: 8px 14px;
+  border: 1px solid rgba(232, 220, 192, 0.5);
+  background: transparent;
+  color: var(--paper);
+  cursor: pointer;
+}
+
+.close:hover {
+  background: rgba(232, 220, 192, 0.1);
+}
+
+.sheet {
+  width: min(820px, calc(100vw - 32px));
+  margin: 2vh auto 10vh;
+  padding: clamp(28px, 6vw, 72px) clamp(22px, 6vw, 80px);
+  background:
+    radial-gradient(circle at 15% 10%, rgba(255, 250, 235, 0.5), transparent 45%),
+    radial-gradient(circle at 85% 90%, rgba(120, 90, 40, 0.12), transparent 50%),
+    #e9e0c9;
+  color: var(--ink);
+  font-family: var(--font-typewriter), monospace;
+  font-size: 15px;
+  line-height: 1.65;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
+
+.header {
+  padding-bottom: 28px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.name {
+  margin: 0;
+  font-family: var(--font-headline), serif;
+  font-weight: 900;
+  font-size: clamp(36px, 7vw, 64px);
+  line-height: 1;
+}
+
+.role {
+  margin: 14px 0 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.location {
+  margin: 4px 0 20px;
+  color: #5c4f3c;
+}
+
+.download {
+  display: inline-block;
+  padding: 10px 16px;
+  background: var(--ink);
+  color: #efe8d6;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.download:hover {
+  background: var(--thread-work);
+}
+
+.section {
+  margin-top: 36px;
+}
+
+.sectionTitle {
+  margin: 0 0 14px;
+  font-family: var(--font-headline), serif;
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 1.2;
+}
+
+.summary {
+  margin: 0;
+  max-width: 64ch;
+}
+
+.entry + .entry {
+  margin-top: 24px;
+}
+
+.entryHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 16px;
+}
+
+.entryTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.period {
+  margin: 0;
+  font-size: 13px;
+  color: #5c4f3c;
+  font-variant-numeric: tabular-nums;
+}
+
+.place {
+  margin: 2px 0 8px;
+  color: #3d3427;
+}
+
+.points {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.points li {
+  position: relative;
+  padding-left: 1.6em;
+}
+
+.points li + li {
+  margin-top: 4px;
+}
+
+.points li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0 40px;
+}
+
+.contactList {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.contactList li {
+  display: contents;
+}
+
+.contactList span {
+  color: #5c4f3c;
+}
+
+.contactList a {
+  color: var(--ink);
+  text-decoration-color: rgba(163, 22, 26, 0.6);
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+  .bar {
+    padding: 12px 16px;
+  }
+
+  .sheet {
+    font-size: 14px;
+  }
+}
