@@ -1,9 +1,10 @@
 "use client";
 
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
-import { CatmullRomCurve3, MathUtils, TubeGeometry, Vector3, type Mesh } from "three";
+import { CatmullRomCurve3, MathUtils, TubeGeometry, Vector3, type Mesh, type PerspectiveCamera } from "three";
 import { useAccentShader } from "./look";
+import { THREAD_RADIUS, ThreadShader } from "./threadShader";
 
 interface ThreadProps {
   from: [number, number, number];
@@ -13,7 +14,6 @@ interface ThreadProps {
   delay: number;
 }
 
-const RADIUS = 0.016;
 const SAG_PER_UNIT = 0.035;
 const CONTROL_POINTS = 14;
 
@@ -25,7 +25,7 @@ const catenary = (from: Vector3, to: Vector3) => {
     const t = i / CONTROL_POINTS;
     const point = from.clone().lerp(to, t);
     point.y -= sag * 4 * t * (1 - t);
-    point.z += 0.025 * Math.sin(Math.PI * t);
+    point.z += 0.012 * Math.sin(Math.PI * t);
     points.push(point);
   }
   return new CatmullRomCurve3(points);
@@ -34,19 +34,25 @@ const catenary = (from: Vector3, to: Vector3) => {
 export function Thread({ from, to, color, visible, delay }: ThreadProps) {
   const mesh = useRef<Mesh>(null);
   const accentShader = useAccentShader();
+  const viewportHeight = useThree((state) => state.size.height);
   const reveal = useRef(0);
   const waited = useRef(0);
-  const geometry = useMemo(() => {
-    const start = new Vector3(...from);
-    const end = new Vector3(...to);
-    const segments = Math.max(24, Math.round(start.distanceTo(end) * 10));
-    return new TubeGeometry(catenary(start, end), segments, RADIUS, 6, false);
+  const { geometry, length } = useMemo(() => {
+    const curve = catenary(new Vector3(...from), new Vector3(...to));
+    const curveLength = curve.getLength();
+    const segments = Math.max(32, Math.round(curveLength * 14));
+    return {
+      geometry: new TubeGeometry(curve, segments, THREAD_RADIUS, 8, false),
+      length: curveLength,
+    };
   }, [from, to]);
   useEffect(() => () => geometry.dispose(), [geometry]);
+  const shader = useMemo(() => new ThreadShader(accentShader, length), [accentShader, length]);
   const indexCount = geometry.index?.count ?? 0;
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (!mesh.current) return;
+    shader.updateView((state.camera as PerspectiveCamera).fov, viewportHeight);
     waited.current = visible ? waited.current + delta : 0;
     const target = visible && waited.current > delay ? 1 : 0;
     reveal.current = MathUtils.damp(reveal.current, target, visible ? 2.2 : 6, delta);
@@ -57,7 +63,14 @@ export function Thread({ from, to, color, visible, delay }: ThreadProps) {
 
   return (
     <mesh ref={mesh} geometry={geometry} castShadow visible={false}>
-      <meshStandardMaterial {...accentShader} color={color} roughness={0.65} emissive={color} emissiveIntensity={0.18} />
+      <meshStandardMaterial
+        onBeforeCompile={shader.onBeforeCompile}
+        customProgramCacheKey={shader.customProgramCacheKey}
+        color={color}
+        roughness={0.85}
+        emissive={color}
+        emissiveIntensity={0.1}
+      />
     </mesh>
   );
 }
