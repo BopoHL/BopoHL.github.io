@@ -30,6 +30,11 @@ The pilot panel in the bottom-left corner switches the variants under review. Th
 | `route=free` | Scroll route, then free exploration of the board |
 | `finale=a` | The hooded mugshot flips over and gets stamped |
 | `finale=b` | A separate "case closed" folder collects every thread |
+| `look=warm` | Warm desk lamp on a cork board |
+| `look=noir` | Black and white with hard light through venetian blinds; threads and the closing stamp keep their colour |
+| `look=mono` | Pure black and white |
+| `camera=classic` | Each stop frames a whole cluster of evidence |
+| `camera=cinema` | Close-ups of one or two pieces, dutch angles, sharp arcing moves through depth, rack focus |
 
 ## Where things live
 
