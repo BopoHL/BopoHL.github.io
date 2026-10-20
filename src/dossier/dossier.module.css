@@ -205,3 +205,9 @@
     font-size: 14px;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay {
+    transition: none;
+  }
+}
