@@ -7,6 +7,7 @@ import { sizeOf } from "@/content/geometry";
 import type { Evidence, PhotoEvidence } from "@/content/types";
 import { useExperience } from "../state/store";
 import { createCardGeometry } from "./cardGeometry";
+import { useWorldShader } from "./look";
 import { PIN_COLORS, REVEAL_STAMP, cardZ, finishFor, pinLocal } from "./layout3d";
 import { Pin } from "./Pin";
 import { Stamp } from "./Stamp";
@@ -27,6 +28,7 @@ export function MugshotCard({ item, index, front, back, bumpMap, stampText, onSe
   const flipper = useRef<Group>(null);
   const flip = useRef(0);
   const revealed = useExperience((state) => state.revealed);
+  const worldShader = useWorldShader();
   const { width, height } = sizeOf(item);
   const finish = finishFor(item);
   const geometry = useMemo(() => createCardGeometry(width, height, 0, 0), [width, height]);
@@ -49,10 +51,10 @@ export function MugshotCard({ item, index, front, back, bumpMap, stampText, onSe
     <group position={[item.position[0], item.position[1], cardZ(index)]} rotation={[0, 0, rotation]}>
       <group ref={flipper} onClick={handleClick}>
         <mesh geometry={geometry} castShadow receiveShadow>
-          <meshStandardMaterial map={front} roughness={finish.roughness} bumpMap={bumpMap} bumpScale={finish.bumpScale} />
+          <meshStandardMaterial {...worldShader} map={front} roughness={finish.roughness} bumpMap={bumpMap} bumpScale={finish.bumpScale} />
         </mesh>
         <mesh geometry={geometry} rotation={[0, Math.PI, 0]} position={[0, 0, -0.004]} castShadow receiveShadow>
-          <meshStandardMaterial map={back} roughness={finish.roughness} bumpMap={bumpMap} bumpScale={finish.bumpScale} />
+          <meshStandardMaterial {...worldShader} map={back} roughness={finish.roughness} bumpMap={bumpMap} bumpScale={finish.bumpScale} />
         </mesh>
       </group>
       <Stamp

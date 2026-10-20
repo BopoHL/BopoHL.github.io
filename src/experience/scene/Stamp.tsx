@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { CanvasTexture, MathUtils, SRGBColorSpace, type Mesh, type MeshStandardMaterial } from "three";
 import { resolveFontFamilies } from "../painters";
 import { STAMP_ASPECT, paintStampCanvas } from "../painters/stamp";
+import { useAccentShader } from "./look";
 
 interface StampProps {
   text: string;
@@ -25,6 +26,7 @@ export function Stamp({ text, visible, position, width, rotation, delay = 0.9 }:
   const mesh = useRef<Mesh>(null);
   const shownFor = useRef(0);
   const texture = useMemo(() => paintStampTexture(text), [text]);
+  const accentShader = useAccentShader();
   useEffect(() => () => texture.dispose(), [texture]);
 
   useFrame((_, delta) => {
@@ -42,6 +44,7 @@ export function Stamp({ text, visible, position, width, rotation, delay = 0.9 }:
     <mesh ref={mesh} position={position} rotation={[0, 0, rotation]} visible={false}>
       <planeGeometry args={[width, width * STAMP_ASPECT]} />
       <meshStandardMaterial
+        {...accentShader}
         map={texture}
         emissive="#ffffff"
         emissiveMap={texture}

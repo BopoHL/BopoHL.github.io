@@ -7,6 +7,7 @@ import { sizeOf } from "@/content/geometry";
 import type { Evidence } from "@/content/types";
 import { useExperience } from "../state/store";
 import { createCardGeometry } from "./cardGeometry";
+import { useWorldShader } from "./look";
 import { PIN_COLORS, cardZ, finishFor, pinLocal } from "./layout3d";
 import { Pin } from "./Pin";
 
@@ -24,6 +25,7 @@ export function EvidenceCard({ item, index, texture, bumpMap, onSelect }: Eviden
   const group = useRef<Group>(null);
   const [hovered, setHovered] = useState(false);
   const mode = useExperience((state) => state.mode);
+  const worldShader = useWorldShader();
   const { width, height } = sizeOf(item);
   const finish = finishFor(item);
   const geometry = useMemo(
@@ -70,6 +72,7 @@ export function EvidenceCard({ item, index, texture, bumpMap, onSelect }: Eviden
         onClick={handleClick}
       >
         <meshStandardMaterial
+          {...worldShader}
           map={texture}
           roughness={finish.roughness}
           bumpMap={bumpMap}

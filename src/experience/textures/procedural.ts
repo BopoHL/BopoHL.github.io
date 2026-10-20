@@ -93,3 +93,29 @@ export const paintPaperBump = (size: number) => {
   }
   return canvas;
 };
+
+export const paintBlinds = (size: number) => {
+  const canvas = createCanvas(size, size);
+  const ctx = context2d(canvas);
+  ctx.fillStyle = "#5e5e5e";
+  ctx.fillRect(0, 0, size, size);
+  const slats = 11;
+  const pitch = size / slats;
+  ctx.filter = `blur(${Math.round(size * 0.006)}px)`;
+  for (let i = 0; i < slats; i++) {
+    const gradient = ctx.createLinearGradient(0, i * pitch, 0, i * pitch + pitch * 0.62);
+    gradient.addColorStop(0, "#f2f2f2");
+    gradient.addColorStop(1, "#d6d6d6");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, i * pitch + pitch * 0.12, size, pitch * 0.62);
+  }
+  ctx.fillStyle = "#3a3a3a";
+  ctx.fillRect(size * 0.47, 0, size * 0.05, size);
+  ctx.filter = "none";
+  const vignette = ctx.createRadialGradient(size / 2, size / 2, size * 0.25, size / 2, size / 2, size * 0.72);
+  vignette.addColorStop(0, "rgba(0,0,0,0)");
+  vignette.addColorStop(1, "rgba(0,0,0,0.55)");
+  ctx.fillStyle = vignette;
+  ctx.fillRect(0, 0, size, size);
+  return canvas;
+};

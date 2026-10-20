@@ -29,6 +29,7 @@ const SCROLL_PER_SHOT_VH = 120;
 export function Experience({ locale }: { locale: Locale }) {
   const [quality] = useState(detectQuality);
   const finale = useExperience((state) => state.variant.finale);
+  const palette = useExperience((state) => state.variant.palette);
   const mode = useExperience((state) => state.mode);
   const revealed = useExperience((state) => state.revealed);
   const ready = useExperience((state) => state.ready);
@@ -41,6 +42,10 @@ export function Experience({ locale }: { locale: Locale }) {
     setLocale(locale);
     setVariant(variantFromQuery(window.location.search));
   }, [locale, setLocale, setVariant]);
+
+  useEffect(() => {
+    document.documentElement.dataset.palette = palette;
+  }, [palette]);
 
   const content = useMemo(() => boardContentFor(finale), [finale]);
   const shots = useMemo(() => buildShots(content.stations, content.evidence, framingFor(aspect)), [content, aspect]);

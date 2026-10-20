@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useFrame } from "@react-three/fiber";
+import { useCallback, useEffect, useMemo } from "react";
 import { evidence as allEvidence } from "@/content/board";
 import type { BoardContent } from "@/content/selectors";
 import type { Evidence, Locale } from "@/content/types";
@@ -9,11 +10,13 @@ import type { Shot } from "../camera/framing";
 import { CameraRig, RigContext } from "../camera/rig";
 import { RouteCamera } from "../camera/RouteCamera";
 import type { Quality } from "../quality";
+import type { Palette } from "../state/variant";
 import { useExperience } from "../state/store";
 import { useEvidenceTextures } from "../textures/useEvidenceTextures";
 import { CaseBoard } from "./CaseBoard";
 import { Effects } from "./Effects";
 import { Lighting } from "./Lighting";
+import { LOOKS, LookContext, LookState } from "./look";
 import { Room } from "./Room";
 
 interface SceneProps {
@@ -23,8 +26,16 @@ interface SceneProps {
   quality: Quality;
 }
 
+function LookController({ look, palette }: { look: LookState; palette: Palette }) {
+  useEffect(() => look.setTarget(LOOKS[palette]), [look, palette]);
+  useFrame((_, delta) => look.update(delta));
+  return null;
+}
+
 export function Scene({ content, shots, locale, quality }: SceneProps) {
   const rig = useMemo(() => new CameraRig(), []);
+  const look = useMemo(() => new LookState(), []);
+  const palette = useExperience((state) => state.variant.palette);
   const textures = useEvidenceTextures(allEvidence, locale, quality.pixelsPerUnit);
   const mode = useExperience((state) => state.mode);
   const focusEvidence = useExperience((state) => state.focusEvidence);
@@ -42,14 +53,17 @@ export function Scene({ content, shots, locale, quality }: SceneProps) {
 
   return (
     <RigContext.Provider value={rig}>
-      <color attach="background" args={["#0a0806"]} />
-      <fog attach="fog" args={["#0a0806", 30, 75]} />
-      <Room textureSize={quality.tier === "high" ? 2048 : 1024} />
-      <CaseBoard content={content} textures={textures} locale={locale} onSelect={handleSelect} />
-      <Lighting quality={quality} />
-      <RouteCamera shots={shots} />
-      {mode === "explore" ? <ExploreCamera evidence={content.evidence} /> : null}
-      <Effects quality={quality} />
+      <LookContext.Provider value={look}>
+        <LookController look={look} palette={palette} />
+        <color attach="background" args={["#0a0806"]} />
+        <fog attach="fog" args={["#0a0806", 30, 75]} />
+        <Room textureSize={quality.tier === "high" ? 2048 : 1024} />
+        <CaseBoard content={content} textures={textures} locale={locale} onSelect={handleSelect} />
+        <Lighting quality={quality} />
+        <RouteCamera shots={shots} />
+        {mode === "explore" ? <ExploreCamera evidence={content.evidence} /> : null}
+        <Effects quality={quality} palette={palette} />
+      </LookContext.Provider>
     </RigContext.Provider>
   );
 }

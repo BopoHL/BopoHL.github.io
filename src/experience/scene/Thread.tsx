@@ -3,6 +3,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import { CatmullRomCurve3, MathUtils, TubeGeometry, Vector3, type Mesh } from "three";
+import { useAccentShader } from "./look";
 
 interface ThreadProps {
   from: [number, number, number];
@@ -32,6 +33,7 @@ const catenary = (from: Vector3, to: Vector3) => {
 
 export function Thread({ from, to, color, visible, delay }: ThreadProps) {
   const mesh = useRef<Mesh>(null);
+  const accentShader = useAccentShader();
   const reveal = useRef(0);
   const waited = useRef(0);
   const geometry = useMemo(() => {
@@ -55,7 +57,7 @@ export function Thread({ from, to, color, visible, delay }: ThreadProps) {
 
   return (
     <mesh ref={mesh} geometry={geometry} castShadow visible={false}>
-      <meshStandardMaterial color={color} roughness={0.65} emissive={color} emissiveIntensity={0.18} />
+      <meshStandardMaterial {...accentShader} color={color} roughness={0.65} emissive={color} emissiveIntensity={0.18} />
     </mesh>
   );
 }

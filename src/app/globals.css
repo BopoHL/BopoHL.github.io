@@ -8,6 +8,40 @@
   --thread-study: #23477a;
   --thread-hobby: #3e6b3a;
   --muted: rgba(232, 220, 192, 0.62);
+  --subtitle: #f2e7cd;
+  --sheet: #efe8d6;
+  --sheet-shade: #e6dcc3;
+  --dossier-sheet: #e9e0c9;
+  --ink-muted: #5c4f3c;
+  --ink-soft: #3d3427;
+  --skip-hover: #d8b77c;
+  --glow: rgba(255, 180, 106, 0.8);
+  --pin-idle: #6b1215;
+  --case-closed: #e2554f;
+}
+
+:root[data-palette="noir"],
+:root[data-palette="mono"] {
+  --lamp: #f1efe9;
+  --manila: #cfccc5;
+  --paper: #e7e5df;
+  --muted: rgba(231, 229, 223, 0.6);
+  --subtitle: #f1f0ec;
+  --sheet: #eeede9;
+  --sheet-shade: #dedcd6;
+  --dossier-sheet: #e6e4de;
+  --ink-muted: #55534f;
+  --ink-soft: #33312e;
+  --skip-hover: #e4e1da;
+  --glow: rgba(255, 255, 255, 0.75);
+}
+
+:root[data-palette="mono"] {
+  --thread-work: #8f8f8f;
+  --thread-study: #8f8f8f;
+  --thread-hobby: #8f8f8f;
+  --pin-idle: #4a4a4a;
+  --case-closed: #f1efe9;
 }
 
 *,

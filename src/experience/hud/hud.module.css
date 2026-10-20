@@ -38,7 +38,7 @@
 }
 
 .caseStatusClosed {
-  color: #e2554f;
+  color: var(--case-closed);
 }
 
 .controls {
@@ -101,7 +101,7 @@
 }
 
 .skip:hover {
-  background: #d8b77c;
+  background: var(--skip-hover);
   transform: translateX(-2px);
 }
 
@@ -115,7 +115,7 @@
   text-align: center;
   font-size: clamp(15px, 1.5vw, 20px);
   line-height: 1.5;
-  color: #f2e7cd;
+  color: var(--subtitle);
   transition: opacity 400ms ease;
 }
 
@@ -194,7 +194,8 @@
   bottom: 6px;
   left: 50%;
   width: 1px;
-  background: rgba(163, 22, 26, 0.75);
+  background: var(--thread-work);
+  opacity: 0.75;
 }
 
 .progressItem {
@@ -212,7 +213,7 @@
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: #6b1215;
+  background: var(--pin-idle);
   cursor: pointer;
   transition: transform 300ms ease, background 300ms ease, box-shadow 300ms ease;
 }
@@ -224,7 +225,7 @@
 .pinActive {
   background: var(--lamp);
   transform: scale(1.35);
-  box-shadow: 0 0 14px rgba(255, 180, 106, 0.8);
+  box-shadow: 0 0 14px var(--glow);
 }
 
 .pinLabel {
@@ -253,7 +254,7 @@
   padding: 22px 26px 24px;
   background:
     repeating-linear-gradient(transparent 0 29px, rgba(60, 100, 160, 0.18) 29px 30px),
-    linear-gradient(#efe8d6, #e6dcc3);
+    linear-gradient(var(--sheet), var(--sheet-shade));
   color: var(--ink);
   text-shadow: none;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.4);
@@ -305,7 +306,7 @@
 .contactLabel {
   display: block;
   font-size: 11px;
-  color: #6b5d48;
+  color: var(--ink-muted);
 }
 
 .actions {
@@ -326,7 +327,7 @@
 
 .primary {
   background: var(--ink);
-  color: #efe8d6;
+  color: var(--sheet);
 }
 
 .secondary {

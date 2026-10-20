@@ -6,6 +6,8 @@ import {
   AdditiveBlending,
   BufferAttribute,
   BufferGeometry,
+  CanvasTexture,
+  Color,
   ConeGeometry,
   MathUtils,
   Plane,
@@ -13,12 +15,15 @@ import {
   Vector2,
   Vector3,
   type Group,
+  type HemisphereLight,
   type Object3D,
   type ShaderMaterial,
   type SpotLight,
 } from "three";
 import { useRig } from "../camera/rig";
 import type { Quality } from "../quality";
+import { paintBlinds } from "../textures/procedural";
+import { useLook } from "./look";
 import { KEY_ANGLE, KEY_DIRECTION as KEY_DIRECTION_TUPLE, KEY_DISTANCE_RATIO, KEY_PENUMBRA, LAMP_COLOR } from "./constants";
 import { beamFragmentShader, beamVertexShader, dustFragmentShader, dustVertexShader } from "./shaders";
 
@@ -31,6 +36,8 @@ const FLASHLIGHT_OFFSET = new Vector3(0.8, -0.6, 0);
 const FLASHLIGHT_IDLE_SECONDS = 4;
 const BOARD_PLANE = new Plane(new Vector3(0, 0, 1), -0.05);
 const DOWN = new Vector3(0, -1, 0);
+const WHITE = new Color("#ffffff");
+const FLASHLIGHT_WHITENESS = 0.6;
 
 const createDustGeometry = (count: number) => {
   const positions = new Float32Array(count * 3);
@@ -52,6 +59,7 @@ const createDustGeometry = (count: number) => {
 
 function KeyLight({ quality }: { quality: Quality }) {
   const rig = useRig();
+  const look = useLook();
   const light = useRef<SpotLight>(null);
   const target = useRef<Object3D>(null);
   const beam = useRef<Group>(null);
@@ -61,10 +69,11 @@ function KeyLight({ quality }: { quality: Quality }) {
   const cone = useMemo(() => new ConeGeometry(0.5, 1, 48, 1, true), []);
   const dust = useMemo(() => createDustGeometry(quality.dustCount), [quality.dustCount]);
   const beamUniforms = useMemo(
-    () => ({ uTime: { value: 0 }, uColor: { value: new Vector3(1, 0.72, 0.42) }, uStrength: { value: 0.085 } }),
+    () => ({ uTime: { value: 0 }, uColor: { value: new Color() }, uStrength: { value: 0.085 } }),
     [],
   );
-  const dustUniforms = useMemo(() => ({ uTime: { value: 0 }, uSize: { value: 26 } }), []);
+  const dustUniforms = useMemo(() => ({ uTime: { value: 0 }, uSize: { value: 26 }, uColor: { value: new Color() } }), []);
+  const blinds = useMemo(() => new CanvasTexture(paintBlinds(512)), []);
 
   useEffect(() => {
     if (light.current && target.current) light.current.target = target.current;
@@ -72,6 +81,7 @@ function KeyLight({ quality }: { quality: Quality }) {
 
   useEffect(() => () => cone.dispose(), [cone]);
   useEffect(() => () => dust.dispose(), [dust]);
+  useEffect(() => () => blinds.dispose(), [blinds]);
 
   useFrame((state, delta) => {
     const m = motion.current;
@@ -84,6 +94,10 @@ function KeyLight({ quality }: { quality: Quality }) {
     if (light.current) {
       light.current.position.copy(m.position);
       light.current.intensity = KEY_INTENSITY * (m.reach / REFERENCE_DISTANCE) ** 2;
+      light.current.color.copy(look.lampColor);
+      light.current.penumbra = look.penumbra;
+      const map = look.blinds ? blinds : null;
+      if (light.current.map !== map) light.current.map = map;
     }
     if (beam.current) {
       const length = m.position.distanceTo(m.aim);
@@ -92,8 +106,14 @@ function KeyLight({ quality }: { quality: Quality }) {
       beam.current.scale.set(radius * 2, length, radius * 2);
       beam.current.quaternion.setFromUnitVectors(DOWN, m.direction.subVectors(m.aim, m.position).normalize());
     }
-    if (beamShader.current) beamShader.current.uniforms.uTime.value = state.clock.elapsedTime;
-    if (dustShader.current) dustShader.current.uniforms.uTime.value = state.clock.elapsedTime;
+    if (beamShader.current) {
+      beamShader.current.uniforms.uTime.value = state.clock.elapsedTime;
+      beamShader.current.uniforms.uColor.value.copy(look.hazeColor);
+    }
+    if (dustShader.current) {
+      dustShader.current.uniforms.uTime.value = state.clock.elapsedTime;
+      dustShader.current.uniforms.uColor.value.copy(look.hazeColor);
+    }
   });
 
   return (
@@ -144,6 +164,7 @@ function KeyLight({ quality }: { quality: Quality }) {
 
 function Flashlight() {
   const rig = useRig();
+  const look = useLook();
   const light = useRef<SpotLight>(null);
   const target = useRef<Object3D>(null);
   const tracking = useRef({ raycaster: new Raycaster(), hit: new Vector3(), ndc: new Vector2(), strength: 0 });
@@ -166,6 +187,7 @@ function Flashlight() {
     light.current.position.copy(state.camera.position).add(FLASHLIGHT_OFFSET);
     const reach = state.camera.position.distanceTo(target.current.position) / REFERENCE_DISTANCE;
     light.current.intensity = FLASHLIGHT_INTENSITY * reach * reach * t.strength;
+    light.current.color.copy(look.lampColor).lerp(WHITE, FLASHLIGHT_WHITENESS);
   });
 
   return (
@@ -176,10 +198,24 @@ function Flashlight() {
   );
 }
 
+function Ambient() {
+  const look = useLook();
+  const light = useRef<HemisphereLight>(null);
+
+  useFrame(() => {
+    if (!light.current) return;
+    light.current.color.copy(look.skyColor);
+    light.current.groundColor.copy(look.groundColor);
+    light.current.intensity = look.ambient;
+  });
+
+  return <hemisphereLight ref={light} />;
+}
+
 export function Lighting({ quality }: { quality: Quality }) {
   return (
     <>
-      <hemisphereLight args={["#3c4a66", "#160e08", 0.35]} />
+      <Ambient />
       <KeyLight quality={quality} />
       <Flashlight />
     </>

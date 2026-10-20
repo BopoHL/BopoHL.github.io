@@ -57,10 +57,11 @@ export const dustVertexShader = /* glsl */ `
 `;
 
 export const dustFragmentShader = /* glsl */ `
+  uniform vec3 uColor;
   varying float vAlpha;
   void main() {
     float d = length(gl_PointCoord - 0.5);
     float a = smoothstep(0.5, 0.0, d) * vAlpha * 0.55;
-    gl_FragColor = vec4(vec3(1.0, 0.82, 0.6) * a, 1.0);
+    gl_FragColor = vec4(mix(uColor, vec3(1.0), 0.4) * a, 1.0);
   }
 `;
