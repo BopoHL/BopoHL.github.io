@@ -34,7 +34,13 @@ The pilot panel in the bottom-left corner switches the variants under review. Th
 | `look=noir` | Black and white with hard light through venetian blinds; threads and the closing stamp keep their colour |
 | `look=mono` | Pure black and white |
 | `camera=classic` | Each stop frames a whole cluster of evidence |
-| `camera=cinema` | Close-ups of one or two pieces, dutch angles, sharp arcing moves through depth, rack focus |
+| `camera=cinema` | Close-ups of one or two pieces, gentle dutch angles, smooth arcing moves through depth, rack focus |
+| `typing=heavy` | Heavy office typewriter: deep platen thud |
+| `typing=crisp` | Portable typewriter: dry, bright click |
+| `typing=metal` | Ringing metal frame |
+| `typing=muffled` | Soft and distant, as if from the next room |
+
+The typewriter group has a "Listen" button that plays a short phrase with the selected sound.
 
 ## Where things live
 
@@ -42,11 +48,12 @@ The pilot panel in the bottom-left corner switches the variants under review. Th
 src/content/        typed board content: evidence, threads, route, dossier, UI strings (RU/EN)
 src/experience/     the 3D experience
   painters/         canvas painters that draw every piece of evidence
+  wear/             deterministic folds, curled corners and scuffs shared by geometry and painters
   scene/            board, cards, pins, threads, lighting, post-processing
   camera/           shot framing, scroll route camera, free exploration camera
   hud/              subtitles, progress thread, finale card, pilot panel
 src/dossier/        server-rendered résumé shown by "Skip the investigation"
-src/audio/          synthesized typewriter sounds
+src/audio/          synthesized typewriter profiles and the closing stamp
 docs/plan.md        concept, route, visual system and image prompts
 ```
 
