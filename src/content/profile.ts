@@ -1,5 +1,5 @@
 import { l } from "./localize";
-import type { Contact } from "./types";
+import type { Contact, EvidenceImage } from "./types";
 
 export const CASE_NUMBER = "404";
 
@@ -8,6 +8,8 @@ export const profile = {
   role: l("Backend-разработчик, PHP / Laravel", "Backend developer, PHP / Laravel"),
   location: l("Ташкент, удалённо или гибрид", "Tashkent, remote or hybrid"),
 };
+
+export const portrait: EvidenceImage = { scene: "portrait" };
 
 export const RESUME_PATH = "/cv/leonid-voronin-cv-ru.pdf";
 

@@ -1,7 +1,7 @@
 import type { Evidence, EvidenceKind, TypedPaper, Vec2 } from "./types";
 
 const KIND_ASPECT: Record<Exclude<EvidenceKind, "typed">, number> = {
-  newspaper: 0.92,
+  newspaper: 1.05,
   sticky: 1,
   scrap: 0.52,
   photo: 1.2,

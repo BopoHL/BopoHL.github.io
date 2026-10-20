@@ -1,5 +1,5 @@
 import { l } from "./localize";
-import { CASE_NUMBER, contacts, profile } from "./profile";
+import { CASE_NUMBER, contacts, portrait, profile } from "./profile";
 import type { Evidence, Locale, Thread } from "./types";
 
 export const BOARD_SIZE = { width: 32, height: 18 } as const;
@@ -20,7 +20,7 @@ const caseEvidence: Evidence[] = [
     position: [0, 3.35],
     rotation: -1.2,
     width: 4.2,
-    aspect: 0.24,
+    aspect: 0.3,
     title: l(`ДЕЛО № ${CASE_NUMBER}`, `CASE № ${CASE_NUMBER}`),
     subtitle: l("Личность не установлена", "Identity not found"),
     lines: l([], []),
@@ -546,7 +546,7 @@ const finaleEvidence: Evidence[] = [
     role: profile.role,
     lines: l([...contactLines("ru"), profile.location.ru], [...contactLines("en"), profile.location.en]),
     stamp: l("Дело раскрыто", "Case closed"),
-    image: { scene: "portrait" },
+    image: portrait,
   },
 ];
 

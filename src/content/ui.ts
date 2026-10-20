@@ -44,4 +44,12 @@ export const ui = {
     folder: l("B: папка", "B: folder"),
   },
   language: l("Язык", "Language"),
+  print: {
+    page: l("стр. 4", "page 4"),
+    photoCredit: l("Фото: архив редакции", "Photo: newsroom archive"),
+    certificate: l("Сертификат", "Certificate"),
+    awardedTo: l("выдан", "awarded to"),
+    registry: l("Рег. № 404/26", "Reg. № 404/26"),
+    evidence: l("Вещдок", "Evidence"),
+  },
 };
