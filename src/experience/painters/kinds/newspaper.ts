@@ -3,7 +3,7 @@ import { ui } from "@/content/ui";
 import { font } from "../fonts";
 import { gradePhoto, halftone, renderImage } from "../imaging";
 import { INK, NEWSPRINT } from "../palette";
-import { clipEdges, fold, paintPaper } from "../paper";
+import { clipEdges, paintPaper } from "../paper";
 import type { Rect } from "../surface";
 import { drawJustifiedLine, fitText, wrapText } from "../text";
 import type { PaintJob } from "./job";
@@ -37,7 +37,6 @@ export const paintNewspaper = async ({ item, locale, surface }: PaintJob<Newspap
   ctx.save();
   clipEdges(surface, { top: "cut", right: "cut", bottom: "cut", left: "cut" });
   paintPaper(surface, { base: NEWSPRINT, grain: 0.028, mottle: 0.12, burn: 0.24, stains: random() < 0.3 ? 1 : 0 });
-  if (random() < 0.5) fold(surface, random() < 0.5);
 
   const pad = W * 0.065;
   const inner = W - pad * 2;

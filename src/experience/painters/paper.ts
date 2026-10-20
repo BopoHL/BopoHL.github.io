@@ -108,31 +108,6 @@ export const coffeeRing = ({ ctx, width, height, random }: Surface) => {
   ctx.restore();
 };
 
-export const fold = ({ ctx, width, height, random }: Surface, horizontal: boolean) => {
-  const position = range(random, 0.35, 0.65);
-  ctx.save();
-  if (horizontal) {
-    const y = height * position;
-    const gradient = ctx.createLinearGradient(0, y - height * 0.03, 0, y + height * 0.03);
-    gradient.addColorStop(0, "rgba(0,0,0,0)");
-    gradient.addColorStop(0.48, "rgba(255,255,255,0.18)");
-    gradient.addColorStop(0.52, "rgba(60,40,20,0.16)");
-    gradient.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, y - height * 0.03, width, height * 0.06);
-  } else {
-    const x = width * position;
-    const gradient = ctx.createLinearGradient(x - width * 0.03, 0, x + width * 0.03, 0);
-    gradient.addColorStop(0, "rgba(0,0,0,0)");
-    gradient.addColorStop(0.48, "rgba(255,255,255,0.18)");
-    gradient.addColorStop(0.52, "rgba(60,40,20,0.16)");
-    gradient.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(x - width * 0.03, 0, width * 0.06, height);
-  }
-  ctx.restore();
-};
-
 export const paintPaper = (surface: Surface, options: PaperOptions) => {
   const { ctx, width, height } = surface;
   ctx.save();

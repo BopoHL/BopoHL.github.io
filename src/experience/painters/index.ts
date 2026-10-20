@@ -1,5 +1,6 @@
 import { sizeOf } from "@/content/geometry";
 import type { Evidence, EvidenceImage, Locale, PhotoEvidence } from "@/content/types";
+import { wearFor } from "../wear/profile";
 import type { FontFamilies } from "./fonts";
 import { paintBadge } from "./kinds/badge";
 import { paintChart } from "./kinds/chart";
@@ -11,6 +12,7 @@ import { paintMugshotPrint, paintPhoto } from "./kinds/photo";
 import { paintTyped } from "./kinds/typed";
 import { seededRandom } from "./random";
 import { createSurface, type Surface } from "./surface";
+import { applyWear } from "./wear";
 
 export { loadFonts, resolveFontFamilies, type FontFamilies } from "./fonts";
 
@@ -64,6 +66,7 @@ export const paintEvidence = async (
       await paintFolder({ item, locale, surface });
       break;
   }
+  applyWear(surface, wearFor(item));
   return surface.canvas;
 };
 
@@ -76,5 +79,6 @@ export const paintRevealedMugshot = async (
 ): Promise<HTMLCanvasElement> => {
   const surface = surfaceFor(item, pixelsPerUnit, fonts, `${item.id}-revealed`);
   await paintMugshotPrint(surface, image, placard);
+  applyWear(surface, wearFor(item));
   return surface.canvas;
 };
