@@ -26,7 +26,7 @@ export const paintRedacted = ({ item, locale, surface }: PaintJob<RedactedEviden
   const { ctx, width: W, height: H, random, fonts } = surface;
   ctx.save();
   clipEdges(surface, { top: "straight", right: "straight", bottom: "cut", left: "straight" });
-  paintPaper(surface, { base: PAPER, grain: 0.05, mottle: 0.08, burn: 0.16 });
+  paintPaper(surface, { base: PAPER, grain: 0.017, mottle: 0.08, burn: 0.16 });
   const pad = W * 0.08;
   const ink = { color: INK, random };
 
@@ -89,7 +89,7 @@ export const paintRedacted = ({ item, locale, surface }: PaintJob<RedactedEviden
 
 export const paintCertificate = ({ item, locale, surface }: PaintJob<CertificateEvidence>) => {
   const { ctx, width: W, height: H, random, fonts } = surface;
-  paintPaper(surface, { base: "#ede3c8", grain: 0.04, mottle: 0.1, burn: 0.2 });
+  paintPaper(surface, { base: "#ede3c8", grain: 0.014, mottle: 0.1, burn: 0.2 });
   const accent = AREA_INK[item.area];
   const m = W * 0.035;
   ctx.strokeStyle = accent;
@@ -192,7 +192,7 @@ export const paintTag = ({ item, locale, surface }: PaintJob<TagEvidence>) => {
   ctx.lineTo(0, notch);
   ctx.closePath();
   ctx.clip();
-  paintPaper(surface, { base: MANILA, grain: 0.08, mottle: 0.12, burn: 0.28 });
+  paintPaper(surface, { base: MANILA, grain: 0.028, mottle: 0.12, burn: 0.28 });
 
   const holeX = notch * 0.85;
   const holeY = H / 2;

@@ -30,7 +30,7 @@ const NOIR_BASE = {
   ambient: 0.16,
   blinds: true,
   contrast: 0.24,
-  grain: 0.5,
+  grain: 0.085,
   vignette: 0.95,
 };
 
@@ -47,7 +47,7 @@ export const LOOKS: Record<Palette, Look> = {
     ambient: 0.35,
     blinds: false,
     contrast: 0,
-    grain: 0.55,
+    grain: 0.06,
     vignette: 0.82,
   },
   noir: { ...NOIR_BASE, accentSaturation: 1, postSaturation: 0 },

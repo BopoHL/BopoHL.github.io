@@ -143,7 +143,7 @@ export const paintPaper = (surface: Surface, options: PaperOptions) => {
   burnEdges(surface, options.burn ?? 0.18);
   for (let i = 0; i < (options.stains ?? 0); i++) coffeeRing(surface);
   ctx.restore();
-  const grain = options.grain ?? 0.05;
+  const grain = options.grain ?? 0.02;
   if (grain > 0) addGrain(ctx, width, height, surface.random, grain);
 };
 

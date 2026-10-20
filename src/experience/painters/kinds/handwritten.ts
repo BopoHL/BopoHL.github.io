@@ -22,7 +22,7 @@ export const paintSticky = ({ item, locale, surface }: PaintJob<StickyEvidence>)
   curl.addColorStop(1, "rgba(90, 60, 0, 0)");
   ctx.fillStyle = curl;
   ctx.fillRect(0, 0, W, H);
-  addGrain(ctx, W, H, random, 0.045);
+  addGrain(ctx, W, H, random, 0.018);
 
   const pad = W * 0.1;
   const box = { x: pad, y: H * 0.2, width: W - pad * 2, height: H * 0.72 };
@@ -41,7 +41,7 @@ export const paintScrap = ({ item, locale, surface }: PaintJob<ScrapEvidence>) =
   const { ctx, width: W, height: H, random, fonts } = surface;
   ctx.save();
   clipEdges(surface, { top: "torn", right: "cut", bottom: "straight", left: "straight" });
-  paintPaper(surface, { base: "#efe9da", grain: 0.04, mottle: 0.06, burn: 0.12 });
+  paintPaper(surface, { base: "#efe9da", grain: 0.014, mottle: 0.06, burn: 0.12 });
 
   const pad = W * 0.06;
   const margin = W * 0.13;

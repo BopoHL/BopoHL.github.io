@@ -10,7 +10,7 @@ export const paintChart = ({ item, locale, surface }: PaintJob<ChartEvidence>) =
   const { ctx, width: W, height: H, random, fonts } = surface;
   ctx.save();
   clipEdges(surface, { top: "straight", right: "cut", bottom: "straight", left: "cut" });
-  paintPaper(surface, { base: GRAPH_PAPER, grain: 0.035, mottle: 0.06, burn: 0.12 });
+  paintPaper(surface, { base: GRAPH_PAPER, grain: 0.012, mottle: 0.06, burn: 0.12 });
 
   const minor = W / 40;
   ctx.lineWidth = Math.max(1, W * 0.0012);

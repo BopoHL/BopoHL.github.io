@@ -7,7 +7,7 @@ import type { Surface } from "../surface";
 import { drawHandwrittenBlock, fitText } from "../text";
 import type { PaintJob } from "./job";
 
-const PHOTO_GRADE = { warmth: 0.85, contrast: 1.18, lift: 0.07, vignette: 0.45, grain: 0.07 };
+const PHOTO_GRADE = { warmth: 0.85, contrast: 1.18, lift: 0.07, vignette: 0.45, grain: 0.042 };
 
 const drawPhoto = async (surface: Surface, image: EvidenceImage, x: number, y: number, w: number, h: number) => {
   const { ctx, random, fonts } = surface;
@@ -23,7 +23,7 @@ const drawPhoto = async (surface: Surface, image: EvidenceImage, x: number, y: n
 
 const paintPolaroid = async ({ item, locale, surface }: PaintJob<PhotoEvidence>) => {
   const { ctx, width: W, height: H, random, fonts } = surface;
-  paintPaper(surface, { base: PHOTO_PAPER, grain: 0.03, mottle: 0.06, burn: 0.12 });
+  paintPaper(surface, { base: PHOTO_PAPER, grain: 0.01, mottle: 0.06, burn: 0.12 });
   const border = W * 0.065;
   const size = W - border * 2;
   await drawPhoto(surface, item.image, border, border, size, size * 0.98);
@@ -51,7 +51,7 @@ const paintPolaroid = async ({ item, locale, surface }: PaintJob<PhotoEvidence>)
 
 export const paintMugshotPrint = async (surface: Surface, image: EvidenceImage, placard: string) => {
   const { ctx, width: W, height: H, fonts } = surface;
-  paintPaper(surface, { base: PHOTO_PAPER, grain: 0.03, mottle: 0.05, burn: 0.1 });
+  paintPaper(surface, { base: PHOTO_PAPER, grain: 0.01, mottle: 0.05, burn: 0.1 });
   const border = W * 0.04;
   await drawPhoto(surface, image, border, border, W - border * 2, H - border * 2);
 

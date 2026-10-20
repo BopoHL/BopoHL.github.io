@@ -82,7 +82,7 @@ const paintEventBadge = ({ item, locale, surface }: PaintJob<BadgeEvidence>) => 
   }
   ctx.fillStyle = AREA_INK[item.area];
   ctx.fillRect(0, H * 0.95, W, H * 0.05);
-  addGrain(ctx, W, H, random, 0.035);
+  addGrain(ctx, W, H, random, 0.014);
   sleeveShine(ctx, W, H);
   ctx.restore();
 };
@@ -105,7 +105,7 @@ const paintStudentCard = async ({ item, locale, surface }: PaintJob<BadgeEvidenc
 
   const photo = { x: W * 0.05, y: bandH + H * 0.08, width: W * 0.27, height: H * 0.6 };
   const source = await renderImage({ scene: "hood" }, photo.width, photo.height, random, fonts);
-  ctx.drawImage(gradePhoto(source, random, { warmth: 0.6, contrast: 1.2, lift: 0.06, vignette: 0.4, grain: 0.06 }), photo.x, photo.y, photo.width, photo.height);
+  ctx.drawImage(gradePhoto(source, random, { warmth: 0.6, contrast: 1.2, lift: 0.06, vignette: 0.4, grain: 0.036 }), photo.x, photo.y, photo.width, photo.height);
 
   const textX = photo.x + photo.width + W * 0.05;
   ctx.fillStyle = INK;
@@ -134,7 +134,7 @@ const paintStudentCard = async ({ item, locale, surface }: PaintJob<BadgeEvidenc
     ctx.fillRect(x, barcodeTop, bar, H * 0.11);
     x += bar + range(random, 0.003, 0.01) * W;
   }
-  addGrain(ctx, W, H, random, 0.03);
+  addGrain(ctx, W, H, random, 0.012);
   sleeveShine(ctx, W, H);
   ctx.restore();
 };

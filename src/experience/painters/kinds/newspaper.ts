@@ -36,7 +36,7 @@ export const paintNewspaper = async ({ item, locale, surface }: PaintJob<Newspap
   const { ctx, width: W, height: H, random, fonts } = surface;
   ctx.save();
   clipEdges(surface, { top: "cut", right: "cut", bottom: "cut", left: "cut" });
-  paintPaper(surface, { base: NEWSPRINT, grain: 0.08, mottle: 0.12, burn: 0.24, stains: random() < 0.3 ? 1 : 0 });
+  paintPaper(surface, { base: NEWSPRINT, grain: 0.028, mottle: 0.12, burn: 0.24, stains: random() < 0.3 ? 1 : 0 });
   if (random() < 0.5) fold(surface, random() < 0.5);
 
   const pad = W * 0.065;
@@ -79,7 +79,7 @@ export const paintNewspaper = async ({ item, locale, surface }: PaintJob<Newspap
     const imageRect = { x: pad, y, width: inner, height: imageHeight };
     const sourceWidth = 480;
     const source = await renderImage(item.image, sourceWidth, (sourceWidth * imageHeight) / inner, random, fonts);
-    const graded = gradePhoto(source, random, { warmth: 0, contrast: 1.25, lift: 0.04, vignette: 0.2, grain: 0.04 });
+    const graded = gradePhoto(source, random, { warmth: 0, contrast: 1.25, lift: 0.04, vignette: 0.2, grain: 0.024 });
     ctx.fillStyle = "rgba(255,255,255,0.08)";
     ctx.fillRect(imageRect.x, imageRect.y, imageRect.width, imageRect.height);
     halftone(graded, ctx, imageRect, Math.max(2.5, W / 120), "rgba(28,26,23,0.92)");

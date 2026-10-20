@@ -7,21 +7,21 @@ import {
   DepthOfField,
   EffectComposer,
   HueSaturation,
-  Noise,
   ToneMapping,
   Vignette,
 } from "@react-three/postprocessing";
 import { useFrame } from "@react-three/fiber";
 import { BlendFunction, ToneMappingMode, type DepthOfFieldEffect } from "postprocessing";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Vector2 } from "three";
 import { useRig } from "../camera/rig";
 import type { Quality } from "../quality";
 import type { Palette } from "../state/variant";
+import { FilmGrainEffect } from "./filmGrain";
 import { LOOKS } from "./look";
 
-const FOCUS_RANGE = 1.4;
-const BOKEH_SCALE = 4;
+const FOCUS_RANGE = 2;
+const BOKEH_SCALE = 2.4;
 
 interface EffectsProps {
   quality: Quality;
@@ -41,6 +41,8 @@ export function Effects({ quality, palette, depthOfField }: EffectsProps) {
   const aberration = useMemo(() => new Vector2(0.0007, 0.0005), []);
   const focus = useRef<DepthOfFieldEffect>(null);
   const look = LOOKS[palette];
+  const grain = useMemo(() => new FilmGrainEffect(look.grain), [look.grain]);
+  useEffect(() => () => grain.dispose(), [grain]);
 
   const effects = [
     depthOfField ? (
@@ -58,7 +60,7 @@ export function Effects({ quality, palette, depthOfField }: EffectsProps) {
     <HueSaturation key="saturation" saturation={look.postSaturation} />,
     <BrightnessContrast key="contrast" contrast={look.contrast} />,
     <Vignette key="vignette" offset={0.18} darkness={look.vignette} />,
-    <Noise key="grain" premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={look.grain} />,
+    <primitive key="grain" object={grain} />,
   ].filter((effect) => effect !== null);
 
   return (

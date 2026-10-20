@@ -24,7 +24,7 @@ export const paintFolder = async ({ item, locale, surface }: PaintJob<FolderEvid
   ctx.lineTo(0, H);
   ctx.closePath();
   ctx.clip();
-  paintPaper(surface, { base: MANILA, grain: 0.08, mottle: 0.14, burn: 0.3 });
+  paintPaper(surface, { base: MANILA, grain: 0.028, mottle: 0.14, burn: 0.3 });
   ctx.fillStyle = "rgba(60, 40, 10, 0.12)";
   ctx.fillRect(0, tabH, W, H * 0.012);
 
@@ -32,7 +32,7 @@ export const paintFolder = async ({ item, locale, surface }: PaintJob<FolderEvid
   drawTypewriterLine(ctx, item.tab[locale], W * 0.05, tabH * 0.72, tabH * 0.5, { color: INK, random });
 
   const sheet = createSurface(W * 0.56, H * 0.78, random, fonts);
-  paintPaper(sheet, { base: PAPER, grain: 0.05, mottle: 0.08, burn: 0.14 });
+  paintPaper(sheet, { base: PAPER, grain: 0.017, mottle: 0.08, burn: 0.14 });
   const pad = sheet.width * 0.08;
   const name = fitText(sheet.ctx, item.name[locale], { x: pad, y: pad, width: sheet.width - pad * 2, height: sheet.height * 0.3 }, {
     fontAt: (s) => font(900, s, fonts.headline),
@@ -75,11 +75,11 @@ export const paintFolder = async ({ item, locale, surface }: PaintJob<FolderEvid
   const photoW = W * 0.33;
   const photoH = photoW * 1.18;
   const photo = createSurface(photoW, photoH, random, fonts);
-  paintPaper(photo, { base: PHOTO_PAPER, grain: 0.03, mottle: 0.05, burn: 0.1 });
+  paintPaper(photo, { base: PHOTO_PAPER, grain: 0.01, mottle: 0.05, burn: 0.1 });
   const border = photo.width * 0.06;
   const source = await renderImage(item.image, photo.width - border * 2, photo.width - border * 2, random, fonts);
   photo.ctx.drawImage(
-    gradePhoto(source, random, { warmth: 0.85, contrast: 1.15, lift: 0.07, vignette: 0.45, grain: 0.06 }),
+    gradePhoto(source, random, { warmth: 0.85, contrast: 1.15, lift: 0.07, vignette: 0.45, grain: 0.036 }),
     border,
     border,
   );
