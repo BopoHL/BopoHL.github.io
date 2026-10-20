@@ -4,7 +4,17 @@ import { useEffect, useRef, useState } from "react";
 import { evidence } from "@/content/board";
 import { portrait, profile } from "@/content/profile";
 import type { Locale, PhotoEvidence } from "@/content/types";
+import { ui } from "@/content/ui";
 import { loadFonts, paintEvidence, paintRevealedMugshot, resolveFontFamilies } from "../painters";
+import { paintStampCanvas } from "../painters/stamp";
+import { paintCork, paintPaperBump, paintWall } from "../textures/procedural";
+import { buildBlenderScene, type BlenderScene } from "./blenderScene";
+
+declare global {
+  interface Window {
+    __caseScene?: BlenderScene;
+  }
+}
 
 const PIXELS_PER_UNIT = 300;
 
@@ -28,6 +38,14 @@ export function EvidenceSheet({ locale }: { locale: Locale }) {
           canvas: await paintRevealedMugshot(mugshot, portrait, profile.name[locale], PIXELS_PER_UNIT, fonts),
         });
       }
+      canvases.push(
+        { id: "surface-cork", canvas: paintCork(2048) },
+        { id: "surface-wall", canvas: paintWall(512) },
+        { id: "surface-paper-bump", canvas: paintPaperBump(512) },
+        { id: "stamp-case-closed", canvas: paintStampCanvas(ui.caseClosed[locale], fonts) },
+      );
+      const finale = new URLSearchParams(window.location.search).get("finale") === "b" ? "folder" : "reveal";
+      window.__caseScene = buildBlenderScene(locale, finale);
       if (cancelled || !container.current) return;
       container.current.replaceChildren(
         ...canvases.map(({ id, canvas }) => {
