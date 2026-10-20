@@ -1,14 +1,15 @@
 "use client";
 
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MathUtils, type Group, type Texture } from "three";
-import { sizeOf } from "@/content/geometry";
 import type { Evidence } from "@/content/types";
 import { useExperience } from "../state/store";
-import { createCardGeometry } from "./cardGeometry";
+import { wearFor } from "../wear/profile";
+import { createCardGeometry, type Occluder } from "./cardGeometry";
 import { useWorldShader } from "./look";
 import { PIN_COLORS, cardZ, finishFor, pinLocal } from "./layout3d";
+import { useSurfaceBump } from "./useSurfaceBump";
 import { Pin } from "./Pin";
 
 interface EvidenceCardProps {
@@ -16,22 +17,25 @@ interface EvidenceCardProps {
   index: number;
   texture: Texture;
   bumpMap: Texture;
+  occluders: Occluder[];
   onSelect?: (item: Evidence) => void;
 }
 
 const HOVER_LIFT = 0.06;
 
-export function EvidenceCard({ item, index, texture, bumpMap, onSelect }: EvidenceCardProps) {
+export function EvidenceCard({ item, index, texture, bumpMap, occluders, onSelect }: EvidenceCardProps) {
   const group = useRef<Group>(null);
   const [hovered, setHovered] = useState(false);
   const mode = useExperience((state) => state.mode);
   const worldShader = useWorldShader();
-  const { width, height } = sizeOf(item);
   const finish = finishFor(item);
+  const wear = useMemo(() => wearFor(item), [item]);
   const geometry = useMemo(
-    () => createCardGeometry(width, height, finish.lift, finish.curl),
-    [width, height, finish.lift, finish.curl],
+    () => createCardGeometry({ item, finish: finishFor(item), wear, occluders }),
+    [item, wear, occluders],
   );
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  const surfaceBump = useSurfaceBump(bumpMap, item.id);
   const baseZ = cardZ(index);
   const rotation = MathUtils.degToRad(item.rotation);
   const interactive = mode === "explore" || Boolean(item.link);
@@ -75,8 +79,8 @@ export function EvidenceCard({ item, index, texture, bumpMap, onSelect }: Eviden
           {...worldShader}
           map={texture}
           roughness={finish.roughness}
-          bumpMap={bumpMap}
-          bumpScale={finish.bumpScale}
+          bumpMap={surfaceBump}
+          bumpScale={finish.bumpScale * (0.6 + wear.crumple)}
           alphaTest={0.5}
         />
       </mesh>

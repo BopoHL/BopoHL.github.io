@@ -8,6 +8,7 @@ import { ui } from "@/content/ui";
 import { useExperience } from "../state/store";
 import type { EvidenceTextures } from "../textures/useEvidenceTextures";
 import { paintPaperBump } from "../textures/procedural";
+import { occludersFor } from "./cardGeometry";
 import { EvidenceCard } from "./EvidenceCard";
 import { THREAD_COLORS, pinWorld } from "./layout3d";
 import { MugshotCard } from "./MugshotCard";
@@ -36,12 +37,16 @@ export function CaseBoard({ content, textures, locale, onSelect }: CaseBoardProp
   const finale = useExperience((state) => state.variant.finale);
 
   const bumpMap = useMemo(() => {
-    const texture = new CanvasTexture(paintPaperBump(512));
+    const texture = new CanvasTexture(paintPaperBump(1024));
     texture.wrapS = texture.wrapT = RepeatWrapping;
     texture.repeat.set(2, 2);
     return texture;
   }, []);
   useEffect(() => () => bumpMap.dispose(), [bumpMap]);
+  const occluders = useMemo(
+    () => content.evidence.map((_, index) => occludersFor(content.evidence, index)),
+    [content.evidence],
+  );
 
   const threads = useMemo(() => {
     const indexById = new Map(content.evidence.map((item, index) => [item.id, index]));
@@ -83,7 +88,17 @@ export function CaseBoard({ content, textures, locale, onSelect }: CaseBoardProp
             />
           );
         }
-        return <EvidenceCard key={item.id} item={item} index={index} texture={texture} bumpMap={bumpMap} onSelect={onSelect} />;
+        return (
+          <EvidenceCard
+            key={item.id}
+            item={item}
+            index={index}
+            texture={texture}
+            bumpMap={bumpMap}
+            occluders={occluders[index]}
+            onSelect={onSelect}
+          />
+        );
       })}
       {threads.map((thread) => (
         <Thread

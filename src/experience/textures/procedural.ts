@@ -66,26 +66,57 @@ export const paintWall = (size: number) => {
   return canvas;
 };
 
+const TILE_OFFSETS = [-1, 0, 1];
+
+const crumpleCrease = (ctx: CanvasRenderingContext2D, size: number, random: () => number) => {
+  const x = random() * size;
+  const y = random() * size;
+  const angle = random() * Math.PI;
+  const length = range(random, 0.18, 0.5) * size;
+  const width = range(random, 0.025, 0.07) * size;
+  const ridge = random() < 0.55;
+  const tone = ridge ? 255 : 0;
+  const strength = range(random, 0.12, 0.28);
+  for (const ox of TILE_OFFSETS) {
+    for (const oy of TILE_OFFSETS) {
+      ctx.save();
+      ctx.translate(x + ox * size, y + oy * size);
+      ctx.rotate(angle);
+      ctx.scale(length / width, 1);
+      const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, width);
+      gradient.addColorStop(0, `rgba(${tone}, ${tone}, ${tone}, ${strength})`);
+      gradient.addColorStop(0.18, `rgba(${tone}, ${tone}, ${tone}, ${strength * 0.55})`);
+      gradient.addColorStop(1, `rgba(${tone}, ${tone}, ${tone}, 0)`);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(-width, -width, width * 2, width * 2);
+      ctx.restore();
+    }
+  }
+};
+
 export const paintPaperBump = (size: number) => {
   const random = seededRandom("paper-bump");
   const canvas = createCanvas(size, size);
   const ctx = context2d(canvas);
-  ctx.fillStyle = "#808080";
-  ctx.fillRect(0, 0, size, size);
-  const image = ctx.getImageData(0, 0, size, size);
+  const image = ctx.createImageData(size, size);
   for (let i = 0; i < image.data.length; i += 4) {
-    const n = 128 + (random() - 0.5) * 60;
+    const n = 128 + (random() - 0.5) * 24;
     image.data[i] = image.data[i + 1] = image.data[i + 2] = n;
+    image.data[i + 3] = 255;
   }
   ctx.putImageData(image, 0, 0);
+  ctx.filter = `blur(${(size / 1024).toFixed(2)}px)`;
+  ctx.drawImage(canvas, 0, 0);
+  ctx.filter = "none";
+  for (let i = 0; i < 34; i++) crumpleCrease(ctx, size, random);
   ctx.lineCap = "round";
-  for (let i = 0; i < size * 1.5; i++) {
+  for (let i = 0; i < size * 1.2; i++) {
     const x = random() * size;
     const y = random() * size;
-    const length = range(random, 4, 18);
+    const length = range(random, 4, 18) * (size / 512);
     const angle = random() * Math.PI;
-    ctx.strokeStyle = random() < 0.5 ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.25)";
-    ctx.lineWidth = range(random, 0.6, 1.4);
+    ctx.strokeStyle = random() < 0.5 ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)";
+    ctx.lineWidth = range(random, 0.6, 1.4) * (size / 512);
     ctx.beginPath();
     ctx.moveTo(x, y);
     ctx.lineTo(x + Math.cos(angle) * length, y + Math.sin(angle) * length);

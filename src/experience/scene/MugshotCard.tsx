@@ -1,16 +1,18 @@
 "use client";
 
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { MathUtils, type Group, type Texture } from "three";
 import { sizeOf } from "@/content/geometry";
 import type { Evidence, PhotoEvidence } from "@/content/types";
 import { useExperience } from "../state/store";
+import { wearFor } from "../wear/profile";
 import { createCardGeometry } from "./cardGeometry";
 import { useWorldShader } from "./look";
 import { PIN_COLORS, REVEAL_STAMP, cardZ, finishFor, pinLocal } from "./layout3d";
 import { Pin } from "./Pin";
 import { Stamp } from "./Stamp";
+import { useSurfaceBump } from "./useSurfaceBump";
 
 interface MugshotCardProps {
   item: PhotoEvidence;
@@ -31,7 +33,14 @@ export function MugshotCard({ item, index, front, back, bumpMap, stampText, onSe
   const worldShader = useWorldShader();
   const { width, height } = sizeOf(item);
   const finish = finishFor(item);
-  const geometry = useMemo(() => createCardGeometry(width, height, 0, 0), [width, height]);
+  const wear = useMemo(() => wearFor(item), [item]);
+  const geometry = useMemo(
+    () => createCardGeometry({ item, finish: { ...finishFor(item), lift: 0, curl: 0 }, wear, occluders: [] }),
+    [item, wear],
+  );
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  const surfaceBump = useSurfaceBump(bumpMap, item.id);
+  const bumpScale = finish.bumpScale * (0.6 + wear.crumple);
   const rotation = MathUtils.degToRad(item.rotation);
 
   useFrame((_, delta) => {
@@ -51,10 +60,10 @@ export function MugshotCard({ item, index, front, back, bumpMap, stampText, onSe
     <group position={[item.position[0], item.position[1], cardZ(index)]} rotation={[0, 0, rotation]}>
       <group ref={flipper} onClick={handleClick}>
         <mesh geometry={geometry} castShadow receiveShadow>
-          <meshStandardMaterial {...worldShader} map={front} roughness={finish.roughness} bumpMap={bumpMap} bumpScale={finish.bumpScale} />
+          <meshStandardMaterial {...worldShader} map={front} roughness={finish.roughness} bumpMap={surfaceBump} bumpScale={bumpScale} />
         </mesh>
         <mesh geometry={geometry} rotation={[0, Math.PI, 0]} position={[0, 0, -0.004]} castShadow receiveShadow>
-          <meshStandardMaterial {...worldShader} map={back} roughness={finish.roughness} bumpMap={bumpMap} bumpScale={finish.bumpScale} />
+          <meshStandardMaterial {...worldShader} map={back} roughness={finish.roughness} bumpMap={surfaceBump} bumpScale={bumpScale} />
         </mesh>
       </group>
       <Stamp
