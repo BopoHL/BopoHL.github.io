@@ -42,3 +42,6 @@ next-env.d.ts
 
 # blender previs output
 /tools/blender/out/
+
+# python
+__pycache__/
