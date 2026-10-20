@@ -26,7 +26,7 @@ const FRAME_RATE = 24;
 export class FilmGrainEffect extends Effect {
   private elapsed = 0;
 
-  constructor(intensity: number, size = 1.6) {
+  constructor(intensity: number, size = 1.25) {
     super("FilmGrainEffect", fragmentShader, {
       blendFunction: BlendFunction.NORMAL,
       uniforms: new Map([
