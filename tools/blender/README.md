@@ -28,8 +28,9 @@ Options after `--`:
 | `--samples` | `64` | Cycles samples |
 | `--resolution` | `50` | Percent of 1920×1080 |
 | `--haze` | `0.012` | Density of the dusty air that makes the lamp beam visible; `0` disables it |
+| `--pack` | off | Embed textures into the .blend instead of referencing `textures/` |
 
-The result is `tools/blender/out/case-404.blend` with textures packed in, plus renders in `tools/blender/out/renders/`.
+The result is `tools/blender/out/case-404.blend`, which references the textures next to it, plus renders in `tools/blender/out/renders/`.
 
 ## Inside the .blend
 

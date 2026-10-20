@@ -40,6 +40,7 @@ def parse_args():
     parser.add_argument("--resolution", type=int, default=50)
     parser.add_argument("--haze", type=float, default=0.012)
     parser.add_argument("--stills", default="")
+    parser.add_argument("--pack", action="store_true", help="embed textures into the .blend")
     return parser.parse_args(argv)
 
 
@@ -462,9 +463,11 @@ def main():
     build_camera_and_lamp(scene_data, scene)
     configure_render(scene, args)
 
-    bpy.ops.file.pack_all()
+    bpy.context.preferences.filepaths.save_version = 0
     blend_path = os.path.join(assets, "case-404.blend")
-    bpy.ops.wm.save_as_mainfile(filepath=blend_path)
+    if args.pack:
+        bpy.ops.file.pack_all()
+    bpy.ops.wm.save_as_mainfile(filepath=blend_path, relative_remap=True)
     print(f"Saved {blend_path}", flush=True)
     render(scene, args, assets, scene_data["stations"])
 
