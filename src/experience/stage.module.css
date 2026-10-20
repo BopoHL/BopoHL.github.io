@@ -1,0 +1,12 @@
+.canvas {
+  position: fixed;
+  inset: 0;
+  height: 100lvh;
+  touch-action: pan-y;
+}
+
+.track {
+  position: relative;
+  width: 1px;
+  pointer-events: none;
+}
