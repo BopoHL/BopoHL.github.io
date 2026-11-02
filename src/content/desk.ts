@@ -117,3 +117,12 @@ export const deskEvidence: Evidence[] = [
     caption: l("Ташкент", "Tashkent"),
   },
 ];
+
+export const cassette = {
+  title: l("Дело № 404", "Case № 404"),
+  note: l("музыка для допроса", "music for the interrogation"),
+  side: l("СТОРОНА А", "SIDE A"),
+  brand: l("ПРОТОКОЛ", "PROTOCOL"),
+  model: l("МК-404", "MK-404"),
+  recording: { src: "/audio/case-404.mp3", seconds: 77.9 },
+};

@@ -3,9 +3,11 @@
 import { useState } from "react";
 import type { Texture } from "three";
 import { deskEvidence } from "@/content/desk";
+import type { Locale } from "@/content/types";
 import type { Quality } from "../quality";
 import type { EvidenceTextures } from "../textures/useEvidenceTextures";
 import { Ashtray } from "./Ashtray";
+import { CassetteRecorder } from "./CassetteRecorder";
 import { Desk } from "./Desk";
 import { DeskFan } from "./DeskFan";
 import { DeskLamp } from "./DeskLamp";
@@ -16,9 +18,10 @@ interface DeskSceneProps {
   textures: EvidenceTextures;
   bumpMap: Texture;
   quality: Quality;
+  locale: Locale;
 }
 
-export function DeskScene({ textures, bumpMap, quality }: DeskSceneProps) {
+export function DeskScene({ textures, bumpMap, quality, locale }: DeskSceneProps) {
   const [desk] = useState(() => new DeskState());
   return (
     <DeskContext.Provider value={desk}>
@@ -27,6 +30,7 @@ export function DeskScene({ textures, bumpMap, quality }: DeskSceneProps) {
       <DeskLamp quality={quality} />
       <Ashtray />
       <DeskFan />
+      <CassetteRecorder locale={locale} />
     </DeskContext.Provider>
   );
 }
