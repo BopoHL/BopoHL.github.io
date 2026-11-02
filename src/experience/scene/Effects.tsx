@@ -18,15 +18,15 @@ import { useRig } from "../camera/rig";
 import type { Quality } from "../quality";
 import type { Palette } from "../state/variant";
 import { FilmGrainEffect } from "./filmGrain";
+import { PeripheralBlurEffect } from "./peripheralBlur";
 import { LOOKS } from "./look";
 
 const FOCUS_RANGE = 2;
-const BOKEH_SCALE = 2.4;
 
 interface EffectsProps {
   quality: Quality;
   palette: Palette;
-  depthOfField: boolean;
+  lensFocus: boolean;
 }
 
 function FocusOnInvestigation({ effect }: { effect: React.RefObject<DepthOfFieldEffect | null> }) {
@@ -37,17 +37,30 @@ function FocusOnInvestigation({ effect }: { effect: React.RefObject<DepthOfField
   return null;
 }
 
-export function Effects({ quality, palette, depthOfField }: EffectsProps) {
+export function Effects({ quality, palette, lensFocus }: EffectsProps) {
   const aberration = useMemo(() => new Vector2(0.0007, 0.0005), []);
   const focus = useRef<DepthOfFieldEffect>(null);
   const look = LOOKS[palette];
   const grain = useMemo(() => new FilmGrainEffect(look.grain), [look.grain]);
   useEffect(() => () => grain.dispose(), [grain]);
+  const peripheral = useMemo(
+    () => new PeripheralBlurEffect({ radius: quality.focusBlur.peripheralRadius }),
+    [quality.focusBlur.peripheralRadius],
+  );
+  useEffect(() => () => peripheral.dispose(), [peripheral]);
 
   const effects = [
-    depthOfField ? (
-      <DepthOfField key="dof" ref={focus} target={[0, 0, 0]} worldFocusRange={FOCUS_RANGE} bokehScale={BOKEH_SCALE} />
+    lensFocus ? (
+      <DepthOfField
+        key="dof"
+        ref={focus}
+        target={[0, 0, 0]}
+        worldFocusRange={FOCUS_RANGE}
+        bokehScale={quality.focusBlur.bokehScale}
+        resolutionScale={quality.focusBlur.resolutionScale}
+      />
     ) : null,
+    lensFocus ? <primitive key="peripheral" object={peripheral} /> : null,
     <Bloom key="bloom" mipmapBlur intensity={0.45} luminanceThreshold={0.75} luminanceSmoothing={0.2} />,
     <ChromaticAberration
       key="aberration"
@@ -65,8 +78,8 @@ export function Effects({ quality, palette, depthOfField }: EffectsProps) {
 
   return (
     <>
-      {depthOfField ? <FocusOnInvestigation effect={focus} /> : null}
-      <EffectComposer key={depthOfField ? "focus" : "flat"} multisampling={quality.multisampling}>
+      {lensFocus ? <FocusOnInvestigation effect={focus} /> : null}
+      <EffectComposer key={lensFocus ? "focus" : "flat"} multisampling={quality.multisampling}>
         {effects}
       </EffectComposer>
     </>

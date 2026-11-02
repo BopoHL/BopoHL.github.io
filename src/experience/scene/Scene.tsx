@@ -67,7 +67,7 @@ export function Scene({ content, shots, motion, locale, quality }: SceneProps) {
         <RouteCamera shots={shots} motion={motion} />
         {mode === "explore" ? <ExploreCamera evidence={content.evidence} /> : null}
         {cinema ? <FloatingDust count={quality.dustCount * 2} /> : null}
-        <Effects quality={quality} palette={palette} depthOfField={cinema && quality.tier === "high"} />
+        <Effects quality={quality} palette={palette} lensFocus={cinema} />
       </LookContext.Provider>
     </RigContext.Provider>
   );

@@ -1,3 +1,9 @@
+export interface FocusBlur {
+  resolutionScale: number;
+  bokehScale: number;
+  peripheralRadius: number;
+}
+
 export interface Quality {
   tier: "high" | "low";
   dpr: [number, number];
@@ -7,6 +13,7 @@ export interface Quality {
   chromaticAberration: boolean;
   multisampling: number;
   flashlightShadows: boolean;
+  focusBlur: FocusBlur;
 }
 
 const HIGH: Quality = {
@@ -18,6 +25,7 @@ const HIGH: Quality = {
   chromaticAberration: true,
   multisampling: 4,
   flashlightShadows: false,
+  focusBlur: { resolutionScale: 0.5, bokehScale: 2.4, peripheralRadius: 5 },
 };
 
 const LOW: Quality = {
@@ -29,6 +37,7 @@ const LOW: Quality = {
   chromaticAberration: false,
   multisampling: 0,
   flashlightShadows: false,
+  focusBlur: { resolutionScale: 0.3, bokehScale: 1.6, peripheralRadius: 4 },
 };
 
 export const detectQuality = (): Quality => {
