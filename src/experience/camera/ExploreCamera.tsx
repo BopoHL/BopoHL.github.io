@@ -23,7 +23,7 @@ const roomBox = new Box3(
 const VIEWS: Record<ExploreView, { position: Vector3; target: Vector3 }> = {
   board: { position: new Vector3(0, 0, 26), target: new Vector3(0, 0, 0) },
   desk: {
-    position: new Vector3(-0.5, DESK.top + 8.5, (DESK.back + DESK.front) / 2 + 9.5),
+    position: new Vector3(-0.5, DESK.top + 11.5, (DESK.back + DESK.front) / 2 + 12.5),
     target: new Vector3(-0.5, DESK.top, (DESK.back + DESK.front) / 2),
   },
 };

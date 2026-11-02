@@ -69,7 +69,7 @@ export function Scene({ content, shots, motion, locale, quality }: SceneProps) {
         <fog attach="fog" args={["#0a0806", 30, 75]} />
         <Room textureSize={quality.tier === "high" ? 2048 : 1024} />
         <CaseBoard content={content} textures={textures} bumpMap={bumpMap} locale={locale} onSelect={handleSelect} />
-        <DeskScene textures={textures} bumpMap={bumpMap} />
+        <DeskScene textures={textures} bumpMap={bumpMap} quality={quality} />
         <Lighting quality={quality} />
         <RouteCamera shots={shots} motion={motion} />
         {mode === "explore" ? <ExploreCamera evidence={content.evidence} /> : null}
