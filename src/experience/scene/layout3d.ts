@@ -1,4 +1,4 @@
-import { pinOf, pinOffsetOf } from "@/content/geometry";
+import { pinOf, pinOffsetOf, type PinSpot } from "@/content/geometry";
 import type { Area, Evidence } from "@/content/types";
 
 export const CARD_BASE_Z = 0.03;
@@ -8,12 +8,12 @@ export const cardZ = (index: number) => CARD_BASE_Z + index * CARD_LAYER_STEP;
 
 export const PIN_THREAD_HEIGHT = 0.007;
 
-export const pinWorld = (item: Evidence, index: number): [number, number, number] => {
-  const [x, y] = pinOf(item);
+export const pinWorld = (item: Evidence, index: number, spot: PinSpot): [number, number, number] => {
+  const [x, y] = pinOf(item, spot);
   return [x, y, cardZ(index) + PIN_THREAD_HEIGHT];
 };
 
-export const pinLocal = (item: Evidence): [number, number, number] => [...pinOffsetOf(item), 0];
+export const pinLocal = (item: Evidence, spot: PinSpot): [number, number, number] => [...pinOffsetOf(item, spot), 0];
 
 export const PIN_COLORS: Record<Area, string> = {
   case: "#ffd21f",

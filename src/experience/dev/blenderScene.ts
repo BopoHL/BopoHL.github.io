@@ -23,7 +23,7 @@ const RENDER_ASPECT = 16 / 9;
 
 export const buildBlenderScene = (locale: Locale, finale: FinaleVariant) => {
   const content = boardContentFor(finale);
-  const surface = new BoardSurface(content.evidence);
+  const surface = new BoardSurface(content.evidence, content.threads);
   const shots = buildShots(content.stations, content.evidence, framingFor(RENDER_ASPECT));
 
   return {
@@ -47,13 +47,13 @@ export const buildBlenderScene = (locale: Locale, finale: FinaleVariant) => {
         bump: finish.bumpScale,
         lift: finish.lift,
         curl: finish.curl,
-        pin: pinLocal(item),
+        pins: surface.shapeOf(item.id).pins.map((spot) => pinLocal(item, spot)),
         pinColor: PIN_COLORS[item.area],
       };
     }),
     threadRadius: THREAD_RADIUS,
-    threads: content.threads.map((thread) => ({
-      points: surface.threadBetween(thread.from, thread.to).map((point) => point.toArray() as Vec3),
+    threads: surface.threads.map((thread) => ({
+      points: surface.threadPoints(thread).map((point) => point.toArray() as Vec3),
       color: THREAD_COLORS[thread.area],
     })),
     reveal:

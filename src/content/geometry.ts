@@ -69,9 +69,14 @@ export const distanceOutside = (item: Evidence, point: Vec2): number => {
   return Math.hypot(dx, dy);
 };
 
-export const pinOffsetOf = (item: Evidence): Vec2 => [0, sizeOf(item).height / 2 - PIN_INSET];
+export type PinSpot = "top" | "bottom";
 
-export const pinOf = (item: Evidence): Vec2 => toWorld(item, pinOffsetOf(item));
+export const pinOffsetOf = (item: Evidence, spot: PinSpot = "top"): Vec2 => {
+  const reach = sizeOf(item).height / 2 - PIN_INSET;
+  return [0, spot === "top" ? reach : -reach];
+};
+
+export const pinOf = (item: Evidence, spot: PinSpot = "top"): Vec2 => toWorld(item, pinOffsetOf(item, spot));
 
 export interface Bounds {
   minX: number;

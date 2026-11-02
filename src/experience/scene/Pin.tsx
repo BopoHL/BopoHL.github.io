@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import type { PinSpot } from "@/content/geometry";
 import type { Evidence } from "@/content/types";
 import { seededRandom } from "../painters/random";
 import { useExperience } from "../state/store";
@@ -10,7 +11,7 @@ import { createPinParts } from "./pinModel";
 
 const MAX_TILT = 0.07;
 
-export function Pin({ item }: { item: Evidence }) {
+export function Pin({ item, spot }: { item: Evidence; spot: PinSpot }) {
   const style = useExperience((state) => state.variant.pins);
   const accentShader = useAccentShader();
   const worldShader = useWorldShader();
@@ -23,13 +24,13 @@ export function Pin({ item }: { item: Evidence }) {
     [parts],
   );
   const tilt = useMemo(() => {
-    const random = seededRandom(`${item.id}-pin`);
+    const random = seededRandom(`${item.id}-${spot}-pin`);
     return [(random() * 2 - 1) * MAX_TILT, (random() * 2 - 1) * MAX_TILT, 0] as const;
-  }, [item.id]);
+  }, [item.id, spot]);
   const color = PIN_COLORS[item.area];
 
   return (
-    <group position={pinLocal(item)} rotation={tilt}>
+    <group position={pinLocal(item, spot)} rotation={tilt}>
       <mesh geometry={parts.needle} castShadow>
         <meshStandardMaterial {...worldShader} color="#c9c6c0" metalness={1} roughness={0.25} />
       </mesh>

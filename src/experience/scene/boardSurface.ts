@@ -1,6 +1,7 @@
 import { Vector3 } from "three";
 import { distanceOutside, toLocal } from "@/content/geometry";
-import type { Evidence, Vec2 } from "@/content/types";
+import { pinBoard, type AnchoredThread } from "@/content/pinning";
+import type { Evidence, Thread, Vec2 } from "@/content/types";
 import { cardShapesFor, localHeight, type CardShape } from "./cardGeometry";
 import { cardZ, pinWorld } from "./layout3d";
 import { threadPath } from "./threadPath";
@@ -10,10 +11,13 @@ const THREAD_DRAPE = { radius: THREAD_RADIUS, clearance: 0.0025, sagPerUnit: 0.0
 
 export class BoardSurface {
   readonly shapes: CardShape[];
+  readonly threads: AnchoredThread[];
   private readonly byId: Map<string, CardShape>;
 
-  constructor(evidence: Evidence[]) {
-    this.shapes = cardShapesFor(evidence);
+  constructor(evidence: Evidence[], threads: Thread[]) {
+    const pinning = pinBoard(evidence, threads);
+    this.shapes = cardShapesFor(evidence, pinning.spots);
+    this.threads = pinning.threads;
     this.byId = new Map(this.shapes.map((shape) => [shape.item.id, shape]));
   }
 
@@ -33,13 +37,13 @@ export class BoardSurface {
     return top;
   }
 
-  threadBetween(fromId: string, toId: string): Vector3[] {
-    const from = this.shapeOf(fromId);
-    const to = this.shapeOf(toId);
+  threadPoints(thread: AnchoredThread): Vector3[] {
+    const from = this.shapeOf(thread.from);
+    const to = this.shapeOf(thread.to);
     return threadPath(
       this,
-      new Vector3(...pinWorld(from.item, from.index)),
-      new Vector3(...pinWorld(to.item, to.index)),
+      new Vector3(...pinWorld(from.item, from.index, thread.fromSpot)),
+      new Vector3(...pinWorld(to.item, to.index, thread.toSpot)),
       THREAD_DRAPE,
     );
   }

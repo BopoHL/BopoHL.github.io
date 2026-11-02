@@ -67,7 +67,9 @@ export function MugshotCard({ shape, front, back, bumpMap, stampText, onSelect }
         width={width * REVEAL_STAMP.widthRatio}
         rotation={REVEAL_STAMP.rotation}
       />
-      <Pin item={item} />
+      {shape.pins.map((spot) => (
+        <Pin key={spot} item={item} spot={spot} />
+      ))}
     </group>
   );
 }

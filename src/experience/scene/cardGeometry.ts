@@ -1,5 +1,5 @@
 import { MathUtils, PlaneGeometry } from "three";
-import { boundsOf, distanceOutside, pinOffsetOf, sizeOf, toWorld, type Bounds } from "@/content/geometry";
+import { boundsOf, distanceOutside, pinOffsetOf, sizeOf, toWorld, type Bounds, type PinSpot } from "@/content/geometry";
 import type { Evidence, Vec2 } from "@/content/types";
 import { wearHeight } from "../wear/height";
 import { wearFor, type Wear } from "../wear/profile";
@@ -23,6 +23,7 @@ export interface CardShape {
   finish: Finish;
   wear: Wear;
   occluders: Occluder[];
+  pins: PinSpot[];
 }
 
 const overlaps = (a: Bounds, b: Bounds, margin: number) =>
@@ -36,13 +37,14 @@ const occludersFor = (evidence: Evidence[], index: number): Occluder[] => {
     .map(({ item, gap }) => ({ item, gap }));
 };
 
-export const cardShapesFor = (evidence: Evidence[]): CardShape[] =>
+export const cardShapesFor = (evidence: Evidence[], pins: Map<string, PinSpot[]>): CardShape[] =>
   evidence.map((item, index) => ({
     item,
     index,
     finish: finishFor(item),
     wear: wearFor(item),
     occluders: occludersFor(evidence, index),
+    pins: pins.get(item.id) ?? ["top"],
   }));
 
 const ceilingAt = (occluders: Occluder[], point: Vec2) =>
@@ -51,15 +53,18 @@ const ceilingAt = (occluders: Occluder[], point: Vec2) =>
     Number.POSITIVE_INFINITY,
   );
 
-export const localHeight = ({ item, finish, wear, occluders }: CardShape, x: number, y: number) => {
+export const localHeight = ({ item, finish, wear, occluders, pins }: CardShape, x: number, y: number) => {
   const { width, height } = sizeOf(item);
-  const [pinX, pinY] = pinOffsetOf(item);
+  const longest = Math.max(width, height);
   const u = x / width;
   const v = y / height;
   const fromTop = 0.5 - v;
   const settled = finish.lift * fromTop * fromTop + finish.curl * u * u * fromTop * 4;
-  const calm = MathUtils.smoothstep(Math.hypot(x - pinX, y - pinY) / Math.max(width, height), ...PIN_CALM);
-  const shaped = settled + calm * wearHeight(wear, u, v);
+  const calm = pins.reduce((least, spot) => {
+    const [pinX, pinY] = pinOffsetOf(item, spot);
+    return Math.min(least, MathUtils.smoothstep(Math.hypot(x - pinX, y - pinY) / longest, ...PIN_CALM));
+  }, 1);
+  const shaped = calm * (settled + wearHeight(wear, u, v));
   return Math.min(shaped, ceilingAt(occluders, toWorld(item, [x, y])));
 };
 

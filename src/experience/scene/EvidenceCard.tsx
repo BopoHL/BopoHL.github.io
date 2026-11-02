@@ -33,6 +33,7 @@ export function EvidenceCard({ shape, texture, accentMask, bumpMap, onSelect }: 
   const surfaceBump = useSurfaceBump(bumpMap, item.id);
   const [pinX, pinY] = pinOffsetOf(item);
   const hoverAngle = useMemo(() => {
+    if (shape.pins.length > 1) return 0;
     const reach = pinY + sizeOf(item).height / 2;
     return -Math.atan(Math.min(HOVER_EDGE_LIFT, minimumGap(shape)) / reach);
   }, [item, pinY, shape]);
@@ -88,7 +89,9 @@ export function EvidenceCard({ shape, texture, accentMask, bumpMap, onSelect }: 
           />
         </mesh>
       </group>
-      <Pin item={item} />
+      {shape.pins.map((spot) => (
+        <Pin key={spot} item={item} spot={spot} />
+      ))}
     </group>
   );
 }

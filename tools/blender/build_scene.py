@@ -225,7 +225,8 @@ def build_evidence(scene_data, textures_dir, bump_path):
         card = link(bpy.data.objects.new(f"{item['id']} card", mesh), collection)
         card.data.materials.append(material)
         card.parent = holder
-        add_pin(holder, item["pin"], item["pinColor"], pin_materials)
+        for pin in item["pins"]:
+            add_pin(holder, pin, item["pinColor"], pin_materials)
         objects[item["id"]] = {"holder": holder, "card": card, "data": item}
     return objects
 
