@@ -88,6 +88,22 @@ const alifEvidence: Evidence[] = [
       "System response time fell from 1000 to ~200 ms. Sources credit SQL query optimization and a refactoring of high-load modules. The author of the changes has not come forward.",
     ),
     image: { scene: "servers" },
+    ink: l(
+      {
+        marks: [
+          { phrase: "в 5 раз", stroke: "circle", tool: "marker" },
+          { phrase: "~200 мс", stroke: "circle", tool: "marker" },
+          { phrase: "Автор изменений публично не назвался", stroke: "underline", tool: "marker" },
+        ],
+      },
+      {
+        marks: [
+          { phrase: "fivefold", stroke: "circle", tool: "marker" },
+          { phrase: "~200", stroke: "circle", tool: "marker" },
+          { phrase: "The author of the changes has not come forward", stroke: "underline", tool: "marker" },
+        ],
+      },
+    ),
   },
   {
     id: "alif-chart",
@@ -122,7 +138,7 @@ const alifEvidence: Evidence[] = [
     position: [-12.45, 0.05],
     rotation: 2,
     width: 3.25,
-    aspect: 1.08,
+    aspect: 1.24,
     title: l("ALIF UZBEKISTAN", "ALIF UZBEKISTAN"),
     subtitle: l("Backend-разработчик, апр 2024 — ноя 2025", "Backend developer, Apr 2024 — Nov 2025"),
     lines: l(
@@ -144,6 +160,29 @@ const alifEvidence: Evidence[] = [
       ],
     ),
     stamp: l("Улика № 1", "Exhibit 1"),
+    classified: l(["Зарплата:", "Доступ к проду:", "NDA:"], ["Salary:", "Prod access:", "NDA:"]),
+    ink: l(
+      {
+        marks: [
+          { phrase: "Unified Identity", stroke: "underline", tool: "pen" },
+          { phrase: "CQRS", stroke: "circle", tool: "pen" },
+        ],
+        notes: [
+          { text: "совпадение?", at: [0.63, 0.745], size: 0.055, rotation: -4, struck: true },
+          { text: "нет.", at: [0.87, 0.74], size: 0.06, rotation: -6 },
+        ],
+      },
+      {
+        marks: [
+          { phrase: "Unified Identity", stroke: "underline", tool: "pen" },
+          { phrase: "CQRS", stroke: "circle", tool: "pen" },
+        ],
+        notes: [
+          { text: "coincidence?", at: [0.63, 0.745], size: 0.055, rotation: -4, struck: true },
+          { text: "no.", at: [0.88, 0.74], size: 0.06, rotation: -6 },
+        ],
+      },
+    ),
   },
   {
     id: "alif-rumor",
@@ -169,6 +208,10 @@ const alifEvidence: Evidence[] = [
       "Аудит ресурсов и хранилищ в Kubernetes и внедрение сжатия данных снизили расходы на инфраструктуру.",
       "An audit of Kubernetes resources and storage, plus data compression, cut infrastructure costs.",
     ),
+    ink: l(
+      { marks: [{ phrase: "снизили расходы на инфраструктуру", stroke: "underline", tool: "marker" }] },
+      { marks: [{ phrase: "cut infrastructure costs", stroke: "underline", tool: "marker" }] },
+    ),
   },
 ];
 
@@ -177,22 +220,39 @@ const dmedEvidence: Evidence[] = [
     id: "dmed-secret",
     kind: "redacted",
     area: "work",
-    position: [-9.4, 6.35],
+    position: [-9.4, 6.55],
     rotation: -3,
     width: 2.9,
-    aspect: 1.12,
+    aspect: 1.24,
     title: l("DMed", "DMed"),
     subtitle: l("Backend-разработчик, фев — авг 2026", "Backend developer, Feb — Aug 2026"),
     lines: [
       { text: l("Подрядчик:", "Contractor:"), redact: 9 },
       { text: l("Highload: оптимизированные запросы PostgreSQL", "Highload: optimized PostgreSQL queries") },
       { text: l("Интеграции со службами МВД и прокуратуры", "Integrations with the Interior Ministry and prosecutors") },
-      { redact: 24 },
       { text: l("Файлы перенесены в SeaweedFS, хранилища дешевле", "Files moved to SeaweedFS, cheaper storage") },
-      { redact: 15 },
       { text: l("Сжатые сроки, высокие государственные требования", "Tight deadlines, strict government requirements") },
+      { text: l("Зарплата:", "Salary:"), redact: 12 },
+      { text: l("Доступ к проду:", "Prod access:"), redact: 8 },
+      { text: l("NDA:", "NDA:"), redact: 14 },
     ],
     stamp: l("Секретно", "Classified"),
+    ink: l(
+      {
+        marks: [
+          { phrase: "Highload", stroke: "underline", tool: "pen" },
+          { phrase: "SeaweedFS", stroke: "circle", tool: "pen" },
+        ],
+        notes: [{ text: "подрядчик?", at: [0.64, 0.29], size: 0.065, rotation: -5 }],
+      },
+      {
+        marks: [
+          { phrase: "Highload", stroke: "underline", tool: "pen" },
+          { phrase: "SeaweedFS", stroke: "circle", tool: "pen" },
+        ],
+        notes: [{ text: "contractor?", at: [0.64, 0.29], size: 0.065, rotation: -5 }],
+      },
+    ),
   },
   {
     id: "dmed-clip",
@@ -212,6 +272,20 @@ const dmedEvidence: Evidence[] = [
       "DMed is Uzbekistan's unified state medical system. The integrations were built on tight deadlines under strict government requirements. The developer's name appears in no report.",
     ),
     image: { scene: "corridor" },
+    ink: l(
+      {
+        marks: [
+          { phrase: "DMed", stroke: "circle", tool: "marker" },
+          { phrase: "Имя разработчика в отчётах не фигурирует", stroke: "underline", tool: "marker" },
+        ],
+      },
+      {
+        marks: [
+          { phrase: "DMed", stroke: "circle", tool: "marker" },
+          { phrase: "The developer's name appears in no report", stroke: "underline", tool: "marker" },
+        ],
+      },
+    ),
   },
   {
     id: "dmed-storage",
@@ -227,6 +301,10 @@ const dmedEvidence: Evidence[] = [
     body: l(
       "Хранение файлов оптимизировали в базе данных и SeaweedFS: затраты на хранилища сократились.",
       "File storage was optimized across the database and SeaweedFS, cutting storage costs.",
+    ),
+    ink: l(
+      { marks: [{ phrase: "SeaweedFS", stroke: "circle", tool: "marker" }] },
+      { marks: [{ phrase: "SeaweedFS", stroke: "circle", tool: "marker" }] },
     ),
   },
   {
@@ -282,6 +360,22 @@ const projectEvidence: Evidence[] = [
       ],
     ),
     link: "https://t.me/split_the_bills_bot",
+    ink: l(
+      {
+        marks: [{ phrase: "Laravel Octane + FrankenPHP", stroke: "underline", tool: "pen" }],
+        notes: [
+          { text: "просто хобби?", at: [0.1, 0.93], size: 0.06, rotation: -3, struck: true },
+          { text: "→ в проде", at: [0.5, 0.94], size: 0.065, rotation: -4 },
+        ],
+      },
+      {
+        marks: [{ phrase: "Laravel Octane + FrankenPHP", stroke: "underline", tool: "pen" }],
+        notes: [
+          { text: "just a hobby?", at: [0.1, 0.93], size: 0.06, rotation: -3, struck: true },
+          { text: "→ in production", at: [0.48, 0.94], size: 0.065, rotation: -4 },
+        ],
+      },
+    ),
   },
   {
     id: "stb-link",
@@ -306,6 +400,10 @@ const projectEvidence: Evidence[] = [
     subtitle: l("Открытые материалы дела", "Public case files"),
     lines: l(["github.com/BopoHL"], ["github.com/BopoHL"]),
     link: "https://github.com/BopoHL",
+    ink: l(
+      { marks: [{ phrase: "github.com/BopoHL", stroke: "circle", tool: "pen" }] },
+      { marks: [{ phrase: "github.com/BopoHL", stroke: "circle", tool: "pen" }] },
+    ),
   },
   {
     id: "this-site",
@@ -363,6 +461,20 @@ const studyEvidence: Evidence[] = [
       "Winners of the ITPU | EPAM program earned a fully paid internship and a visit to EPAM's offices in Spain. One of them matches the suspect's description.",
     ),
     image: { scene: "students" },
+    ink: l(
+      {
+        marks: [
+          { phrase: "полностью оплачиваемую стажировку", stroke: "circle", tool: "marker" },
+          { phrase: "Один из них совпадает с приметами подозреваемого", stroke: "underline", tool: "marker" },
+        ],
+      },
+      {
+        marks: [
+          { phrase: "fully paid internship", stroke: "circle", tool: "marker" },
+          { phrase: "One of them matches the suspect's description", stroke: "underline", tool: "marker" },
+        ],
+      },
+    ),
   },
   {
     id: "codebattle",
@@ -417,6 +529,10 @@ const studyEvidence: Evidence[] = [
       "PHP fundamentals, SQL and Redis, two Laravel applications",
     ),
     year: "2023 — 2024",
+    ink: l(
+      { marks: [{ phrase: "два приложения на Laravel", stroke: "underline", tool: "pen" }] },
+      { marks: [{ phrase: "two Laravel applications", stroke: "underline", tool: "pen" }] },
+    ),
   },
   {
     id: "academy-sticky",
@@ -441,6 +557,10 @@ const studyEvidence: Evidence[] = [
     title: l("Мобильная разработка на Flutter", "Mobile development with Flutter"),
     details: l("Шесть пет-проектов: Provider, BLoC, Hive, REST API", "Six pet projects: Provider, BLoC, Hive, REST APIs"),
     year: "2023",
+    ink: l(
+      { marks: [{ phrase: "Шесть пет-проектов", stroke: "underline", tool: "pen" }] },
+      { marks: [{ phrase: "Six pet projects", stroke: "underline", tool: "pen" }] },
+    ),
   },
   {
     id: "citymove",
@@ -458,6 +578,10 @@ const studyEvidence: Evidence[] = [
       "A Flutter mobile app. The frontend was built by a young developer whose name the editors could not establish.",
     ),
     image: { scene: "busStop" },
+    ink: l(
+      { marks: [{ phrase: "молодой разработчик", stroke: "circle", tool: "marker" }] },
+      { marks: [{ phrase: "a young developer", stroke: "circle", tool: "marker" }] },
+    ),
   },
   {
     id: "volunteer",
@@ -528,6 +652,10 @@ const hobbyEvidence: Evidence[] = [
     body: l(
       "Дистанция: ██ км. Участник № ███. Время уточняется.",
       "Distance: ██ km. Runner № ███. Time pending.",
+    ),
+    ink: l(
+      { marks: [{ phrase: "Время уточняется.", stroke: "circle", tool: "marker" }] },
+      { marks: [{ phrase: "Time pending.", stroke: "circle", tool: "marker" }] },
     ),
   },
 ];
