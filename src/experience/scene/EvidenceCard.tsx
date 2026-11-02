@@ -84,6 +84,7 @@ export function EvidenceCard({ shape, texture, accentMask, bumpMap, onSelect }: 
             bumpMap={surfaceBump}
             bumpScale={finish.bumpScale * (0.6 + wear.crumple)}
             alphaTest={0.5}
+            alphaToCoverage
           />
         </mesh>
       </group>
