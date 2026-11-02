@@ -7,6 +7,7 @@ import { useExperience } from "./state/store";
 import { useReducedMotion } from "./useReducedMotion";
 
 const SCROLL_LEAD = 1.25;
+const LEASH_TOLERANCE_PX = 1;
 const TRAVEL_DURATION = 2.2;
 
 const maxScroll = () => Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
@@ -22,12 +23,15 @@ export const useScrollDriver = (shotCount: number) => {
     const instance = new Lenis({ autoRaf: true, lerp: reduceMotion ? 1 : 0.085, wheelMultiplier: 0.9, syncTouch: true });
     const lastShot = Math.max(0, shotCount - 1);
     const update = () => {
-      const max = maxScroll();
-      const progress = (window.scrollY / max) * lastShot;
+      const max = Math.max(1, instance.limit);
+      const progress = (instance.scroll / max) * lastShot;
       const { viewedProgress, travelTarget } = useExperience.getState();
       const allowed = travelTarget === null ? leashed(progress, viewedProgress, SCROLL_LEAD) : progress;
-      if (allowed !== progress) instance.scrollTo((allowed / Math.max(1, lastShot)) * max, { immediate: true, force: true });
       setProgress(allowed);
+      const allowedScroll = (allowed / Math.max(1, lastShot)) * max;
+      if (Math.abs(allowedScroll - instance.scroll) > LEASH_TOLERANCE_PX) {
+        instance.scrollTo(allowedScroll, { immediate: true, force: true });
+      }
     };
     instance.on("scroll", update);
     update();
