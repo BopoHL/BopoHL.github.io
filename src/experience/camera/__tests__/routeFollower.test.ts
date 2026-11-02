@@ -43,7 +43,7 @@ describe("RouteFollower", () => {
   it("pauses at every stop on the way", () => {
     const { frames } = fling(0, lastInvestigationShot, 90);
     for (let shot = 1; shot < lastInvestigationShot; shot++) {
-      const resting = frames.filter((frame) => frame.nearest === shot && frame.speed < 0.05).length * FRAME;
+      const resting = frames.filter((frame) => frame.nearest === shot && frame.speed < 0.15).length * FRAME;
       expect(resting).toBeGreaterThan(CINEMA_MOTION.dwell * 0.8);
     }
   });

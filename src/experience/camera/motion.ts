@@ -24,9 +24,9 @@ export interface CameraMotion {
 const ROUTE_FOLLOW = {
   ease: smootherstep,
   easePeak: 1.875,
-  progressSettle: 0.25,
-  dwell: 0.45,
-  browse: { heightsPerSecond: 2.4, maxShotsPerSecond: 1.4 },
+  progressSettle: 0.2,
+  dwell: 0.3,
+  browse: { heightsPerSecond: 3, maxShotsPerSecond: 1.8 },
   travel: { heightsPerSecond: 6, maxShotsPerSecond: 3 },
   haste: [0.9, 2.2] as [number, number],
 };
@@ -43,7 +43,7 @@ export const CINEMA_MOTION: CameraMotion = {
   ...ROUTE_FOLLOW,
   hold: 0.15,
   gazeLead: 0.08,
-  settle: 0.3,
+  settle: 0.25,
   parallax: 0.08,
 };
 
