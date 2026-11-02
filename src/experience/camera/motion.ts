@@ -13,7 +13,17 @@ export interface CameraMotion {
   bank: number;
   settle: number;
   parallax: number;
+  progressSettle: number;
+  maxShotsPerSecond: number;
+  haste: [number, number];
+  travelLift: number;
 }
+
+const ROUTE_FOLLOW = {
+  progressSettle: 0.35,
+  maxShotsPerSecond: 3.5,
+  haste: [0.7, 2.2] as [number, number],
+};
 
 export const CLASSIC_MOTION: CameraMotion = {
   hold: 0.32,
@@ -26,6 +36,8 @@ export const CLASSIC_MOTION: CameraMotion = {
   bank: 0,
   settle: 0.32,
   parallax: 0.18,
+  ...ROUTE_FOLLOW,
+  travelLift: 4,
 };
 
 export const CINEMA_MOTION: CameraMotion = {
@@ -37,8 +49,10 @@ export const CINEMA_MOTION: CameraMotion = {
   maxPullback: 6,
   swing: 0.15,
   bank: 0.04,
-  settle: 0.45,
+  settle: 0.3,
   parallax: 0.08,
+  ...ROUTE_FOLLOW,
+  travelLift: 3,
 };
 
 const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1);

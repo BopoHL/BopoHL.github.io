@@ -5,17 +5,25 @@ interface SpringStep {
   velocity: number;
 }
 
-export const smoothDamp = (current: number, target: number, velocity: number, smoothTime: number, delta: number): SpringStep => {
+export const smoothDamp = (
+  current: number,
+  target: number,
+  velocity: number,
+  smoothTime: number,
+  delta: number,
+  maxSpeed = Number.POSITIVE_INFINITY,
+): SpringStep => {
   if (delta <= 0) return { value: current, velocity };
-  const omega = 2 / Math.max(smoothTime, 1e-4);
+  const time = Math.max(smoothTime, 1e-4);
+  const omega = 2 / time;
   const x = omega * delta;
   const decay = 1 / (1 + x + 0.48 * x * x + 0.235 * x * x * x);
-  const offset = current - target;
+  const reach = maxSpeed * time;
+  const offset = Math.min(Math.max(current - target, -reach), reach);
   const temp = (velocity + omega * offset) * delta;
-  return {
-    value: target + (offset + temp) * decay,
-    velocity: (velocity - omega * temp) * decay,
-  };
+  const value = current - offset + (offset + temp) * decay;
+  const overshot = target - current > 0 === value > target;
+  return overshot ? { value: target, velocity: 0 } : { value, velocity: (velocity - omega * temp) * decay };
 };
 
 export class ScalarSpring {
@@ -31,8 +39,8 @@ export class ScalarSpring {
     this.velocity = 0;
   }
 
-  update(target: number, smoothTime: number, delta: number) {
-    const step = smoothDamp(this.value, target, this.velocity, smoothTime, delta);
+  update(target: number, smoothTime: number, delta: number, maxSpeed?: number) {
+    const step = smoothDamp(this.value, target, this.velocity, smoothTime, delta, maxSpeed);
     this.value = step.value;
     this.velocity = step.velocity;
     return this.value;
