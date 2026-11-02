@@ -23,6 +23,8 @@ export const ui = {
     "Тяните, чтобы двигать доску. Колесо или щипок — приблизить. Нажмите на улику, чтобы рассмотреть её.",
     "Drag to move the board. Scroll or pinch to zoom. Tap a piece of evidence to look closer.",
   ),
+  toDesk: l("К столу", "To the desk"),
+  toBoard: l("К доске", "To the board"),
   stationsLabel: l("Ход расследования", "Investigation progress"),
   contactTitle: l("Связаться", "Get in touch"),
   dossier: {

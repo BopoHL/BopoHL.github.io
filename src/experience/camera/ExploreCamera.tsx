@@ -8,21 +8,32 @@ import { Box3, Vector3 } from "three";
 import { BOARD_SIZE } from "@/content/board";
 import { boundsOf } from "@/content/geometry";
 import type { Evidence } from "@/content/types";
-import { useExperience } from "../state/store";
+import { DESK } from "../desk/layout";
+import { useExperience, type ExploreView } from "../state/store";
 import { useRig } from "./rig";
 
 const { ACTION } = CameraControlsImpl;
 const MIN_DISTANCE = 5.5;
 
-const boardBox = new Box3(
-  new Vector3(-BOARD_SIZE.width / 2, -BOARD_SIZE.height / 2, 0),
-  new Vector3(BOARD_SIZE.width / 2, BOARD_SIZE.height / 2, 0.5),
+const roomBox = new Box3(
+  new Vector3(-BOARD_SIZE.width / 2, DESK.top, 0),
+  new Vector3(BOARD_SIZE.width / 2, BOARD_SIZE.height / 2, DESK.front),
 );
+
+const VIEWS: Record<ExploreView, { position: Vector3; target: Vector3 }> = {
+  board: { position: new Vector3(0, 0, 26), target: new Vector3(0, 0, 0) },
+  desk: {
+    position: new Vector3(-0.5, DESK.top + 8.5, (DESK.back + DESK.front) / 2 + 9.5),
+    target: new Vector3(-0.5, DESK.top, (DESK.back + DESK.front) / 2),
+  },
+};
 
 export function ExploreCamera({ evidence }: { evidence: Evidence[] }) {
   const controls = useRef<CameraControlsImpl>(null);
   const rig = useRig();
   const focused = useExperience((state) => state.focusedEvidence);
+  const view = useExperience((state) => state.exploreView);
+  const previousView = useRef<ExploreView>(view);
 
   useEffect(() => {
     const instance = controls.current;
@@ -30,8 +41,16 @@ export function ExploreCamera({ evidence }: { evidence: Evidence[] }) {
     const position = new Vector3();
     instance.camera.getWorldPosition(position);
     instance.setLookAt(position.x, position.y, position.z, rig.target.x, rig.target.y, rig.target.z, false);
-    instance.setBoundary(boardBox);
+    instance.setBoundary(roomBox);
   }, [rig]);
+
+  useEffect(() => {
+    const instance = controls.current;
+    if (!instance || view === previousView.current) return;
+    previousView.current = view;
+    const { position, target } = VIEWS[view];
+    instance.setLookAt(position.x, position.y, position.z, target.x, target.y, target.z, true);
+  }, [view]);
 
   useEffect(() => {
     const instance = controls.current;
@@ -52,10 +71,10 @@ export function ExploreCamera({ evidence }: { evidence: Evidence[] }) {
       ref={controls}
       minDistance={MIN_DISTANCE}
       maxDistance={34}
-      minPolarAngle={Math.PI / 2 - 0.25}
+      minPolarAngle={Math.PI / 2 - 1.05}
       maxPolarAngle={Math.PI / 2 + 0.25}
-      minAzimuthAngle={-0.3}
-      maxAzimuthAngle={0.3}
+      minAzimuthAngle={-0.45}
+      maxAzimuthAngle={0.45}
       dollyToCursor
       smoothTime={0.35}
       mouseButtons={{ left: ACTION.TRUCK, middle: ACTION.DOLLY, right: ACTION.ROTATE, wheel: ACTION.DOLLY }}

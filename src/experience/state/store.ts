@@ -3,6 +3,7 @@ import type { Locale } from "@/content/types";
 import { DEFAULT_VARIANT, type PilotVariant } from "./variant";
 
 export type CameraMode = "route" | "explore";
+export type ExploreView = "board" | "desk";
 
 interface ExperienceState {
   locale: Locale;
@@ -20,6 +21,7 @@ interface ExperienceState {
   dossierOpen: boolean;
   soundOn: boolean;
   focusedEvidence: string | null;
+  exploreView: ExploreView;
   setLocale: (locale: Locale) => void;
   setVariant: (variant: Partial<PilotVariant>) => void;
   setMode: (mode: CameraMode) => void;
@@ -33,6 +35,7 @@ interface ExperienceState {
   setDossierOpen: (open: boolean) => void;
   toggleSound: () => void;
   focusEvidence: (id: string | null) => void;
+  setExploreView: (view: ExploreView) => void;
 }
 
 export const useExperience = create<ExperienceState>()((set) => ({
@@ -51,13 +54,14 @@ export const useExperience = create<ExperienceState>()((set) => ({
   dossierOpen: false,
   soundOn: false,
   focusedEvidence: null,
+  exploreView: "board",
   setLocale: (locale) => set({ locale }),
   setVariant: (variant) =>
     set((state) => {
       const next = { ...state.variant, ...variant };
       return { variant: next, mode: next.explore ? state.mode : "route" };
     }),
-  setMode: (mode) => set({ mode, focusedEvidence: null }),
+  setMode: (mode) => set({ mode, focusedEvidence: null, exploreView: "board" }),
   setProgress: (progress) => set({ progress }),
   setViewedProgress: (viewedProgress) => set({ viewedProgress }),
   travelTo: (travelTarget) => set({ travelTarget }),
@@ -68,4 +72,5 @@ export const useExperience = create<ExperienceState>()((set) => ({
   setDossierOpen: (dossierOpen) => set({ dossierOpen }),
   toggleSound: () => set((state) => ({ soundOn: !state.soundOn })),
   focusEvidence: (focusedEvidence) => set({ focusedEvidence }),
+  setExploreView: (exploreView) => set({ exploreView, focusedEvidence: null }),
 }));

@@ -9,6 +9,8 @@ import styles from "./hud.module.css";
 export function ExploreBar({ locale }: { locale: Locale }) {
   const mode = useExperience((state) => state.mode);
   const setMode = useExperience((state) => state.setMode);
+  const view = useExperience((state) => state.exploreView);
+  const setView = useExperience((state) => state.setExploreView);
 
   useEffect(() => {
     if (mode !== "explore") return;
@@ -23,6 +25,13 @@ export function ExploreBar({ locale }: { locale: Locale }) {
   return (
     <div className={styles.exploreBar}>
       <p>{ui.exploreHint[locale]}</p>
+      <button
+        type="button"
+        className={styles.secondary}
+        onClick={() => setView(view === "board" ? "desk" : "board")}
+      >
+        {view === "board" ? ui.toDesk[locale] : ui.toBoard[locale]}
+      </button>
       <button type="button" className={styles.secondary} onClick={() => setMode("route")}>
         {ui.backToRoute[locale]}
       </button>
