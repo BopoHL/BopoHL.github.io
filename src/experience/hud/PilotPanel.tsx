@@ -61,6 +61,14 @@ const GROUPS: AnyPilotGroup[] = [
     ],
     action: { label: ui.pilot.listen, run: (variant) => previewTypewriter(variant.typing) },
   },
+  {
+    key: "pins",
+    legend: ui.pilot.pins,
+    options: [
+      { value: "push", label: ui.pilot.push },
+      { value: "map", label: ui.pilot.map },
+    ],
+  },
 ];
 
 export function PilotPanel({ locale }: { locale: Locale }) {

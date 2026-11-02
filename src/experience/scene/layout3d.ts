@@ -16,10 +16,10 @@ export const pinWorld = (item: Evidence, index: number): [number, number, number
 export const pinLocal = (item: Evidence): [number, number, number] => [...pinOffsetOf(item), 0];
 
 export const PIN_COLORS: Record<Area, string> = {
-  case: "#b08d57",
-  work: "#b3242a",
-  study: "#2c5aa8",
-  hobby: "#417d3e",
+  case: "#ffd21f",
+  work: "#e3262b",
+  study: "#2f6fe8",
+  hobby: "#2fa84f",
 };
 
 export const THREAD_COLORS: Record<Exclude<Area, "case">, string> = {

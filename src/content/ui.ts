@@ -55,6 +55,9 @@ export const ui = {
     metal: l("Металлический звон", "Metallic ring"),
     muffled: l("Глухая, за стеной", "Muffled, next room"),
     listen: l("Прослушать", "Listen"),
+    pins: l("Булавки", "Pins"),
+    push: l("Кнопки с пластиковой головкой", "Push pins"),
+    map: l("Булавки с шариком", "Map pins"),
   },
   language: l("Язык", "Language"),
   print: {
