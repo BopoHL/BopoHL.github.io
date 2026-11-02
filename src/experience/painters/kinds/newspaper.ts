@@ -8,6 +8,8 @@ import type { Rect } from "../surface";
 import { drawJustifiedLine, fitText, wrapText } from "../text";
 import type { PaintJob } from "./job";
 
+const TWO_COLUMN_WIDTH = 3.2;
+
 const layoutColumns = (
   ctx: CanvasRenderingContext2D,
   text: string,
@@ -90,7 +92,7 @@ export const paintNewspaper = async ({ item, locale, surface }: PaintJob<Newspap
   }
 
   const area = { x: pad, y, width: inner, height: H - y - pad * 0.8 };
-  const columns = W >= 950 ? 2 : 1;
+  const columns = item.width >= TWO_COLUMN_WIDTH ? 2 : 1;
   const body = layoutColumns(
     ctx,
     item.body[locale],
