@@ -54,21 +54,32 @@ const areaOf = (bounds: Bounds) => {
   return width * height;
 };
 
-const canShareFrame = (group: Evidence[], item: Evidence) => {
+interface Level {
+  options: FramingOptions;
+  height: number;
+}
+
+const canShareFrame = (group: Evidence[], item: Evidence, level: Level) => {
   const members = [...group, item].map(boundsOf);
   const union = unionBounds(members);
   const { width, height } = extentOf(union);
   const separately = members.reduce((sum, bounds) => sum + areaOf(bounds), 0);
-  return width / height >= PAIR_MIN_ASPECT && areaOf(union) <= separately * PAIR_AREA_RATIO;
+  return (
+    width / height >= PAIR_MIN_ASPECT &&
+    areaOf(union) <= separately * PAIR_AREA_RATIO &&
+    distanceToFit(union, level.options) <= level.height
+  );
 };
 
-const pairNeighbours = (items: Evidence[], maxPerShot: number): Evidence[][] =>
+const pairNeighbours = (items: Evidence[], maxPerShot: number, level: Level): Evidence[][] =>
   items.reduce<Evidence[][]>((groups, item) => {
     const current = groups.at(-1);
-    if (current && current.length < maxPerShot && canShareFrame(current, item)) current.push(item);
+    if (current && current.length < maxPerShot && canShareFrame(current, item, level)) current.push(item);
     else groups.push([item]);
     return groups;
   }, []);
+
+
 
 const hash01 = (seed: string) => {
   let hash = 2166136261;
@@ -92,9 +103,9 @@ const cinematicAngle = (station: Station, shotNumber: number): ShotAngle => {
   const side = shotNumber % 2 === 0 ? 1 : -1;
   const seed = `${station.id}-${shotNumber}`;
   return {
-    yaw: base.yaw * 0.4 + side * (7 + 5 * hash01(`${seed}-yaw`)) * DEGREE,
-    pitch: base.pitch * 0.4 + (hash01(`${seed}-pitch`) - 0.5) * 10 * DEGREE,
-    roll: -side * (1 + 1.5 * hash01(`${seed}-roll`)) * DEGREE,
+    yaw: base.yaw * 0.3 + side * (3 + 3 * hash01(`${seed}-yaw`)) * DEGREE,
+    pitch: base.pitch * 0.3 + (hash01(`${seed}-pitch`) - 0.5) * 4 * DEGREE,
+    roll: -side * (0.5 + 0.8 * hash01(`${seed}-roll`)) * DEGREE,
   };
 };
 
@@ -152,7 +163,14 @@ export const fitsInView = (bounds: Bounds, position: Vec3, target: Vec3, options
 const MAX_FIT_STEPS = 60;
 const FIT_STEP = 1.025;
 
-const shotFor = (stationIndex: number, station: Station, bounds: Bounds, base: FramingOptions, angle: ShotAngle): Shot => {
+const shotFor = (
+  stationIndex: number,
+  station: Station,
+  bounds: Bounds,
+  base: FramingOptions,
+  angle: ShotAngle,
+  minHeight = 0,
+): Shot => {
   const options = { ...base, safeBottom: Math.max(base.safeBottom, station.reserveBottom ?? 0) };
   const { yaw, pitch, roll } = angle;
   const direction: Vec3 = [Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), Math.cos(yaw) * Math.cos(pitch)];
@@ -178,13 +196,18 @@ const shotFor = (stationIndex: number, station: Station, bounds: Bounds, base: F
     distance *= FIT_STEP;
     shot = place(distance);
   }
-  return shot;
+  return distance * direction[2] < minHeight ? place(minHeight / direction[2]) : shot;
 };
 
-const groupsFor = (items: Evidence[], style: CameraStyle, portrait: boolean): Evidence[][] => {
-  if (style === "cinema") return pairNeighbours(items, portrait ? 1 : 2);
+const groupsFor = (items: Evidence[], style: CameraStyle, portrait: boolean, level: Level): Evidence[][] => {
+  if (style === "cinema") return pairNeighbours(items, portrait ? 1 : 2, level);
   return portrait ? chunk(items, PORTRAIT_GROUP) : [items];
 };
+
+const levelFor = (groups: Evidence[][], options: FramingOptions): Level => ({
+  options,
+  height: Math.max(...groups.map((group) => distanceToFit(unionBounds(group.map(boundsOf)), options))),
+});
 
 const isCalm = (station: Station, isLast: boolean) => station.focus === "all" || isLast;
 
@@ -196,21 +219,29 @@ export const buildShots = (
 ): Shot[] => {
   const byId = new Map(evidence.map((item) => [item.id, item]));
   const portrait = options.aspect < PORTRAIT_ASPECT;
+  const focusOf = (station: Station) =>
+    station.focus === "all"
+      ? []
+      : station.focus.map((id) => {
+          const item = byId.get(id);
+          if (!item) throw new Error(`Station ${station.id} references unknown evidence ${id}`);
+          return item;
+        });
+  const investigation = stations.filter((station, index) => !isCalm(station, index === stations.length - 1));
+  const unitGroups =
+    style === "cinema"
+      ? investigation.flatMap((station) => focusOf(station).map((item) => [item]))
+      : investigation.flatMap((station) => groupsFor(focusOf(station), style, portrait, { options, height: Infinity }));
+  const level = levelFor(unitGroups, options);
   let shotNumber = 0;
   return stations.flatMap((station, stationIndex) => {
-    const isLast = stationIndex === stations.length - 1;
-    const angleFor = () =>
-      style === "cinema" && !isCalm(station, isLast) ? cinematicAngle(station, shotNumber++) : stationAngle(station);
+    const calm = isCalm(station, stationIndex === stations.length - 1);
+    const angleFor = () => (style === "cinema" && !calm ? cinematicAngle(station, shotNumber++) : stationAngle(station));
     if (station.focus === "all") {
       return [shotFor(stationIndex, station, boardBounds(), { ...options, padding: OVERVIEW_PADDING }, angleFor())];
     }
-    const items = station.focus.map((id) => {
-      const item = byId.get(id);
-      if (!item) throw new Error(`Station ${station.id} references unknown evidence ${id}`);
-      return item;
-    });
-    return groupsFor(items, style, portrait).map((group) =>
-      shotFor(stationIndex, station, unionBounds(group.map(boundsOf)), options, angleFor()),
+    return groupsFor(focusOf(station), style, portrait, level).map((group) =>
+      shotFor(stationIndex, station, unionBounds(group.map(boundsOf)), options, angleFor(), calm ? 0 : level.height),
     );
   });
 };

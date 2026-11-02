@@ -28,11 +28,19 @@ describe("RouteTrack", () => {
     expect(pose.nearest).toBe(2);
   });
 
-  it("pulls back from the board while travelling fast", () => {
-    const calm = track.poseAt(3, 0, createPose());
-    const hasty = track.poseAt(3, 1, createPose());
-    expect(hasty.position.z - calm.position.z).toBeCloseTo(CINEMA_MOTION.travelLift);
-    expect(hasty.roll).toBe(0);
+  it("glides between shots without pushing in or pulling out", () => {
+    const pose = createPose();
+    for (let progress = 0; progress < shots.length - 1; progress += 0.01) {
+      const from = shots[Math.floor(progress)];
+      const to = shots[Math.min(Math.floor(progress) + 1, shots.length - 1)];
+      track.poseAt(progress, 0, pose);
+      expect(pose.position.z).toBeLessThanOrEqual(Math.max(from.position[2], to.position[2]) + 1e-9);
+      expect(pose.position.z).toBeGreaterThanOrEqual(Math.min(from.position[2], to.position[2]) - 1e-9);
+    }
+  });
+
+  it("levels the horizon while travelling fast", () => {
+    expect(track.poseAt(3, 1, createPose()).roll).toBe(0);
   });
 
   it.each([0, 0.5, 1])("moves continuously along the whole route at haste %s", (haste) => {

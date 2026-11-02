@@ -74,6 +74,23 @@ describe("cinematic shots", () => {
   });
 });
 
+describe("level camera", () => {
+  const { stations, evidence } = boardContentFor("reveal");
+
+  it.each([
+    ["landscape", 16 / 9],
+    ["portrait", 9 / 19.5],
+  ])("keeps most investigation shots at one height on %s screens", (_, aspect) => {
+    const shots = buildShots(stations, evidence, framingFor(aspect, "cinema"), "cinema");
+    const heights = shots
+      .filter((shot, index) => stations[shot.stationIndex].focus !== "all" && index < shots.length - 1)
+      .map((shot) => shot.position[2] - shot.target[2]);
+    const level = Math.min(...heights);
+    const atLevel = heights.filter((height) => height < level + 0.01).length;
+    expect(atLevel / heights.length).toBeGreaterThanOrEqual(0.8);
+  });
+});
+
 describe("blendAt", () => {
   it("holds on a shot before moving to the next one", () => {
     expect(blendAt(2.2, 5, 0.3)).toMatchObject({ from: 2, to: 3, raw: 0, nearest: 2 });

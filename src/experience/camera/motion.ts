@@ -2,57 +2,49 @@ export type Easing = (t: number) => number;
 
 export const smootherstep: Easing = (t) => t * t * t * (t * (t * 6 - 15) + 10);
 
+export interface Pace {
+  heightsPerSecond: number;
+  maxShotsPerSecond: number;
+}
+
 export interface CameraMotion {
   hold: number;
   ease: Easing;
+  easePeak: number;
   gazeLead: number;
-  pullback: number;
-  minPullback: number;
-  maxPullback: number;
-  swing: number;
-  bank: number;
   settle: number;
   parallax: number;
   progressSettle: number;
-  maxShotsPerSecond: number;
+  dwell: number;
+  browse: Pace;
+  travel: Pace;
   haste: [number, number];
-  travelLift: number;
 }
 
 const ROUTE_FOLLOW = {
+  ease: smootherstep,
+  easePeak: 1.875,
   progressSettle: 0.35,
-  maxShotsPerSecond: 3.5,
-  haste: [0.7, 2.2] as [number, number],
+  dwell: 0.9,
+  browse: { heightsPerSecond: 1.2, maxShotsPerSecond: 0.7 },
+  travel: { heightsPerSecond: 6, maxShotsPerSecond: 3 },
+  haste: [0.9, 2.2] as [number, number],
 };
 
 export const CLASSIC_MOTION: CameraMotion = {
-  hold: 0.32,
-  ease: smootherstep,
+  ...ROUTE_FOLLOW,
+  hold: 0.18,
   gazeLead: 0,
-  pullback: 0.28,
-  minPullback: 0,
-  maxPullback: 6,
-  swing: 0,
-  bank: 0,
   settle: 0.32,
   parallax: 0.18,
-  ...ROUTE_FOLLOW,
-  travelLift: 4,
 };
 
 export const CINEMA_MOTION: CameraMotion = {
-  hold: 0.28,
-  ease: smootherstep,
-  gazeLead: 0.12,
-  pullback: 0.4,
-  minPullback: 1.2,
-  maxPullback: 6,
-  swing: 0.15,
-  bank: 0.04,
+  ...ROUTE_FOLLOW,
+  hold: 0.15,
+  gazeLead: 0.08,
   settle: 0.3,
   parallax: 0.08,
-  ...ROUTE_FOLLOW,
-  travelLift: 3,
 };
 
 const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1);

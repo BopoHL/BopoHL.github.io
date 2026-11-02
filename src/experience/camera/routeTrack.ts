@@ -1,8 +1,6 @@
 import { MathUtils, Vector3 } from "three";
 import { blendAt, type Shot } from "./framing";
-import { moveTiming, type CameraMotion } from "./motion";
-
-const BOARD_NORMAL = new Vector3(0, 0, 1);
+import { moveTiming, type CameraMotion, type Pace } from "./motion";
 
 export interface RoutePose {
   position: Vector3;
@@ -13,18 +11,35 @@ export interface RoutePose {
 
 export const createPose = (): RoutePose => ({ position: new Vector3(), target: new Vector3(), roll: 0, nearest: 0 });
 
+const distance = (a: readonly number[], b: readonly number[]) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+
 export class RouteTrack {
-  private readonly fromTarget = new Vector3();
-  private readonly toTarget = new Vector3();
   private readonly fromPosition = new Vector3();
   private readonly toPosition = new Vector3();
-  private readonly control = new Vector3();
-  private readonly side = new Vector3();
 
   constructor(
     private readonly shots: Shot[],
     private readonly motion: CameraMotion,
   ) {}
+
+  get length() {
+    return this.shots.length;
+  }
+
+  stationOf(shot: number) {
+    return this.shots[shot].stationIndex;
+  }
+
+  speedLimit(progress: number, pace: Pace): number {
+    const { from, to } = blendAt(progress, this.shots.length, 0);
+    const start = this.shots[from];
+    const end = this.shots[to];
+    const span = Math.max(distance(start.position, end.position), distance(start.target, end.target));
+    const height = Math.max(start.position[2] - start.target[2], end.position[2] - end.target[2]);
+    const heights = span / height;
+    const calm = heights > 0 ? (pace.heightsPerSecond * (1 - this.motion.hold)) / (heights * this.motion.easePeak) : Infinity;
+    return Math.min(pace.maxShotsPerSecond, calm);
+  }
 
   poseAt(progress: number, haste: number, out: RoutePose): RoutePose {
     const { motion } = this;
@@ -35,32 +50,15 @@ export class RouteTrack {
     const timing = moveTiming(blend.raw, motion);
     const travel = MathUtils.lerp(blend.raw, timing.travel, calm);
     const gaze = MathUtils.lerp(blend.raw, timing.gaze, calm);
-    this.fromTarget.set(...from.target);
-    this.toTarget.set(...to.target);
     this.fromPosition.set(...from.position);
     this.toPosition.set(...to.position);
-
-    const distance = this.fromTarget.distanceTo(this.toTarget);
-    const pullback =
-      distance > 0.01 ? MathUtils.clamp(distance * motion.pullback, motion.minPullback, motion.maxPullback) * calm : 0;
-    const swingSide = blend.from % 2 === 0 ? 1 : -1;
-    this.side.subVectors(this.toTarget, this.fromTarget).cross(BOARD_NORMAL).normalize();
-    this.control
-      .addVectors(this.fromPosition, this.toPosition)
-      .multiplyScalar(0.5)
-      .addScaledVector(BOARD_NORMAL, pullback * 2)
-      .addScaledVector(this.side, swingSide * distance * motion.swing * calm);
-
-    const inverse = 1 - travel;
-    out.position
-      .copy(this.fromPosition)
-      .multiplyScalar(inverse * inverse)
-      .addScaledVector(this.control, 2 * inverse * travel)
-      .addScaledVector(this.toPosition, travel * travel)
-      .addScaledVector(BOARD_NORMAL, motion.travelLift * haste);
-    out.target.lerpVectors(this.fromTarget, this.toTarget, gaze);
-    const bank = Math.sin(Math.PI * travel) * motion.bank * swingSide;
-    out.roll = (MathUtils.lerp(from.roll, to.roll, travel) + bank) * calm;
+    out.position.lerpVectors(this.fromPosition, this.toPosition, travel);
+    out.target.set(
+      MathUtils.lerp(from.target[0], to.target[0], gaze),
+      MathUtils.lerp(from.target[1], to.target[1], gaze),
+      MathUtils.lerp(from.target[2], to.target[2], gaze),
+    );
+    out.roll = MathUtils.lerp(from.roll, to.roll, travel) * calm;
     out.nearest = blend.nearest;
     return out;
   }
