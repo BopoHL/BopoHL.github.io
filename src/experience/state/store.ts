@@ -9,6 +9,8 @@ interface ExperienceState {
   variant: PilotVariant;
   mode: CameraMode;
   progress: number;
+  viewedProgress: number | null;
+  travelTarget: number | null;
   shotIndex: number;
   stationIndex: number;
   revealed: boolean;
@@ -21,6 +23,8 @@ interface ExperienceState {
   setVariant: (variant: Partial<PilotVariant>) => void;
   setMode: (mode: CameraMode) => void;
   setProgress: (progress: number) => void;
+  setViewedProgress: (progress: number | null) => void;
+  travelTo: (progress: number | null) => void;
   setShot: (shotIndex: number, stationIndex: number) => void;
   setRevealed: (revealed: boolean) => void;
   setPainted: (count: number, ready: boolean) => void;
@@ -34,6 +38,8 @@ export const useExperience = create<ExperienceState>()((set) => ({
   variant: DEFAULT_VARIANT,
   mode: "route",
   progress: 0,
+  viewedProgress: null,
+  travelTarget: null,
   shotIndex: 0,
   stationIndex: 0,
   revealed: false,
@@ -50,6 +56,8 @@ export const useExperience = create<ExperienceState>()((set) => ({
     }),
   setMode: (mode) => set({ mode, focusedEvidence: null }),
   setProgress: (progress) => set({ progress }),
+  setViewedProgress: (viewedProgress) => set({ viewedProgress }),
+  travelTo: (travelTarget) => set({ travelTarget }),
   setShot: (shotIndex, stationIndex) => set({ shotIndex, stationIndex }),
   setRevealed: (revealed) => set({ revealed }),
   setPainted: (paintedCount, ready) => set({ paintedCount, ready }),

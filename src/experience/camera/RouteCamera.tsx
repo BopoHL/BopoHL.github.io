@@ -15,6 +15,9 @@ const STAMP_IMPACT_AT = 1.12;
 const SHAKE_DURATION = 0.45;
 const SHAKE_AMPLITUDE = 0.08;
 const SETTLED_HASTE = 0.35;
+const ARRIVED = 0.02;
+const ABANDONED = 0.5;
+const VIEW_EPSILON = 1e-4;
 
 interface RouteCameraProps {
   shots: Shot[];
@@ -40,6 +43,7 @@ export function RouteCamera({ shots, motion }: RouteCameraProps) {
     const store = useExperience.getState();
     const current = status.current;
     if (store.mode !== "route" || shots.length === 0) {
+      if (current.following) store.setViewedProgress(null);
       current.following = false;
       return;
     }
@@ -48,7 +52,16 @@ export function RouteCamera({ shots, motion }: RouteCameraProps) {
       current.following = true;
     }
 
-    follower.update(store.progress, delta, state.pointer);
+    const destination = store.travelTarget;
+    follower.update(store.progress, delta, state.pointer, destination !== null);
+    if (
+      destination !== null &&
+      (Math.abs(follower.progress - destination) < ARRIVED || Math.abs(store.progress - destination) > ABANDONED)
+    ) {
+      store.travelTo(null);
+    }
+    const viewed = store.viewedProgress;
+    if (viewed === null || Math.abs(viewed - follower.progress) > VIEW_EPSILON) store.setViewedProgress(follower.progress);
     state.camera.position.copy(follower.position);
     rig.target.copy(follower.target);
 
