@@ -53,9 +53,11 @@ src/experience/     the 3D experience
   wear/             deterministic folds, curled corners and scuffs shared by geometry and painters
   scene/            board, cards, pins, threads, lighting, post-processing
   camera/           shot framing, scroll route camera, free exploration camera
+  desk/             the desk under the board: lamp, fan, ashtray, cassette recorder, loose clippings
   hud/              subtitles, progress thread, finale card, pilot panel
 src/dossier/        server-rendered résumé shown by "Skip the investigation"
-src/audio/          synthesized typewriter profiles and the closing stamp
+src/audio/          synthesized typewriter, foley, fan hum, tape deck and the noir jazz score
+tools/              asset tooling: Blender previs, tape recording
 docs/plan.md        concept, route, visual system and image prompts
 ```
 
@@ -63,7 +65,30 @@ docs/plan.md        concept, route, visual system and image prompts
 
 ## Camera pacing
 
-Both camera styles keep one height above the board for every investigation stop and glide sideways between stops; only the overview and the finale step back. The camera eases into each stop and rests there for a moment before moving on, at a pace measured in frame heights per second, so a fast scroll never skips anything: the scroll itself is held within about one section of what the camera has shown. Clicking a chapter on the progress thread travels there directly and faster. Tuning lives in `src/experience/camera/motion.ts` (`dwell`, `browse`, `travel`) and `SCROLL_LEAD` in `src/experience/useScrollDriver.ts`.
+Both camera styles keep one height above the board for every investigation stop and glide sideways between stops; only the overview and the finale step back. The camera eases into each stop and rests there for a moment before moving on, at a pace measured in frame heights per second, so a fast scroll never skips anything: the scroll itself is held within about one section of what the camera has shown. Clicking a chapter on the progress thread travels there directly and faster. Scrolling non-stop from the first stop to the finale takes about 45 seconds on desktop. Tuning lives in `src/experience/camera/motion.ts` (`dwell`, `browse`, `travelSettle`) and `SCROLL_LEAD` in `src/experience/useScrollDriver.ts`.
+
+In free exploration the camera never comes closer than `MIN_DISTANCE` in `src/experience/camera/ExploreCamera.tsx`.
+
+## The desk
+
+"To the desk" in free exploration turns the camera to the wooden desk under the board. Layout is in `src/experience/desk/layout.ts`; positions are `[x, z]` on the desk top, z grows towards the viewer. The loose clippings are ordinary evidence in `src/content/desk.ts` and support the same ink as the board.
+
+- The banker's lamp switches with a click on it.
+- The 1970s fan switches with a click, spins up and down, oscillates slowly and bends the cigarette smoke when it faces the ashtray.
+- The cassette recorder has working piano keys: REC (the tape is write-protected), REW, PLAY, FF, STOP and PAUSE. The reels, the tape packs and the counter follow the tape position, the deck auto-stops at either end and stops when you leave free exploration. PLAY turns the site sound on.
+
+Clicks that end a camera drag are ignored, so dragging across a prop does not switch it.
+
+## Tape recording
+
+The cassette plays `public/audio/case-404.mp3`, set by `cassette.recording` in `src/content/desk.ts`; any MP3 works, update `seconds` to its length. The bundled recording is a noir jazz piece composed in code (`src/audio/noirJazz.ts`) and recorded once, so the site only downloads a 550 KB file when the recorder is touched. To record it again after changing the score:
+
+```bash
+npm run dev
+npm run tape:render              # needs ffmpeg; pass --chrome /path/to/chrome if Chrome is not found
+```
+
+`/{ru|en}/tape-studio/` plays the score in the browser without recording it. Like the evidence sheet, it exists only in development.
 
 ## Annotating evidence
 
