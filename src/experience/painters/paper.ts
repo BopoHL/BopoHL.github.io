@@ -1,4 +1,4 @@
-import { jitter, range, type Random } from "./random";
+import { jitter, range, type Random } from "@/lib/random";
 import type { Surface } from "./surface";
 
 export interface PaperOptions {

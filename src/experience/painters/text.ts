@@ -1,5 +1,5 @@
 import type { TextLedger } from "./ledger";
-import { jitter, type Random } from "./random";
+import { jitter, type Random } from "@/lib/random";
 import type { Rect } from "./surface";
 
 export const wrapText = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] => {

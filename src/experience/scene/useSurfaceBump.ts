@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import type { Texture } from "three";
-import { seededRandom } from "../painters/random";
+import { seededRandom } from "@/lib/random";
 
 export const useSurfaceBump = (bumpMap: Texture, seed: string) => {
   const texture = useMemo(() => {

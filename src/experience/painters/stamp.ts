@@ -1,5 +1,5 @@
 import { font, type FontFamilies } from "./fonts";
-import { range, seededRandom } from "./random";
+import { range, seededRandom } from "@/lib/random";
 import { createSurface, type Surface } from "./surface";
 
 export const STAMP_RED = "#a3161a";

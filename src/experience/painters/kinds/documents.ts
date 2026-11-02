@@ -4,7 +4,7 @@ import { font } from "../fonts";
 import { feltTipRedaction } from "../ink";
 import { AREA_INK, INK, MANILA, PAPER } from "../palette";
 import { clipEdges, paintPaper } from "../paper";
-import { jitter, range } from "../random";
+import { jitter, range } from "@/lib/random";
 import { drawStamp } from "../stamp";
 import { fitLines, fitText, drawTypewriterLine } from "../text";
 import type { PaintJob } from "./job";

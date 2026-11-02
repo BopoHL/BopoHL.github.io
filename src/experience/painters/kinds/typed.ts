@@ -4,7 +4,7 @@ import { font } from "../fonts";
 import { feltTipRedaction } from "../ink";
 import { INDEX_CARD, INK, MANILA, PAPER } from "../palette";
 import { clipEdges, coffeeRing, paintPaper } from "../paper";
-import { range } from "../random";
+import { range } from "@/lib/random";
 import { drawStamp } from "../stamp";
 import type { Rect, Surface } from "../surface";
 import { drawTypewriterBlock, drawTypewriterLine, fitLines, fitText, type InkOptions } from "../text";

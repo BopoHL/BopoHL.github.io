@@ -1,5 +1,5 @@
 import type { Evidence } from "@/content/types";
-import { range, seededRandom, type Random } from "../painters/random";
+import { range, seededRandom, type Random } from "@/lib/random";
 
 export type CreaseAxis = "horizontal" | "vertical";
 export type Corner = "topLeft" | "topRight" | "bottomLeft" | "bottomRight";

@@ -1,7 +1,7 @@
 import type { Annotations, InkMark, InkTool, MarginNote } from "@/content/types";
 import { font } from "./fonts";
 import type { PrintedSpan } from "./ledger";
-import { jitter, range, type Random } from "./random";
+import { jitter, range, type Random } from "@/lib/random";
 import type { Rect, Surface } from "./surface";
 
 const PEN = "#1f2c6b";

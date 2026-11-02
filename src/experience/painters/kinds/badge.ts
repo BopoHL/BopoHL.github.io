@@ -3,7 +3,7 @@ import { font } from "../fonts";
 import { gradePhoto, renderImage } from "../imaging";
 import { AREA_INK, INK } from "../palette";
 import { addGrain } from "../paper";
-import { range } from "../random";
+import { range } from "@/lib/random";
 import { roundedRect } from "../surface";
 import { drawTypewriterLine, fitLines, fitText } from "../text";
 import type { PaintJob } from "./job";

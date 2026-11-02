@@ -10,7 +10,7 @@ import { paintScrap, paintSticky } from "./kinds/handwritten";
 import { paintNewspaper } from "./kinds/newspaper";
 import { paintMugshotPrint, paintPhoto } from "./kinds/photo";
 import { paintTyped } from "./kinds/typed";
-import { seededRandom } from "./random";
+import { seededRandom } from "@/lib/random";
 import { createSurface, type Surface } from "./surface";
 import { applyInk } from "./ink";
 import { applyWear } from "./wear";

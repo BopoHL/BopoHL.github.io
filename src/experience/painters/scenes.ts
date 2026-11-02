@@ -1,6 +1,6 @@
 import type { PlaceholderScene } from "@/content/types";
 import { font, type FontFamilies } from "./fonts";
-import { jitter, range, type Random } from "./random";
+import { jitter, range, type Random } from "@/lib/random";
 
 type Ctx = CanvasRenderingContext2D;
 

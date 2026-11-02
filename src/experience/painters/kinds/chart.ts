@@ -2,7 +2,7 @@ import type { ChartEvidence } from "@/content/types";
 import { font } from "../fonts";
 import { GRAPH_PAPER, HAND_INK, PENCIL, RED_PEN } from "../palette";
 import { clipEdges, paintPaper } from "../paper";
-import { jitter } from "../random";
+import { jitter } from "@/lib/random";
 import { drawHandwrittenBlock, fitText } from "../text";
 import type { PaintJob } from "./job";
 

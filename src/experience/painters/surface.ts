@@ -1,6 +1,6 @@
 import type { FontFamilies } from "./fonts";
 import { TextLedger } from "./ledger";
-import type { Random } from "./random";
+import type { Random } from "@/lib/random";
 
 export interface Surface {
   canvas: HTMLCanvasElement;

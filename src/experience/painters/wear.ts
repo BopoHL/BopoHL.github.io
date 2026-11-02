@@ -1,5 +1,5 @@
 import type { Crease, Wear } from "../wear/profile";
-import { jitter, range, type Random } from "./random";
+import { jitter, range, type Random } from "@/lib/random";
 import { createCanvas, context2d, type Surface } from "./surface";
 
 const ABRADED = "rgba(236, 230, 214, ALPHA)";

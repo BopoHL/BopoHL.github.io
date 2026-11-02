@@ -1,4 +1,4 @@
-import { seededRandom, range } from "../painters/random";
+import { seededRandom, range } from "@/lib/random";
 import { context2d, createCanvas } from "../painters/surface";
 
 export const paintCork = (size: number) => {

@@ -1,7 +1,7 @@
 import type { EvidenceImage } from "@/content/types";
 import type { FontFamilies } from "./fonts";
 import { addGrain } from "./paper";
-import type { Random } from "./random";
+import type { Random } from "@/lib/random";
 import { paintScene } from "./scenes";
 import { context2d, createCanvas, type Rect } from "./surface";
 

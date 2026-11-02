@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from "react";
 import type { PinSpot } from "@/content/geometry";
 import type { Evidence } from "@/content/types";
-import { seededRandom } from "../painters/random";
+import { seededRandom } from "@/lib/random";
 import { useExperience } from "../state/store";
 import { PIN_COLORS, pinLocal } from "./layout3d";
 import { useAccentShader, useWorldShader } from "./look";
