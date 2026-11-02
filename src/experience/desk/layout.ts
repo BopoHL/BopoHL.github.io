@@ -19,8 +19,8 @@ export const DESK_CENTER: Vec3 = [(DESK.minX + DESK.maxX) / 2, DESK.top, (DESK.b
 export const onDesk = ([x, z]: Vec2, lift = 0): Vec3 => [x, DESK.top + lift, z];
 
 export const PROPS = {
-  lamp: { at: [-9.2, 2.4] as Vec2, yaw: 18 },
+  lamp: { at: [-8.3, 2.2] as Vec2, yaw: 18 },
   recorder: { at: [-4.4, 5.3] as Vec2, yaw: 14 },
   ashtray: { at: [3.1, 6.4] as Vec2, yaw: 0 },
-  fan: { at: [8.4, 2.5] as Vec2, yaw: -38 },
+  fan: { at: [7.4, 2.5] as Vec2, yaw: -40 },
 } as const;
