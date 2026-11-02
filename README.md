@@ -39,6 +39,8 @@ The pilot panel in the bottom-left corner switches the variants under review. Th
 | `typing=crisp` | Portable typewriter: dry, bright click |
 | `typing=metal` | Ringing metal frame |
 | `typing=muffled` | Soft and distant, as if from the next room |
+| `pins=push` | Plastic push pins |
+| `pins=map` | Round-headed map pins |
 
 The typewriter group has a "Listen" button that plays a short phrase with the selected sound.
 
@@ -58,6 +60,26 @@ docs/plan.md        concept, route, visual system and image prompts
 ```
 
 `src/content/board.ts` is the single source of truth for the board. Positions are in board units: the board is 32 × 18, the centre is `[0, 0]`.
+
+## Annotating evidence
+
+Any piece of evidence can carry ink, per language, in `src/content/board.ts`:
+
+```ts
+ink: l(
+  {
+    marks: [{ phrase: "~200 мс", stroke: "circle", tool: "marker" }],
+    notes: [{ text: "подрядчик?", at: [0.64, 0.29], size: 0.065, rotation: -5, struck: true }],
+  },
+  { marks: [{ phrase: "~200", stroke: "circle", tool: "marker" }] },
+),
+```
+
+- `marks` find a printed phrase and `underline`, `circle` or `strike` it with a blue `pen` or a red `marker`. Red marker stays red on the black-and-white board. A test checks that every phrase is actually printed on that card.
+- `notes` are handwritten: `at` is the position on the card from its top-left corner (0–1), `size` is the letter height as a share of the card width, `struck` crosses the note out.
+- Typed sheets accept `classified: l(["Зарплата:", ...], ["Salary:", ...])`, which adds a top secret box with each field blacked out by a felt-tip marker. Redacted documents do the same with `{ text, redact }` lines.
+
+Threads tie to the top pin of a card, or to a second pin at its bottom when the thread leaves downwards, so they do not run back across their own card.
 
 ## Replacing placeholder images
 
