@@ -1,6 +1,7 @@
 "use client";
 
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
+import { playPaperRustle } from "@/audio/foley";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MathUtils, type Group, type Texture } from "three";
 import { pinOffsetOf, sizeOf } from "@/content/geometry";
@@ -49,6 +50,7 @@ export function EvidenceCard({ shape, texture, accentMask, canLift, bumpMap, onS
     if (event.pointerType !== "mouse") return;
     event.stopPropagation();
     setHovered(true);
+    if (useExperience.getState().soundOn) playPaperRustle();
     if (interactive) document.body.style.cursor = "pointer";
   };
 

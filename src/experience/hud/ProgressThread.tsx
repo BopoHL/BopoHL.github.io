@@ -4,6 +4,7 @@ import type { Locale, Station } from "@/content/types";
 import { ui } from "@/content/ui";
 import { useExperience } from "../state/store";
 import styles from "./hud.module.css";
+import { useStopSounds } from "./useStopSounds";
 
 interface ProgressThreadProps {
   stations: Station[];
@@ -13,6 +14,7 @@ interface ProgressThreadProps {
 
 export function ProgressThread({ stations, locale, onSelect }: ProgressThreadProps) {
   const stationIndex = useExperience((state) => state.stationIndex);
+  useStopSounds();
   return (
     <ol className={styles.progress} aria-label={ui.stationsLabel[locale]}>
       {stations.map((station, index) => (

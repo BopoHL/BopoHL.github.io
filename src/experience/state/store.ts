@@ -11,6 +11,7 @@ interface ExperienceState {
   progress: number;
   viewedProgress: number | null;
   travelTarget: number | null;
+  restingShot: number | null;
   shotIndex: number;
   stationIndex: number;
   revealed: boolean;
@@ -25,6 +26,7 @@ interface ExperienceState {
   setProgress: (progress: number) => void;
   setViewedProgress: (progress: number | null) => void;
   travelTo: (progress: number | null) => void;
+  setRestingShot: (shot: number | null) => void;
   setShot: (shotIndex: number, stationIndex: number) => void;
   setRevealed: (revealed: boolean) => void;
   setPainted: (count: number, ready: boolean) => void;
@@ -40,6 +42,7 @@ export const useExperience = create<ExperienceState>()((set) => ({
   progress: 0,
   viewedProgress: null,
   travelTarget: null,
+  restingShot: null,
   shotIndex: 0,
   stationIndex: 0,
   revealed: false,
@@ -58,6 +61,7 @@ export const useExperience = create<ExperienceState>()((set) => ({
   setProgress: (progress) => set({ progress }),
   setViewedProgress: (viewedProgress) => set({ viewedProgress }),
   travelTo: (travelTarget) => set({ travelTarget }),
+  setRestingShot: (restingShot) => set({ restingShot }),
   setShot: (shotIndex, stationIndex) => set({ shotIndex, stationIndex }),
   setRevealed: (revealed) => set({ revealed }),
   setPainted: (paintedCount, ready) => set({ paintedCount, ready }),

@@ -60,6 +60,7 @@ export function RouteCamera({ shots, motion }: RouteCameraProps) {
     ) {
       store.travelTo(null);
     }
+    if (follower.resting !== store.restingShot) store.setRestingShot(follower.resting);
     const viewed = store.viewedProgress;
     if (viewed === null || Math.abs(viewed - follower.progress) > VIEW_EPSILON) store.setViewedProgress(follower.progress);
     state.camera.position.copy(follower.position);

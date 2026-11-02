@@ -56,6 +56,13 @@ describe("RouteFollower", () => {
     expect(travel).toBeLessThan(calm / 2);
   });
 
+  it("reports each stop it rests at, including after a chapter jump", () => {
+    const browsing = fling(0, 2, 30).follower;
+    expect(browsing.resting).toBe(2);
+    const travelled = fling(0, 9, 30, true).follower;
+    expect(travelled.resting).toBe(9);
+  });
+
   it("arrives at the requested shot", () => {
     const { follower } = fling(0, 6, 30);
     expect(follower.nearest).toBe(6);

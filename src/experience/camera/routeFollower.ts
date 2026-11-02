@@ -44,6 +44,10 @@ export class RouteFollower {
     return this.rollSpring.value;
   }
 
+  get resting() {
+    return this.restingAt;
+  }
+
   reset(progress: number, position: Vector3, target: Vector3) {
     this.progressSpring.reset(progress);
     this.positionSpring.reset(position);
@@ -52,15 +56,20 @@ export class RouteFollower {
     this.restingAt = null;
   }
 
-  private nextStopToward(progress: number, step: number): number {
+  private trackRest(step: number) {
     const current = this.progressSpring.value;
     const stop = Math.round(current);
-    const atStop = Math.abs(current - stop) < STOP_TOLERANCE;
-    if (!atStop) this.restingAt = null;
+    if (Math.abs(current - stop) >= STOP_TOLERANCE) this.restingAt = null;
     else if (this.restingAt !== stop) {
       this.restingAt = stop;
       this.rested = 0;
     } else this.rested += step;
+  }
+
+  private nextStopToward(progress: number): number {
+    const current = this.progressSpring.value;
+    const stop = Math.round(current);
+    const atStop = this.restingAt === stop;
     const direction = Math.sign(progress - current);
     if (direction === 0) return progress;
     if (atStop && this.rested < this.motion.dwell && Math.abs(progress - stop) > STOP_TOLERANCE) return stop;
@@ -73,7 +82,8 @@ export class RouteFollower {
     const step = Math.min(delta, MAX_STEP);
     const pace = traveling ? motion.travel : motion.browse;
     const limit = this.track.speedLimit(this.progressSpring.value, pace);
-    const target = traveling ? progress : this.nextStopToward(progress, step);
+    this.trackRest(step);
+    const target = traveling ? progress : this.nextStopToward(progress);
     this.progressSpring.update(target, motion.progressSettle, step, limit);
     this.haste = MathUtils.smoothstep(Math.abs(this.progressSpring.velocity), ...motion.haste);
     const pose = this.track.poseAt(this.progressSpring.value, this.haste, this.pose);
