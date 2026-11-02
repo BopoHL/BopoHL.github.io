@@ -145,7 +145,6 @@ export interface Thread {
   from: string;
   to: string;
   area: Exclude<Area, "case">;
-  revealAt: string;
   variant?: FinaleVariant;
 }
 

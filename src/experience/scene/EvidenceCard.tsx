@@ -3,48 +3,43 @@
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MathUtils, type Group, type Texture } from "three";
+import { pinOffsetOf, sizeOf } from "@/content/geometry";
 import type { Evidence } from "@/content/types";
 import { useExperience } from "../state/store";
-import { wearFor } from "../wear/profile";
-import { createCardGeometry, type Occluder } from "./cardGeometry";
+import { createCardGeometry, minimumGap, type CardShape } from "./cardGeometry";
 import { useWorldShader } from "./look";
-import { PIN_COLORS, cardZ, finishFor, pinLocal } from "./layout3d";
-import { useSurfaceBump } from "./useSurfaceBump";
+import { cardZ } from "./layout3d";
 import { Pin } from "./Pin";
+import { useSurfaceBump } from "./useSurfaceBump";
 
 interface EvidenceCardProps {
-  item: Evidence;
-  index: number;
+  shape: CardShape;
   texture: Texture;
   bumpMap: Texture;
-  occluders: Occluder[];
   onSelect?: (item: Evidence) => void;
 }
 
-const HOVER_LIFT = 0.06;
+const HOVER_EDGE_LIFT = 0.14;
 
-export function EvidenceCard({ item, index, texture, bumpMap, occluders, onSelect }: EvidenceCardProps) {
-  const group = useRef<Group>(null);
+export function EvidenceCard({ shape, texture, bumpMap, onSelect }: EvidenceCardProps) {
+  const { item, finish, wear } = shape;
+  const hinge = useRef<Group>(null);
   const [hovered, setHovered] = useState(false);
   const mode = useExperience((state) => state.mode);
   const worldShader = useWorldShader();
-  const finish = finishFor(item);
-  const wear = useMemo(() => wearFor(item), [item]);
-  const geometry = useMemo(
-    () => createCardGeometry({ item, finish: finishFor(item), wear, occluders }),
-    [item, wear, occluders],
-  );
+  const geometry = useMemo(() => createCardGeometry(shape), [shape]);
   useEffect(() => () => geometry.dispose(), [geometry]);
   const surfaceBump = useSurfaceBump(bumpMap, item.id);
-  const baseZ = cardZ(index);
-  const rotation = MathUtils.degToRad(item.rotation);
+  const [pinX, pinY] = pinOffsetOf(item);
+  const hoverAngle = useMemo(() => {
+    const reach = pinY + sizeOf(item).height / 2;
+    return -Math.atan(Math.min(HOVER_EDGE_LIFT, minimumGap(shape)) / reach);
+  }, [item, pinY, shape]);
   const interactive = mode === "explore" || Boolean(item.link);
 
   useFrame((_, delta) => {
-    if (!group.current) return;
-    const lift = hovered ? HOVER_LIFT : 0;
-    group.current.position.z = MathUtils.damp(group.current.position.z, baseZ + lift, 10, delta);
-    group.current.rotation.z = MathUtils.damp(group.current.rotation.z, rotation + (hovered ? 0.01 : 0), 10, delta);
+    if (!hinge.current) return;
+    hinge.current.rotation.x = MathUtils.damp(hinge.current.rotation.x, hovered ? hoverAngle : 0, 10, delta);
   });
 
   const handleOver = (event: ThreeEvent<PointerEvent>) => {
@@ -66,25 +61,31 @@ export function EvidenceCard({ item, index, texture, bumpMap, occluders, onSelec
   };
 
   return (
-    <group ref={group} position={[item.position[0], item.position[1], baseZ]} rotation={[0, 0, rotation]}>
-      <mesh
-        geometry={geometry}
-        castShadow
-        receiveShadow
-        onPointerOver={handleOver}
-        onPointerOut={handleOut}
-        onClick={handleClick}
-      >
-        <meshStandardMaterial
-          {...worldShader}
-          map={texture}
-          roughness={finish.roughness}
-          bumpMap={surfaceBump}
-          bumpScale={finish.bumpScale * (0.6 + wear.crumple)}
-          alphaTest={0.5}
-        />
-      </mesh>
-      <Pin position={pinLocal(item)} color={PIN_COLORS[item.area]} />
+    <group
+      position={[item.position[0], item.position[1], cardZ(shape.index)]}
+      rotation={[0, 0, MathUtils.degToRad(item.rotation)]}
+    >
+      <group ref={hinge} position={[pinX, pinY, 0]}>
+        <mesh
+          geometry={geometry}
+          position={[-pinX, -pinY, 0]}
+          castShadow
+          receiveShadow
+          onPointerOver={handleOver}
+          onPointerOut={handleOut}
+          onClick={handleClick}
+        >
+          <meshStandardMaterial
+            {...worldShader}
+            map={texture}
+            roughness={finish.roughness}
+            bumpMap={surfaceBump}
+            bumpScale={finish.bumpScale * (0.6 + wear.crumple)}
+            alphaTest={0.5}
+          />
+        </mesh>
+      </group>
+      <Pin item={item} />
     </group>
   );
 }

@@ -1,8 +1,8 @@
 import type { WebGLProgramParametersWithUniforms } from "three";
 import type { SaturationShader } from "./look";
 
-export const THREAD_RADIUS = 0.0065;
-const MIN_SCREEN_RADIUS_PX = 0.8;
+export const THREAD_RADIUS = 0.0045;
+const MIN_SCREEN_RADIUS_PX = 0.55;
 const TWISTS_PER_UNIT = 38;
 const STRANDS = 3;
 

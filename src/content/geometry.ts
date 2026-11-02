@@ -58,9 +58,12 @@ export const toWorld = (item: Evidence, local: Vec2): Vec2 => {
   return [item.position[0] + dx, item.position[1] + dy];
 };
 
+export const toLocal = (item: Evidence, point: Vec2): Vec2 =>
+  rotate([point[0] - item.position[0], point[1] - item.position[1]], -item.rotation);
+
 export const distanceOutside = (item: Evidence, point: Vec2): number => {
   const { width, height } = sizeOf(item);
-  const [x, y] = rotate([point[0] - item.position[0], point[1] - item.position[1]], -item.rotation);
+  const [x, y] = toLocal(item, point);
   const dx = Math.max(Math.abs(x) - width / 2, 0);
   const dy = Math.max(Math.abs(y) - height / 2, 0);
   return Math.hypot(dx, dy);

@@ -19,9 +19,6 @@ HOLD_FRAMES = 24
 MOVE_FRAMES = 48
 REFERENCE_DISTANCE = 12.0
 LAMP_POWER = 2200.0
-THREAD_RADIUS = 0.016
-THREAD_SAG_PER_UNIT = 0.035
-THREAD_POINTS = 40
 PIN_HEAD_RADIUS = 0.085
 PIN_HEAD_HEIGHT = 0.11
 GRID_SEGMENTS = 14
@@ -240,31 +237,19 @@ def station_frame(index):
 def build_threads(scene_data):
     materials = {}
     for index, thread in enumerate(scene_data["threads"]):
-        start, end = thread["from"], thread["to"]
-        length = math.dist(start, end)
-        sag = min(0.6, length * THREAD_SAG_PER_UNIT)
+        points = thread["points"]
         curve = bpy.data.curves.new(f"Thread {index}", "CURVE")
         curve.dimensions = "3D"
-        curve.bevel_depth = THREAD_RADIUS
+        curve.bevel_depth = scene_data["threadRadius"]
         curve.bevel_resolution = 2
         spline = curve.splines.new("POLY")
-        spline.points.add(THREAD_POINTS)
-        for i in range(THREAD_POINTS + 1):
-            t = i / THREAD_POINTS
-            x = start[0] + (end[0] - start[0]) * t
-            y = start[1] + (end[1] - start[1]) * t - sag * 4 * t * (1 - t)
-            z = start[2] + (end[2] - start[2]) * t + 0.025 * math.sin(math.pi * t)
-            spline.points[i].co = (*to_blender((x, y, z)), 1)
+        spline.points.add(len(points) - 1)
+        for i, point in enumerate(points):
+            spline.points[i].co = (*to_blender(point), 1)
         color = thread["color"]
         material = materials.setdefault(color, solid_material(f"Thread {color}", color, roughness=0.65, emission=0.25))
         curve.materials.append(material)
         link(bpy.data.objects.new(f"Thread {index}", curve))
-
-        reveal = station_frame(thread["station"]) - MOVE_FRAMES // 3
-        curve.bevel_factor_end = 0
-        curve.keyframe_insert("bevel_factor_end", frame=max(1, reveal - 1))
-        curve.bevel_factor_end = 1
-        curve.keyframe_insert("bevel_factor_end", frame=reveal + 30)
 
 
 def build_reveal(scene_data, objects, textures_dir, bump_path):

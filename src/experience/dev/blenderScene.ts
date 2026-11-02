@@ -15,15 +15,15 @@ import {
   WALL_Z,
 } from "../scene/constants";
 import { STAMP_ASPECT } from "../painters/stamp";
-import { PIN_COLORS, REVEAL_STAMP, THREAD_COLORS, cardZ, finishFor, pinLocal, pinWorld } from "../scene/layout3d";
+import { BoardSurface } from "../scene/boardSurface";
+import { PIN_COLORS, REVEAL_STAMP, THREAD_COLORS, cardZ, finishFor, pinLocal } from "../scene/layout3d";
+import { THREAD_RADIUS } from "../scene/threadShader";
 
 const RENDER_ASPECT = 16 / 9;
 
 export const buildBlenderScene = (locale: Locale, finale: FinaleVariant) => {
   const content = boardContentFor(finale);
-  const stationIndexById = new Map(content.stations.map((station, index) => [station.id, index]));
-  const indexById = new Map(content.evidence.map((item, index) => [item.id, index]));
-  const itemById = new Map(content.evidence.map((item) => [item.id, item]));
+  const surface = new BoardSurface(content.evidence);
   const shots = buildShots(content.stations, content.evidence, framingFor(RENDER_ASPECT));
 
   return {
@@ -51,17 +51,11 @@ export const buildBlenderScene = (locale: Locale, finale: FinaleVariant) => {
         pinColor: PIN_COLORS[item.area],
       };
     }),
-    threads: content.threads.map((thread) => {
-      const from = itemById.get(thread.from);
-      const to = itemById.get(thread.to);
-      if (!from || !to) throw new Error(`Unknown thread ${thread.from} -> ${thread.to}`);
-      return {
-        from: pinWorld(from, indexById.get(thread.from) ?? 0),
-        to: pinWorld(to, indexById.get(thread.to) ?? 0),
-        color: THREAD_COLORS[thread.area],
-        station: stationIndexById.get(thread.revealAt) ?? 0,
-      };
-    }),
+    threadRadius: THREAD_RADIUS,
+    threads: content.threads.map((thread) => ({
+      points: surface.threadBetween(thread.from, thread.to).map((point) => point.toArray() as Vec3),
+      color: THREAD_COLORS[thread.area],
+    })),
     reveal:
       finale === "reveal"
         ? {

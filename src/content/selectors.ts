@@ -19,7 +19,6 @@ export const boardContentFor = (variant: FinaleVariant): BoardContent => ({
 
 export const validateBoardContent = ({ evidence, threads, stations }: BoardContent): string[] => {
   const ids = new Set(evidence.map((item) => item.id));
-  const stationIds = new Set(stations.map((station) => station.id));
   const errors: string[] = [];
 
   if (ids.size !== evidence.length) errors.push("Duplicate evidence ids");
@@ -27,7 +26,6 @@ export const validateBoardContent = ({ evidence, threads, stations }: BoardConte
   for (const thread of threads) {
     if (!ids.has(thread.from)) errors.push(`Thread from unknown evidence: ${thread.from}`);
     if (!ids.has(thread.to)) errors.push(`Thread to unknown evidence: ${thread.to}`);
-    if (!stationIds.has(thread.revealAt)) errors.push(`Thread revealed at unknown station: ${thread.revealAt}`);
   }
 
   for (const station of stations) {
