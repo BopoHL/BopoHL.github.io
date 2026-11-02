@@ -34,7 +34,7 @@ The pilot panel in the bottom-left corner switches the variants under review. Th
 | `look=noir` | Black and white with hard light through venetian blinds; threads and the closing stamp keep their colour |
 | `look=mono` | Pure black and white |
 | `camera=classic` | Each stop frames a whole cluster of evidence |
-| `camera=cinema` | Close-ups of one or two pieces, gentle dutch angles, smooth arcing moves through depth, rack focus |
+| `camera=cinema` | One or two pieces per stop, a slight change of angle between stops, soft focus at the edges |
 | `typing=heavy` | Heavy office typewriter: deep platen thud |
 | `typing=crisp` | Portable typewriter: dry, bright click |
 | `typing=metal` | Ringing metal frame |
@@ -60,6 +60,10 @@ docs/plan.md        concept, route, visual system and image prompts
 ```
 
 `src/content/board.ts` is the single source of truth for the board. Positions are in board units: the board is 32 × 18, the centre is `[0, 0]`.
+
+## Camera pacing
+
+Both camera styles keep one height above the board for every investigation stop and glide sideways between stops; only the overview and the finale step back. The camera eases into each stop and rests there for a moment before moving on, at a pace measured in frame heights per second, so a fast scroll never skips anything: the scroll itself is held within about one section of what the camera has shown. Clicking a chapter on the progress thread travels there directly and faster. Tuning lives in `src/experience/camera/motion.ts` (`dwell`, `browse`, `travel`) and `SCROLL_LEAD` in `src/experience/useScrollDriver.ts`.
 
 ## Annotating evidence
 
