@@ -42,6 +42,28 @@ const heightOnHull = (hull: Sample[], distance: number) => {
   return hull[hull.length - 1].height;
 };
 
+export interface WindingOptions {
+  radius: number;
+  turns: number;
+  pitch: number;
+  pointsPerTurn: number;
+}
+
+export const winding = (center: Vector3, toward: Vector3, options: WindingOptions): Vector3[] => {
+  const leave = Math.atan2(toward.y - center.y, toward.x - center.x) - Math.PI / 2;
+  const count = Math.max(2, Math.round(options.turns * options.pointsPerTurn));
+  const sweep = options.turns * Math.PI * 2;
+  return Array.from({ length: count + 1 }, (_, i) => {
+    const t = i / count;
+    const angle = leave - sweep * (1 - t);
+    return new Vector3(
+      center.x + Math.cos(angle) * options.radius,
+      center.y + Math.sin(angle) * options.radius,
+      center.z + options.pitch * options.turns * t,
+    );
+  });
+};
+
 export const threadPath = (surface: Surface, from: Vector3, to: Vector3, options: ThreadPathOptions): Vector3[] => {
   const length = Math.hypot(to.x - from.x, to.y - from.y);
   const sag = Math.min(options.maxSag, length * options.sagPerUnit);

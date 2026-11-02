@@ -1,24 +1,24 @@
 import { CylinderGeometry, LatheGeometry, SphereGeometry, Vector2, type BufferGeometry } from "three";
 import type { PinStyle } from "../state/variant";
 
-const NEEDLE_RADIUS = 0.0065;
+export const NEEDLE_RADIUS = 0.0065;
 const NEEDLE_DEPTH = 0.05;
 const RADIAL_SEGMENTS = 40;
 
 const PUSH_PIN_PROFILE: Array<[number, number]> = [
-  [0, 0.012],
-  [0.072, 0.012],
-  [0.078, 0.02],
-  [0.072, 0.03],
-  [0.045, 0.042],
-  [0.03, 0.058],
-  [0.028, 0.085],
-  [0.034, 0.105],
-  [0.046, 0.128],
-  [0.05, 0.142],
-  [0.046, 0.152],
-  [0.028, 0.158],
-  [0, 0.16],
+  [0, 0.024],
+  [0.072, 0.024],
+  [0.078, 0.032],
+  [0.072, 0.042],
+  [0.045, 0.054],
+  [0.03, 0.07],
+  [0.028, 0.097],
+  [0.034, 0.117],
+  [0.046, 0.14],
+  [0.05, 0.154],
+  [0.046, 0.164],
+  [0.028, 0.17],
+  [0, 0.172],
 ];
 
 const MAP_PIN = { radius: 0.052, height: 0.105 };
@@ -46,5 +46,5 @@ export const createPinParts = (style: PinStyle): PinParts => {
     RADIAL_SEGMENTS,
   );
   head.rotateX(Math.PI / 2);
-  return { head, needle: needle(0.03) };
+  return { head, needle: needle(0.042) };
 };

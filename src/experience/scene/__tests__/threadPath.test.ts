@@ -1,7 +1,7 @@
 import { Vector3 } from "three";
 import { describe, expect, it } from "vitest";
 import type { Vec2 } from "@/content/types";
-import { threadPath } from "../threadPath";
+import { threadPath, winding } from "../threadPath";
 
 const options = { radius: 0.005, clearance: 0.002, sagPerUnit: 0, maxSag: 0, samplesPerUnit: 20 };
 const flat = { heightAt: () => 0 };
@@ -33,5 +33,27 @@ describe("threadPath", () => {
     const rising = points.filter((point) => point.x > 0.5 && point.x < 2);
     const slopes = rising.slice(1).map((point, i) => (point.z - rising[i].z) / (point.x - rising[i].x));
     for (const slope of slopes) expect(slope).toBeCloseTo(slopes[0], 5);
+  });
+});
+
+describe("winding", () => {
+  const center = new Vector3(1, 2, 0.05);
+  const toward = new Vector3(4, 2, 0.05);
+  const options = { radius: 0.011, turns: 2, pitch: 0.004, pointsPerTurn: 16 };
+  const coil = winding(center, toward, options);
+
+  it("wraps around the needle", () => {
+    for (const point of coil) expect(Math.hypot(point.x - center.x, point.y - center.y)).toBeCloseTo(options.radius);
+  });
+
+  it("climbs the needle as it turns", () => {
+    expect(coil.at(-1)!.z - coil[0].z).toBeCloseTo(options.turns * options.pitch);
+  });
+
+  it("leaves the pin heading for the other end", () => {
+    const last = coil.at(-1)!;
+    const before = coil.at(-2)!;
+    const heading = Math.atan2(last.y - before.y, last.x - before.x);
+    expect(Math.abs(heading)).toBeLessThan(0.25);
   });
 });
