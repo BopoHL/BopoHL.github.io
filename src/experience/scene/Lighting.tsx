@@ -22,7 +22,9 @@ import {
 } from "three";
 import { useRig } from "../camera/rig";
 import type { Quality } from "../quality";
+import { useReducedMotion } from "../useReducedMotion";
 import { paintBlinds } from "../textures/procedural";
+import { lampBrightness, lampSway } from "./lampLife";
 import { useLook } from "./look";
 import { KEY_ANGLE, KEY_DIRECTION as KEY_DIRECTION_TUPLE, KEY_DISTANCE_RATIO, KEY_PENUMBRA, LAMP_COLOR } from "./constants";
 import { beamFragmentShader, beamVertexShader, dustFragmentShader, dustVertexShader } from "./shaders";
@@ -38,6 +40,9 @@ const BOARD_PLANE = new Plane(new Vector3(0, 0, 1), -0.05);
 const DOWN = new Vector3(0, -1, 0);
 const WHITE = new Color("#ffffff");
 const FLASHLIGHT_WHITENESS = 0.6;
+const BEAM_STRENGTH = 0.085;
+const SWAY_X = new Vector3(1, 0, 0);
+const SWAY_Y = new Vector3(0, 1, 0);
 
 const createDustGeometry = (count: number) => {
   const positions = new Float32Array(count * 3);
@@ -60,16 +65,24 @@ const createDustGeometry = (count: number) => {
 function KeyLight({ quality }: { quality: Quality }) {
   const rig = useRig();
   const look = useLook();
+  const still = useReducedMotion();
   const light = useRef<SpotLight>(null);
   const target = useRef<Object3D>(null);
   const beam = useRef<Group>(null);
   const beamShader = useRef<ShaderMaterial>(null);
   const dustShader = useRef<ShaderMaterial>(null);
-  const motion = useRef({ position: new Vector3(), aim: new Vector3(), desired: new Vector3(), direction: new Vector3(), reach: REFERENCE_DISTANCE });
+  const motion = useRef({
+    position: new Vector3(),
+    lit: new Vector3(),
+    aim: new Vector3(),
+    desired: new Vector3(),
+    direction: new Vector3(),
+    reach: REFERENCE_DISTANCE,
+  });
   const cone = useMemo(() => new ConeGeometry(0.5, 1, 48, 1, true), []);
   const dust = useMemo(() => createDustGeometry(quality.dustCount), [quality.dustCount]);
   const beamUniforms = useMemo(
-    () => ({ uTime: { value: 0 }, uColor: { value: new Color() }, uStrength: { value: 0.085 } }),
+    () => ({ uTime: { value: 0 }, uColor: { value: new Color() }, uStrength: { value: BEAM_STRENGTH } }),
     [],
   );
   const dustUniforms = useMemo(() => ({ uTime: { value: 0 }, uSize: { value: 9 }, uColor: { value: new Color() } }), []);
@@ -90,25 +103,30 @@ function KeyLight({ quality }: { quality: Quality }) {
     m.aim.lerp(rig.target, k);
     m.desired.copy(m.aim).addScaledVector(KEY_DIRECTION, m.reach * KEY_DISTANCE_RATIO);
     m.position.lerp(m.desired, k);
+    const time = state.clock.elapsedTime;
+    const [swayX, swayY] = still ? [0, 0] : lampSway(time);
+    const brightness = still ? 1 : lampBrightness(time);
+    m.lit.copy(m.position).addScaledVector(SWAY_X, swayX * m.reach).addScaledVector(SWAY_Y, swayY * m.reach);
     target.current?.position.copy(m.aim);
-    rig.trackLamp(m.position, m.aim);
+    rig.trackLamp(m.lit, m.aim);
     if (light.current) {
-      light.current.position.copy(m.position);
-      light.current.intensity = KEY_INTENSITY * (m.reach / REFERENCE_DISTANCE) ** 2;
+      light.current.position.copy(m.lit);
+      light.current.intensity = KEY_INTENSITY * (m.reach / REFERENCE_DISTANCE) ** 2 * brightness;
       light.current.color.copy(look.lampColor);
       light.current.penumbra = look.penumbra;
       const map = look.blinds ? blinds : null;
       if (light.current.map !== map) light.current.map = map;
     }
     if (beam.current) {
-      const length = m.position.distanceTo(m.aim);
+      const length = m.lit.distanceTo(m.aim);
       const radius = Math.tan(KEY_ANGLE) * length * 0.9;
-      beam.current.position.copy(m.position).lerp(m.aim, 0.5);
+      beam.current.position.copy(m.lit).lerp(m.aim, 0.5);
       beam.current.scale.set(radius * 2, length, radius * 2);
-      beam.current.quaternion.setFromUnitVectors(DOWN, m.direction.subVectors(m.aim, m.position).normalize());
+      beam.current.quaternion.setFromUnitVectors(DOWN, m.direction.subVectors(m.aim, m.lit).normalize());
     }
     if (beamShader.current) {
-      beamShader.current.uniforms.uTime.value = state.clock.elapsedTime;
+      beamShader.current.uniforms.uTime.value = time;
+      beamShader.current.uniforms.uStrength.value = BEAM_STRENGTH * brightness;
       beamShader.current.uniforms.uColor.value.copy(look.hazeColor);
     }
     if (dustShader.current) {
