@@ -29,7 +29,7 @@ export function EvidenceSheet({ locale }: { locale: Locale }) {
       await loadFonts(fonts);
       const started = performance.now();
       const canvases = await Promise.all(
-        evidence.map(async (item) => ({ id: item.id, canvas: await paintEvidence(item, locale, PIXELS_PER_UNIT, fonts) })),
+        evidence.map(async (item) => ({ id: item.id, canvas: (await paintEvidence(item, locale, PIXELS_PER_UNIT, fonts)).canvas })),
       );
       const mugshot = evidence.find((item): item is PhotoEvidence => item.id === "mugshot");
       if (mugshot) {

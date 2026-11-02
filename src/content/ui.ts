@@ -67,5 +67,6 @@ export const ui = {
     awardedTo: l("выдан", "awarded to"),
     registry: l("Рег. № 404/26", "Reg. № 404/26"),
     evidence: l("Вещдок", "Evidence"),
+    topSecret: l("Совершенно секретно", "Top secret"),
   },
 };

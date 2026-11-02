@@ -24,6 +24,29 @@ export interface EvidenceImage {
   src?: string;
 }
 
+export type InkTool = "pen" | "marker";
+export type InkStroke = "underline" | "circle" | "strike";
+
+export interface InkMark {
+  phrase: string;
+  stroke: InkStroke;
+  tool: InkTool;
+}
+
+export interface MarginNote {
+  text: string;
+  at: Vec2;
+  size: number;
+  rotation?: number;
+  struck?: boolean;
+  tool?: InkTool;
+}
+
+export interface Annotations {
+  marks?: InkMark[];
+  notes?: MarginNote[];
+}
+
 interface EvidenceBase {
   id: string;
   area: Area;
@@ -33,6 +56,7 @@ interface EvidenceBase {
   aspect?: number;
   link?: string;
   variant?: FinaleVariant;
+  ink?: Localized<Annotations>;
 }
 
 export interface NewspaperEvidence extends EvidenceBase {
@@ -53,6 +77,7 @@ export interface TypedEvidence extends EvidenceBase {
   subtitle?: Localized;
   lines: Localized<string[]>;
   stamp?: Localized;
+  classified?: Localized<string[]>;
 }
 
 export interface StickyEvidence extends EvidenceBase {

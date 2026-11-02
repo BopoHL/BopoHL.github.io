@@ -1,3 +1,4 @@
+import type { TextLedger } from "./ledger";
 import { jitter, type Random } from "./random";
 import type { Rect } from "./surface";
 
@@ -69,6 +70,7 @@ export const fitLines = (
 export interface InkOptions {
   color: string;
   random: Random;
+  ledger?: TextLedger;
 }
 
 export const drawTypewriterLine = (
@@ -77,8 +79,9 @@ export const drawTypewriterLine = (
   x: number,
   y: number,
   size: number,
-  { color, random }: InkOptions,
+  { color, random, ledger }: InkOptions,
 ) => {
+  ledger?.record(ctx, line, x, y, size);
   ctx.save();
   ctx.fillStyle = color;
   ctx.textBaseline = "alphabetic";
@@ -145,18 +148,17 @@ export const drawJustifiedLine = (
   y: number,
   width: number,
   justify: boolean,
+  record?: { ledger: TextLedger; size: number },
 ) => {
   const words = line.split(" ");
-  if (!justify || words.length < 2) {
-    ctx.fillText(line, x, y);
-    return;
-  }
   const wordsWidth = words.reduce((sum, word) => sum + ctx.measureText(word).width, 0);
-  const gap = (width - wordsWidth) / (words.length - 1);
-  if (gap > ctx.measureText(" ").width * 3) {
+  const gap = words.length < 2 ? 0 : (width - wordsWidth) / (words.length - 1);
+  if (!justify || words.length < 2 || gap > ctx.measureText(" ").width * 3) {
+    record?.ledger.record(ctx, line, x, y, record.size);
     ctx.fillText(line, x, y);
     return;
   }
+  record?.ledger.record(ctx, line, x, y, record.size, { wordGap: gap });
   let cursor = x;
   for (const word of words) {
     ctx.fillText(word, cursor, y);

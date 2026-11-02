@@ -12,6 +12,7 @@ import { paintMugshotPrint, paintPhoto } from "./kinds/photo";
 import { paintTyped } from "./kinds/typed";
 import { seededRandom } from "./random";
 import { createSurface, type Surface } from "./surface";
+import { applyInk } from "./ink";
 import { applyWear } from "./wear";
 
 export { loadFonts, resolveFontFamilies, type FontFamilies } from "./fonts";
@@ -24,12 +25,17 @@ const surfaceFor = (item: Evidence, pixelsPerUnit: number, fonts: FontFamilies, 
   return createSurface(width * scale, height * scale, seededRandom(seed), fonts);
 };
 
+export interface PaintedEvidence {
+  canvas: HTMLCanvasElement;
+  accent: HTMLCanvasElement | null;
+}
+
 export const paintEvidence = async (
   item: Evidence,
   locale: Locale,
   pixelsPerUnit: number,
   fonts: FontFamilies,
-): Promise<HTMLCanvasElement> => {
+): Promise<PaintedEvidence> => {
   const surface = surfaceFor(item, pixelsPerUnit, fonts, item.id);
   switch (item.kind) {
     case "newspaper":
@@ -66,8 +72,9 @@ export const paintEvidence = async (
       await paintFolder({ item, locale, surface });
       break;
   }
+  applyInk(surface, item.ink?.[locale]);
   applyWear(surface, wearFor(item));
-  return surface.canvas;
+  return { canvas: surface.canvas, accent: surface.accent.canvas };
 };
 
 export const paintRevealedMugshot = async (

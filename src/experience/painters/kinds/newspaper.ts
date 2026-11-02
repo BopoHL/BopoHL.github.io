@@ -71,7 +71,11 @@ export const paintNewspaper = async ({ item, locale, surface }: PaintJob<Newspap
     { fontAt: (s) => font(900, s, fonts.headline), maxSize: W * 0.09, minSize: W * 0.045, lineHeight: 1.06 },
   );
   ctx.font = font(900, headline.size, fonts.headline);
-  headline.lines.forEach((line, index) => ctx.fillText(line, pad, y + headline.size * 0.85 + index * headline.lineHeightPx));
+  headline.lines.forEach((line, index) => {
+    const baseline = y + headline.size * 0.85 + index * headline.lineHeightPx;
+    surface.ledger.record(ctx, line, pad, baseline, headline.size);
+    ctx.fillText(line, pad, baseline);
+  });
   y += headline.height + W * 0.03;
 
   if (item.image) {
@@ -116,6 +120,7 @@ export const paintNewspaper = async ({ item, locale, surface }: PaintJob<Newspap
       area.y + body.size + row * body.lineHeight,
       body.columnWidth,
       !isLastInParagraph,
+      { ledger: surface.ledger, size: body.size },
     );
   });
   if (columns > 1) {

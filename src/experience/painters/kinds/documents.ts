@@ -1,26 +1,13 @@
 import type { CertificateEvidence, RedactedEvidence, TagEvidence } from "@/content/types";
 import { ui } from "@/content/ui";
 import { font } from "../fonts";
+import { feltTipRedaction } from "../ink";
 import { AREA_INK, INK, MANILA, PAPER } from "../palette";
 import { clipEdges, paintPaper } from "../paper";
-import { jitter, range, type Random } from "../random";
+import { jitter, range } from "../random";
 import { drawStamp } from "../stamp";
 import { fitLines, fitText, drawTypewriterLine } from "../text";
 import type { PaintJob } from "./job";
-
-const redactionBar = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, random: Random) => {
-  ctx.save();
-  ctx.fillStyle = "#0d0c0b";
-  ctx.beginPath();
-  ctx.moveTo(x + jitter(random, height * 0.15), y + jitter(random, height * 0.1));
-  ctx.lineTo(x + width + jitter(random, height * 0.2), y + jitter(random, height * 0.1));
-  ctx.lineTo(x + width + jitter(random, height * 0.2), y + height + jitter(random, height * 0.1));
-  ctx.lineTo(x + jitter(random, height * 0.15), y + height + jitter(random, height * 0.1));
-  ctx.closePath();
-  ctx.globalAlpha = 0.93;
-  ctx.fill();
-  ctx.restore();
-};
 
 export const paintRedacted = ({ item, locale, surface }: PaintJob<RedactedEvidence>) => {
   const { ctx, width: W, height: H, random, fonts } = surface;
@@ -28,7 +15,7 @@ export const paintRedacted = ({ item, locale, surface }: PaintJob<RedactedEviden
   clipEdges(surface, { top: "straight", right: "straight", bottom: "cut", left: "straight" });
   paintPaper(surface, { base: PAPER, grain: 0.017, mottle: 0.08, burn: 0.16 });
   const pad = W * 0.08;
-  const ink = { color: INK, random };
+  const ink = { color: INK, random, ledger: surface.ledger };
 
   ctx.font = font(400, W * 0.03, fonts.typewriter);
   ctx.textAlign = "right";
@@ -60,7 +47,12 @@ export const paintRedacted = ({ item, locale, surface }: PaintJob<RedactedEviden
     const block = fitted.blocks[index];
     if (!line.text) {
       const charWidth = ctx.measureText("█").width;
-      redactionBar(ctx, pad, cursor - fitted.size * 0.85, Math.min(W - pad * 2, charWidth * (line.redact ?? 0)), fitted.size * 1.05, random);
+      feltTipRedaction(surface, {
+        x: pad,
+        y: cursor - fitted.size * 0.85,
+        width: Math.min(W - pad * 2, charWidth * (line.redact ?? 0)),
+        height: fitted.size * 1.05,
+      });
       cursor += fitted.lineHeightPx + fitted.size * 0.45;
       return;
     }
@@ -70,7 +62,7 @@ export const paintRedacted = ({ item, locale, surface }: PaintJob<RedactedEviden
       if (isLast && line.redact) {
         const start = pad + ctx.measureText(`${text} `).width;
         const width = Math.min(W - pad - start, ctx.measureText("█").width * line.redact);
-        redactionBar(ctx, start, cursor - fitted.size * 0.85, width, fitted.size * 1.05, random);
+        feltTipRedaction(surface, { x: start, y: cursor - fitted.size * 0.85, width, height: fitted.size * 1.05 });
       }
       cursor += fitted.lineHeightPx;
     });
@@ -124,7 +116,7 @@ export const paintCertificate = ({ item, locale, surface }: PaintJob<Certificate
   const startX = W / 2 - (awardedWidth + barWidth) / 2;
   ctx.textAlign = "left";
   ctx.fillText(awarded, startX, H * 0.42);
-  redactionBar(ctx, startX + awardedWidth, H * 0.38, barWidth, H * 0.055, random);
+  feltTipRedaction(surface, { x: startX + awardedWidth, y: H * 0.38, width: barWidth, height: H * 0.055 });
   ctx.textAlign = "center";
 
   const title = fitText(ctx, item.title[locale], { x: W * 0.12, y: H * 0.47, width: W * 0.76, height: H * 0.16 }, {
@@ -134,7 +126,11 @@ export const paintCertificate = ({ item, locale, surface }: PaintJob<Certificate
     lineHeight: 1.1,
   });
   ctx.font = font(700, title.size, fonts.headline);
-  title.lines.forEach((line, index) => ctx.fillText(line, W / 2, H * 0.47 + title.size + index * title.lineHeightPx));
+  title.lines.forEach((line, index) => {
+    const baseline = H * 0.47 + title.size + index * title.lineHeightPx;
+    surface.ledger.record(ctx, line, W / 2, baseline, title.size);
+    ctx.fillText(line, W / 2, baseline);
+  });
   const detailsTop = H * 0.5 + title.height + H * 0.02;
   const details = fitText(ctx, item.details[locale], { x: W * 0.15, y: detailsTop, width: W * 0.7, height: H * 0.16 }, {
     fontAt: (s) => font(400, s, fonts.newsprint, "italic"),
@@ -143,7 +139,11 @@ export const paintCertificate = ({ item, locale, surface }: PaintJob<Certificate
     lineHeight: 1.2,
   });
   ctx.font = font(400, details.size, fonts.newsprint, "italic");
-  details.lines.forEach((line, index) => ctx.fillText(line, W / 2, detailsTop + details.size + index * details.lineHeightPx));
+  details.lines.forEach((line, index) => {
+    const baseline = detailsTop + details.size + index * details.lineHeightPx;
+    surface.ledger.record(ctx, line, W / 2, baseline, details.size);
+    ctx.fillText(line, W / 2, baseline);
+  });
 
   ctx.font = font(400, H * 0.045, fonts.typewriter);
   ctx.fillText(item.year, W / 2, H * 0.86);
@@ -231,7 +231,7 @@ export const paintTag = ({ item, locale, surface }: PaintJob<TagEvidence>) => {
   let y = H * 0.34 + fitted.size;
   for (const block of fitted.blocks) {
     for (const line of block) {
-      drawTypewriterLine(ctx, line, left, y, fitted.size, { color: INK, random });
+      drawTypewriterLine(ctx, line, left, y, fitted.size, { color: INK, random, ledger: surface.ledger });
       y += fitted.lineHeightPx;
     }
   }

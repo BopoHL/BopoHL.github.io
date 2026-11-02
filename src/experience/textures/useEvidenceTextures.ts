@@ -2,7 +2,7 @@
 
 import { useThree } from "@react-three/fiber";
 import { useEffect, useState } from "react";
-import { CanvasTexture, SRGBColorSpace, type Texture } from "three";
+import { CanvasTexture, NoColorSpace, SRGBColorSpace, type ColorSpace, type Texture } from "three";
 import { portrait, profile } from "@/content/profile";
 import type { Evidence, Locale, PhotoEvidence } from "@/content/types";
 import { loadFonts, paintEvidence, paintRevealedMugshot, resolveFontFamilies } from "../painters";
@@ -10,10 +10,11 @@ import { useExperience } from "../state/store";
 
 export interface EvidenceTextures {
   front: Map<string, Texture>;
+  accent: Map<string, Texture>;
   revealedMugshot: Texture | null;
 }
 
-const EMPTY: EvidenceTextures = { front: new Map(), revealedMugshot: null };
+const EMPTY: EvidenceTextures = { front: new Map(), accent: new Map(), revealedMugshot: null };
 
 const yieldToBrowser = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
@@ -28,9 +29,9 @@ export const useEvidenceTextures = (evidence: Evidence[], locale: Locale, pixels
     const created: Texture[] = [];
     const anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy());
 
-    const toTexture = (canvas: HTMLCanvasElement) => {
+    const toTexture = (canvas: HTMLCanvasElement, colorSpace: ColorSpace = SRGBColorSpace) => {
       const texture = new CanvasTexture(canvas);
-      texture.colorSpace = SRGBColorSpace;
+      texture.colorSpace = colorSpace;
       texture.anisotropy = anisotropy;
       created.push(texture);
       return texture;
@@ -40,10 +41,13 @@ export const useEvidenceTextures = (evidence: Evidence[], locale: Locale, pixels
       const fonts = resolveFontFamilies();
       await loadFonts(fonts);
       const front = new Map<string, Texture>();
+      const accent = new Map<string, Texture>();
       let painted = 0;
       for (const item of evidence) {
         if (cancelled) return;
-        front.set(item.id, toTexture(await paintEvidence(item, locale, pixelsPerUnit, fonts)));
+        const painting = await paintEvidence(item, locale, pixelsPerUnit, fonts);
+        front.set(item.id, toTexture(painting.canvas));
+        if (painting.accent) accent.set(item.id, toTexture(painting.accent, NoColorSpace));
         painted += 1;
         setPainted(painted, false);
         await yieldToBrowser();
@@ -54,7 +58,7 @@ export const useEvidenceTextures = (evidence: Evidence[], locale: Locale, pixels
         : null;
       if (cancelled) return;
       committed = true;
-      setTextures({ front, revealedMugshot });
+      setTextures({ front, accent, revealedMugshot });
       setPainted(painted, true);
     };
 
@@ -68,6 +72,7 @@ export const useEvidenceTextures = (evidence: Evidence[], locale: Locale, pixels
   useEffect(
     () => () => {
       textures.front.forEach((texture) => texture.dispose());
+      textures.accent.forEach((texture) => texture.dispose());
       textures.revealedMugshot?.dispose();
     },
     [textures],
