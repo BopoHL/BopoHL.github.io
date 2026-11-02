@@ -5,6 +5,7 @@ import { ScalarSpring, VectorSpring } from "./spring";
 
 const MAX_STEP = 0.1;
 const STOP_TOLERANCE = 0.01;
+const SETTLED_SPEED = 0.05;
 
 export interface Pointer {
   x: number;
@@ -63,7 +64,7 @@ export class RouteFollower {
     else if (this.restingAt !== stop) {
       this.restingAt = stop;
       this.rested = 0;
-    } else this.rested += step;
+    } else if (this.positionSpring.velocity.length() < SETTLED_SPEED) this.rested += step;
   }
 
   private nextStopToward(progress: number): number {
