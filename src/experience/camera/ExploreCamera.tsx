@@ -12,6 +12,7 @@ import { useExperience } from "../state/store";
 import { useRig } from "./rig";
 
 const { ACTION } = CameraControlsImpl;
+const MIN_DISTANCE = 5.5;
 
 const boardBox = new Box3(
   new Vector3(-BOARD_SIZE.width / 2, -BOARD_SIZE.height / 2, 0),
@@ -49,7 +50,7 @@ export function ExploreCamera({ evidence }: { evidence: Evidence[] }) {
   return (
     <CameraControls
       ref={controls}
-      minDistance={2.5}
+      minDistance={MIN_DISTANCE}
       maxDistance={34}
       minPolarAngle={Math.PI / 2 - 0.25}
       maxPolarAngle={Math.PI / 2 + 0.25}
