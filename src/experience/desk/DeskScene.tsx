@@ -5,6 +5,7 @@ import type { Texture } from "three";
 import { deskEvidence } from "@/content/desk";
 import type { Quality } from "../quality";
 import type { EvidenceTextures } from "../textures/useEvidenceTextures";
+import { Ashtray } from "./Ashtray";
 import { Desk } from "./Desk";
 import { DeskLamp } from "./DeskLamp";
 import { DeskPapers } from "./DeskPapers";
@@ -23,6 +24,7 @@ export function DeskScene({ textures, bumpMap, quality }: DeskSceneProps) {
       <Desk />
       <DeskPapers evidence={deskEvidence} textures={textures} bumpMap={bumpMap} />
       <DeskLamp quality={quality} />
+      <Ashtray />
     </DeskContext.Provider>
   );
 }
