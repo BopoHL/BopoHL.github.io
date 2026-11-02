@@ -4,7 +4,7 @@ import type { Evidence, Locale, Thread } from "./types";
 
 export const BOARD_SIZE = { width: 32, height: 18 } as const;
 
-const HERALD = l("ТАШКЕНТСКИЙ ВЕСТНИК", "THE TASHKENT HERALD");
+export const HERALD = l("ТАШКЕНТСКИЙ ВЕСТНИК", "THE TASHKENT HERALD");
 
 const contactLines = (locale: Locale) =>
   contacts

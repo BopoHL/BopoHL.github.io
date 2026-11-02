@@ -2,7 +2,8 @@
 
 import { useFrame } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { evidence as allEvidence } from "@/content/board";
+import { evidence as boardEvidence } from "@/content/board";
+import { deskEvidence } from "@/content/desk";
 import type { BoardContent } from "@/content/selectors";
 import type { Evidence, Locale } from "@/content/types";
 import { ExploreCamera } from "../camera/ExploreCamera";
@@ -13,6 +14,8 @@ import { RouteCamera } from "../camera/RouteCamera";
 import type { Quality } from "../quality";
 import type { Palette } from "../state/variant";
 import { useExperience } from "../state/store";
+import { DeskScene } from "../desk/DeskScene";
+import { usePaperBump } from "../textures/usePaperBump";
 import { useEvidenceTextures } from "../textures/useEvidenceTextures";
 import { CaseBoard } from "./CaseBoard";
 import { Effects } from "./Effects";
@@ -35,12 +38,15 @@ function LookController({ look, palette }: { look: LookState; palette: Palette }
   return null;
 }
 
+const PAINTED_EVIDENCE = [...boardEvidence, ...deskEvidence];
+
 export function Scene({ content, shots, motion, locale, quality }: SceneProps) {
   const rig = useMemo(() => new CameraRig(), []);
   const palette = useExperience((state) => state.variant.palette);
   const [look] = useState(() => new LookState(LOOKS[palette]));
   const cinema = useExperience((state) => state.variant.camera === "cinema");
-  const textures = useEvidenceTextures(allEvidence, locale, quality.pixelsPerUnit);
+  const textures = useEvidenceTextures(PAINTED_EVIDENCE, locale, quality.pixelsPerUnit);
+  const bumpMap = usePaperBump();
   const mode = useExperience((state) => state.mode);
   const focusEvidence = useExperience((state) => state.focusEvidence);
 
@@ -62,7 +68,8 @@ export function Scene({ content, shots, motion, locale, quality }: SceneProps) {
         <color attach="background" args={["#0a0806"]} />
         <fog attach="fog" args={["#0a0806", 30, 75]} />
         <Room textureSize={quality.tier === "high" ? 2048 : 1024} />
-        <CaseBoard content={content} textures={textures} locale={locale} onSelect={handleSelect} />
+        <CaseBoard content={content} textures={textures} bumpMap={bumpMap} locale={locale} onSelect={handleSelect} />
+        <DeskScene textures={textures} bumpMap={bumpMap} />
         <Lighting quality={quality} />
         <RouteCamera shots={shots} motion={motion} />
         {mode === "explore" ? <ExploreCamera evidence={content.evidence} /> : null}

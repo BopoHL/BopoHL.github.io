@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { evidence } from "../board";
+import { evidence as boardEvidence } from "../board";
+import { deskEvidence } from "../desk";
 import { LOCALES, type Evidence, type Locale } from "../types";
+
+const evidence = [...boardEvidence, ...deskEvidence];
 
 const isLocalized = (value: unknown): value is Record<Locale, unknown> =>
   typeof value === "object" && value !== null && LOCALES.every((locale) => locale in value);

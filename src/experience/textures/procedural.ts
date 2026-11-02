@@ -150,3 +150,73 @@ export const paintBlinds = (size: number) => {
   ctx.fillRect(0, 0, size, size);
   return canvas;
 };
+
+export const paintWood = (width: number, height: number, seed = "desk-wood") => {
+  const random = seededRandom(seed);
+  const canvas = createCanvas(width, height);
+  const ctx = context2d(canvas);
+  const base = ctx.createLinearGradient(0, 0, 0, height);
+  base.addColorStop(0, "#4a2d19");
+  base.addColorStop(0.5, "#3d2414");
+  base.addColorStop(1, "#4b2e1a");
+  ctx.fillStyle = base;
+  ctx.fillRect(0, 0, width, height);
+  for (let plank = 0; plank < 5; plank++) {
+    const top = (plank / 5) * height;
+    ctx.fillStyle = `rgba(${range(random, 20, 60)}, ${range(random, 10, 30)}, 5, ${range(random, 0.05, 0.18)})`;
+    ctx.fillRect(0, top, width, height / 5);
+    ctx.fillStyle = "rgba(10, 5, 2, 0.55)";
+    ctx.fillRect(0, top, width, Math.max(1, height * 0.004));
+  }
+  for (let i = 0; i < height * 0.8; i++) {
+    const y = random() * height;
+    const amplitude = range(random, 1, 10) * (height / 512);
+    const frequency = range(random, 0.6, 3);
+    const phase = random() * Math.PI * 2;
+    const dark = random() < 0.62;
+    ctx.strokeStyle = dark
+      ? `rgba(18, 9, 3, ${range(random, 0.03, 0.13)})`
+      : `rgba(150, 100, 60, ${range(random, 0.02, 0.06)})`;
+    ctx.lineWidth = range(random, 0.5, 2.2) * (height / 512);
+    ctx.beginPath();
+    for (let x = 0; x <= width; x += width / 64) {
+      const wave = Math.sin((x / width) * Math.PI * 2 * frequency + phase) * amplitude;
+      if (x === 0) ctx.moveTo(x, y + wave);
+      else ctx.lineTo(x, y + wave);
+    }
+    ctx.stroke();
+  }
+  for (let knot = 0; knot < 4; knot++) {
+    const x = random() * width;
+    const y = random() * height;
+    for (let ring = 6; ring > 0; ring--) {
+      ctx.strokeStyle = `rgba(20, 10, 4, ${0.05 + 0.04 * (6 - ring)})`;
+      ctx.lineWidth = height * 0.003;
+      ctx.beginPath();
+      ctx.ellipse(x, y, ring * height * 0.012 * 3, ring * height * 0.012, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+  for (let i = 0; i < 26; i++) {
+    const x = random() * width;
+    const y = random() * height;
+    const r = range(random, 0.05, 0.2) * height;
+    const glow = ctx.createRadialGradient(x, y, 0, x, y, r);
+    const ring = random() < 0.5;
+    glow.addColorStop(0, ring ? "rgba(255, 230, 200, 0.05)" : "rgba(0, 0, 0, 0.08)");
+    glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = glow;
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  for (let i = 0; i < 40; i++) {
+    const x = random() * width;
+    const y = random() * height;
+    ctx.strokeStyle = `rgba(230, 210, 180, ${range(random, 0.04, 0.1)})`;
+    ctx.lineWidth = height * 0.0015;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + range(random, 10, 80) * (height / 512), y + range(random, -6, 6) * (height / 512));
+    ctx.stroke();
+  }
+  return canvas;
+};

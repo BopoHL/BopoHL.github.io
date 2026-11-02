@@ -3,7 +3,8 @@
 import { Canvas } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PCFShadowMap } from "three";
-import { evidence as allEvidence } from "@/content/board";
+import { evidence as boardEvidence } from "@/content/board";
+import { deskEvidence } from "@/content/desk";
 import { boardContentFor } from "@/content/selectors";
 import type { Locale } from "@/content/types";
 import { CAMERA_FOV, buildShots, framingFor } from "./camera/framing";
@@ -91,7 +92,7 @@ export function Experience({ locale }: { locale: Locale }) {
         <ExploreBar locale={locale} />
         <PilotPanel locale={locale} />
       </div>
-      <Loader locale={locale} total={allEvidence.length} />
+      <Loader locale={locale} total={boardEvidence.length + deskEvidence.length} />
     </>
   );
 }

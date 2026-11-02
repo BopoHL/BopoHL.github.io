@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
-import { CanvasTexture, RepeatWrapping } from "three";
+import { useMemo } from "react";
+import type { Texture } from "three";
 import type { BoardContent } from "@/content/selectors";
 import type { Evidence, Locale } from "@/content/types";
 import { ui } from "@/content/ui";
 import { useExperience } from "../state/store";
 import type { EvidenceTextures } from "../textures/useEvidenceTextures";
-import { paintPaperBump } from "../textures/procedural";
 import { BoardSurface } from "./boardSurface";
 import { EvidenceCard } from "./EvidenceCard";
 import { THREAD_COLORS } from "./layout3d";
@@ -17,22 +16,16 @@ import { Thread } from "./Thread";
 interface CaseBoardProps {
   content: BoardContent;
   textures: EvidenceTextures;
+  bumpMap: Texture;
   locale: Locale;
   onSelect: (item: Evidence) => void;
 }
 
 const isMugshot = (item: Evidence) => item.kind === "photo" && item.frame === "mugshot";
 
-export function CaseBoard({ content, textures, locale, onSelect }: CaseBoardProps) {
+export function CaseBoard({ content, textures, bumpMap, locale, onSelect }: CaseBoardProps) {
   const finale = useExperience((state) => state.variant.finale);
 
-  const bumpMap = useMemo(() => {
-    const texture = new CanvasTexture(paintPaperBump(1024));
-    texture.wrapS = texture.wrapT = RepeatWrapping;
-    texture.repeat.set(2, 2);
-    return texture;
-  }, []);
-  useEffect(() => () => bumpMap.dispose(), [bumpMap]);
   const surface = useMemo(() => new BoardSurface(content.evidence, content.threads), [content.evidence, content.threads]);
 
   if (textures.front.size === 0) return null;
