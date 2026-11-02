@@ -81,19 +81,21 @@ export class RouteFollower {
   update(progress: number, delta: number, pointer: Pointer, traveling = false) {
     const { motion } = this;
     const step = Math.min(delta, MAX_STEP);
-    const pace = traveling ? motion.travel : motion.browse;
-    const limit = this.track.speedLimit(this.progressSpring.value, pace);
     this.trackRest(step);
-    const target = traveling ? progress : this.nextStopToward(progress);
-    this.progressSpring.update(target, motion.progressSettle, step, limit);
+    if (traveling) this.progressSpring.reset(progress);
+    else {
+      const limit = this.track.speedLimit(this.progressSpring.value, motion.browse);
+      this.progressSpring.update(this.nextStopToward(progress), motion.progressSettle, step, limit);
+    }
     this.haste = MathUtils.smoothstep(Math.abs(this.progressSpring.velocity), ...motion.haste);
     const pose = this.track.poseAt(this.progressSpring.value, this.haste, this.pose);
     this.nearest = pose.nearest;
     this.aim.copy(pose.position);
     this.aim.x += pointer.x * motion.parallax;
     this.aim.y += pointer.y * motion.parallax * 0.6;
-    this.positionSpring.update(this.aim, motion.settle, step);
-    this.targetSpring.update(pose.target, motion.settle, step);
-    this.rollSpring.update(pose.roll, motion.settle, step);
+    const settle = traveling ? motion.travelSettle : motion.settle;
+    this.positionSpring.update(this.aim, settle, step);
+    this.targetSpring.update(pose.target, settle, step);
+    this.rollSpring.update(pose.roll, settle, step);
   }
 }

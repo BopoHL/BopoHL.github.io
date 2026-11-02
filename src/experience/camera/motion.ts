@@ -17,7 +17,7 @@ export interface CameraMotion {
   progressSettle: number;
   dwell: number;
   browse: Pace;
-  travel: Pace;
+  travelSettle: number;
   haste: [number, number];
 }
 
@@ -27,7 +27,7 @@ const ROUTE_FOLLOW = {
   progressSettle: 0.2,
   dwell: 0.3,
   browse: { heightsPerSecond: 3, maxShotsPerSecond: 1.8 },
-  travel: { heightsPerSecond: 6, maxShotsPerSecond: 3 },
+  travelSettle: 0.55,
   haste: [0.9, 2.2] as [number, number],
 };
 
