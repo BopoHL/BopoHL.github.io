@@ -6,6 +6,7 @@ import { ui } from "@/content/ui";
 import { useExperience } from "../state/store";
 import { variantToQuery, type PilotVariant } from "../state/variant";
 import styles from "./hud.module.css";
+import { switchSoundOn } from "./useAudioMute";
 
 interface PilotGroup<K extends keyof PilotVariant> {
   key: K;
@@ -59,7 +60,13 @@ const GROUPS: AnyPilotGroup[] = [
       { value: "metal", label: ui.pilot.metal },
       { value: "muffled", label: ui.pilot.muffled },
     ],
-    action: { label: ui.pilot.listen, run: (variant) => previewTypewriter(variant.typing) },
+    action: {
+      label: ui.pilot.listen,
+      run: (variant) => {
+        switchSoundOn();
+        previewTypewriter(variant.typing);
+      },
+    },
   },
   {
     key: "pins",

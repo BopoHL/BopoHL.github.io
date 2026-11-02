@@ -57,3 +57,29 @@ export const playPinClick = () => {
   toneHit(rig.context, bus, at, CLICK_SNAP, pitch, 1);
   toneHit(rig.context, bus, at + 0.002, CLICK_THUMP, pitch, 1);
 };
+
+const SWITCH_TICK: NoiseLayer = { frequency: 3200, q: 3, gain: 0.35, decay: 0.008 };
+const SWITCH_BODY: ToneLayer = { frequency: 420, drop: 0.5, gain: 0.12, decay: 0.035 };
+const KEY_CLUNK: NoiseLayer = { frequency: 1400, q: 1.2, gain: 0.45, decay: 0.03 };
+const KEY_THUMP: ToneLayer = { frequency: 140, drop: 0.55, gain: 0.3, decay: 0.06 };
+const KEY_LATCH: NoiseLayer = { frequency: 5200, q: 4, gain: 0.18, decay: 0.006 };
+
+export const playSwitchClick = () => {
+  const rig = audioRig();
+  if (!rig) return;
+  const at = rig.context.currentTime + 0.005;
+  const bus = panned(rig, CLICK_LEVEL);
+  noiseHit(rig, bus, at, SWITCH_TICK, between(0.9, 1.1), 1);
+  toneHit(rig.context, bus, at, SWITCH_BODY, between(0.95, 1.05), 1);
+};
+
+export const playKeyClunk = (latched: boolean) => {
+  const rig = audioRig();
+  if (!rig) return;
+  const at = rig.context.currentTime + 0.005;
+  const bus = panned(rig, CLICK_LEVEL);
+  const pitch = between(0.94, 1.06);
+  noiseHit(rig, bus, at, KEY_CLUNK, pitch, 1);
+  toneHit(rig.context, bus, at, KEY_THUMP, pitch, 1);
+  if (latched) noiseHit(rig, bus, at + 0.035, KEY_LATCH, pitch, 1);
+};

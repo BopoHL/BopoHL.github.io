@@ -4,10 +4,12 @@ import { LOCALES, type Locale } from "@/content/types";
 import { ui } from "@/content/ui";
 import { unlockAudio } from "@/audio/rig";
 import { useExperience } from "../state/store";
+import { useAudioMute } from "./useAudioMute";
 import { variantToQuery } from "../state/variant";
 import styles from "./hud.module.css";
 
 export function TopBar({ locale }: { locale: Locale }) {
+  useAudioMute();
   const revealed = useExperience((state) => state.revealed);
   const soundOn = useExperience((state) => state.soundOn);
   const toggleSound = useExperience((state) => state.toggleSound);

@@ -34,6 +34,7 @@ interface ExperienceState {
   setPainted: (count: number, ready: boolean) => void;
   setDossierOpen: (open: boolean) => void;
   toggleSound: () => void;
+  enableSound: () => void;
   focusEvidence: (id: string | null) => void;
   setExploreView: (view: ExploreView) => void;
 }
@@ -71,6 +72,7 @@ export const useExperience = create<ExperienceState>()((set) => ({
   setPainted: (paintedCount, ready) => set({ paintedCount, ready }),
   setDossierOpen: (dossierOpen) => set({ dossierOpen }),
   toggleSound: () => set((state) => ({ soundOn: !state.soundOn })),
+  enableSound: () => set({ soundOn: true }),
   focusEvidence: (focusedEvidence) => set({ focusedEvidence }),
   setExploreView: (exploreView) => set({ exploreView, focusedEvidence: null }),
 }));

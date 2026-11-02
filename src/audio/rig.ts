@@ -5,8 +5,10 @@ export interface AudioRig {
 }
 
 const NOISE_SECONDS = 0.5;
+const MUTE_RAMP = 0.08;
 
-let shared: AudioRig | null = null;
+let shared: (AudioRig & { master: GainNode }) | null = null;
+let muted = true;
 
 const whiteNoise = (context: AudioContext) => {
   const buffer = context.createBuffer(1, Math.round(context.sampleRate * NOISE_SECONDS), context.sampleRate);
@@ -15,7 +17,7 @@ const whiteNoise = (context: AudioContext) => {
   return buffer;
 };
 
-const createRig = (): AudioRig | null => {
+const createRig = (): (AudioRig & { master: GainNode }) | null => {
   const AudioContextClass =
     window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
   if (!AudioContextClass) return null;
@@ -27,7 +29,10 @@ const createRig = (): AudioRig | null => {
   limiter.attack.value = 0.002;
   limiter.release.value = 0.12;
   limiter.connect(context.destination);
-  return { context, noise: whiteNoise(context), output: limiter };
+  const master = context.createGain();
+  master.gain.value = muted ? 0 : 1;
+  master.connect(limiter);
+  return { context, noise: whiteNoise(context), output: master, master };
 };
 
 export const audioRig = (): AudioRig | null => {
@@ -39,4 +44,12 @@ export const audioRig = (): AudioRig | null => {
 
 export const unlockAudio = () => {
   audioRig();
+};
+
+export const setAudioMuted = (next: boolean) => {
+  muted = next;
+  if (!shared) return;
+  const { context, master } = shared;
+  master.gain.cancelScheduledValues(context.currentTime);
+  master.gain.setTargetAtTime(next ? 0 : 1, context.currentTime, MUTE_RAMP / 3);
 };
