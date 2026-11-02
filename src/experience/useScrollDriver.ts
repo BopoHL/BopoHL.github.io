@@ -34,13 +34,16 @@ export const useScrollDriver = (shotCount: number) => {
       }
     };
     instance.on("scroll", update);
+    instance.on("virtual-scroll", () => {
+      if (useExperience.getState().travelTarget !== null) travelTo(null);
+    });
     update();
     lenis.current = instance;
     return () => {
       instance.destroy();
       lenis.current = null;
     };
-  }, [shotCount, setProgress, reduceMotion]);
+  }, [shotCount, setProgress, travelTo, reduceMotion]);
 
   useEffect(() => {
     if (paused) lenis.current?.stop();
