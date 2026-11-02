@@ -9,7 +9,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "blender:assets": "node tools/blender/export-assets.mjs"
+    "blender:assets": "node tools/blender/export-assets.mjs",
+    "tape:render": "node tools/tape/render-tape.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
