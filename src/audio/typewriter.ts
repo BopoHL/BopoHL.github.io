@@ -1,4 +1,5 @@
 import { audioRig, type AudioRig } from "./rig";
+import { envelope, noiseHit, toneHit } from "./voices";
 import {
   TYPEWRITER_PROFILES,
   type NoiseLayer,
@@ -11,7 +12,6 @@ import {
 
 export type Keystroke = "key" | "space";
 
-const ATTACK = 0.0008;
 const PITCH_JITTER = 0.05;
 const GAIN_JITTER = 0.2;
 const PAN_SPREAD = 0.12;
@@ -77,37 +77,6 @@ const busFor = (rig: AudioRig, id: TypewriterProfileId) => {
   const bus = createBus(rig, TYPEWRITER_PROFILES[id]);
   buses.set(id, bus);
   return bus;
-};
-
-const envelope = (context: AudioContext, at: number, gain: number, decay: number) => {
-  const node = context.createGain();
-  node.gain.setValueAtTime(0, at);
-  node.gain.linearRampToValueAtTime(gain, at + ATTACK);
-  node.gain.exponentialRampToValueAtTime(0.0001, at + ATTACK + decay);
-  return node;
-};
-
-const noiseHit = (rig: AudioRig, target: AudioNode, at: number, layer: NoiseLayer, pitch: number, level: number) => {
-  const { context } = rig;
-  const source = context.createBufferSource();
-  source.buffer = rig.noise;
-  const filter = context.createBiquadFilter();
-  filter.type = "bandpass";
-  filter.frequency.value = layer.frequency * pitch;
-  filter.Q.value = layer.q;
-  source.connect(filter).connect(envelope(context, at, layer.gain * level, layer.decay)).connect(target);
-  const offset = Math.random() * (rig.noise.duration - layer.decay - 0.05);
-  source.start(at, Math.max(0, offset), layer.decay + 0.03);
-};
-
-const toneHit = (context: AudioContext, target: AudioNode, at: number, layer: ToneLayer, pitch: number, level: number) => {
-  const oscillator = context.createOscillator();
-  const start = layer.frequency * pitch;
-  oscillator.frequency.setValueAtTime(start, at);
-  oscillator.frequency.exponentialRampToValueAtTime(start * layer.drop, at + layer.decay);
-  oscillator.connect(envelope(context, at, layer.gain * level, layer.decay)).connect(target);
-  oscillator.start(at);
-  oscillator.stop(at + layer.decay + 0.03);
 };
 
 const ring = (context: AudioContext, target: AudioNode, at: number, partials: Resonance[], pitch: number, level: number) => {
