@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useContext } from "react";
-import { Color, MathUtils, type WebGLProgramParametersWithUniforms } from "three";
+import { createContext, useContext, useMemo } from "react";
+import { Color, MathUtils, type Texture, type WebGLProgramParametersWithUniforms } from "three";
 import type { Palette } from "../state/variant";
 
 export interface Look {
@@ -80,6 +80,36 @@ export const saturationShader = (uniform: { value: number }): SaturationShader =
   customProgramCacheKey: () => "desaturate",
 });
 
+const INKED = /* glsl */ `
+uniform float uSaturation;
+uniform float uAccentSaturation;
+uniform sampler2D uAccentMask;
+vec3 desaturateTo(vec3 color, float amount) {
+  return mix(vec3(dot(color, vec3(0.2126, 0.7152, 0.0722))), color, amount);
+}
+`;
+
+const inkedShader = (world: { value: number }, accent: { value: number }, mask: Texture): SaturationShader => ({
+  onBeforeCompile: (shader) => {
+    shader.uniforms.uSaturation = world;
+    shader.uniforms.uAccentSaturation = accent;
+    shader.uniforms.uAccentMask = { value: mask };
+    shader.fragmentShader = shader.fragmentShader
+      .replace("#include <common>", `#include <common>\n${INKED}`)
+      .replace(
+        "#include <map_fragment>",
+        `#include <map_fragment>
+        float inked = texture2D(uAccentMask, vMapUv).r;
+        diffuseColor.rgb = desaturateTo(diffuseColor.rgb, mix(uSaturation, uAccentSaturation, inked));`,
+      )
+      .replace(
+        "#include <emissivemap_fragment>",
+        "#include <emissivemap_fragment>\ntotalEmissiveRadiance = desaturateTo(totalEmissiveRadiance, uSaturation);",
+      );
+  },
+  customProgramCacheKey: () => "desaturate-inked",
+});
+
 const BLEND_SPEED = 3;
 
 export class LookState {
@@ -126,6 +156,10 @@ export class LookState {
     return this.target.blinds;
   }
 
+  inkedShader(mask: Texture): SaturationShader {
+    return inkedShader(this.saturation, this.accentSaturation, mask);
+  }
+
   setTarget(look: Look) {
     this.target = look;
     this.targetLamp.set(look.lampColor);
@@ -163,4 +197,9 @@ export const useWorldShader = () => {
 export const useAccentShader = () => {
   const look = useLook();
   return look.accentShader;
+};
+
+export const usePaperShader = (accentMask: Texture | undefined) => {
+  const look = useLook();
+  return useMemo(() => (accentMask ? look.inkedShader(accentMask) : look.worldShader), [look, accentMask]);
 };

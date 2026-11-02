@@ -7,7 +7,7 @@ import { pinOffsetOf, sizeOf } from "@/content/geometry";
 import type { Evidence } from "@/content/types";
 import { useExperience } from "../state/store";
 import { createCardGeometry, minimumGap, type CardShape } from "./cardGeometry";
-import { useWorldShader } from "./look";
+import { usePaperShader } from "./look";
 import { cardZ } from "./layout3d";
 import { Pin } from "./Pin";
 import { useSurfaceBump } from "./useSurfaceBump";
@@ -15,18 +15,19 @@ import { useSurfaceBump } from "./useSurfaceBump";
 interface EvidenceCardProps {
   shape: CardShape;
   texture: Texture;
+  accentMask?: Texture;
   bumpMap: Texture;
   onSelect?: (item: Evidence) => void;
 }
 
 const HOVER_EDGE_LIFT = 0.14;
 
-export function EvidenceCard({ shape, texture, bumpMap, onSelect }: EvidenceCardProps) {
+export function EvidenceCard({ shape, texture, accentMask, bumpMap, onSelect }: EvidenceCardProps) {
   const { item, finish, wear } = shape;
   const hinge = useRef<Group>(null);
   const [hovered, setHovered] = useState(false);
   const mode = useExperience((state) => state.mode);
-  const worldShader = useWorldShader();
+  const paperShader = usePaperShader(accentMask);
   const geometry = useMemo(() => createCardGeometry(shape), [shape]);
   useEffect(() => () => geometry.dispose(), [geometry]);
   const surfaceBump = useSurfaceBump(bumpMap, item.id);
@@ -76,7 +77,8 @@ export function EvidenceCard({ shape, texture, bumpMap, onSelect }: EvidenceCard
           onClick={handleClick}
         >
           <meshStandardMaterial
-            {...worldShader}
+            key={paperShader.customProgramCacheKey()}
+            {...paperShader}
             map={texture}
             roughness={finish.roughness}
             bumpMap={surfaceBump}

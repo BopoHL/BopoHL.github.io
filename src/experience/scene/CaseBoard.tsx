@@ -65,7 +65,16 @@ export function CaseBoard({ content, textures, locale, onSelect }: CaseBoardProp
             />
           );
         }
-        return <EvidenceCard key={shape.item.id} shape={shape} texture={texture} bumpMap={bumpMap} onSelect={onSelect} />;
+        return (
+          <EvidenceCard
+            key={shape.item.id}
+            shape={shape}
+            texture={texture}
+            accentMask={textures.accent.get(shape.item.id)}
+            bumpMap={bumpMap}
+            onSelect={onSelect}
+          />
+        );
       })}
       {threads.map((thread) => (
         <Thread key={thread.key} points={thread.points} color={thread.color} />
