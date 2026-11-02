@@ -35,16 +35,6 @@ export function CaseBoard({ content, textures, locale, onSelect }: CaseBoardProp
   useEffect(() => () => bumpMap.dispose(), [bumpMap]);
   const surface = useMemo(() => new BoardSurface(content.evidence, content.threads), [content.evidence, content.threads]);
 
-  const threads = useMemo(
-    () =>
-      surface.threads.map((thread) => ({
-        key: `${thread.from}->${thread.to}`,
-        points: surface.threadPoints(thread),
-        color: THREAD_COLORS[thread.area],
-      })),
-    [surface],
-  );
-
   if (textures.front.size === 0) return null;
 
   return (
@@ -71,13 +61,14 @@ export function CaseBoard({ content, textures, locale, onSelect }: CaseBoardProp
             shape={shape}
             texture={texture}
             accentMask={textures.accent.get(shape.item.id)}
+            canLift={surface.canLift(shape)}
             bumpMap={bumpMap}
             onSelect={onSelect}
           />
         );
       })}
-      {threads.map((thread) => (
-        <Thread key={thread.key} points={thread.points} color={thread.color} />
+      {surface.runs.map(({ thread, points }) => (
+        <Thread key={`${thread.from}->${thread.to}`} points={points} color={THREAD_COLORS[thread.area]} />
       ))}
     </group>
   );

@@ -16,13 +16,14 @@ interface EvidenceCardProps {
   shape: CardShape;
   texture: Texture;
   accentMask?: Texture;
+  canLift: boolean;
   bumpMap: Texture;
   onSelect?: (item: Evidence) => void;
 }
 
 const HOVER_EDGE_LIFT = 0.14;
 
-export function EvidenceCard({ shape, texture, accentMask, bumpMap, onSelect }: EvidenceCardProps) {
+export function EvidenceCard({ shape, texture, accentMask, canLift, bumpMap, onSelect }: EvidenceCardProps) {
   const { item, finish, wear } = shape;
   const hinge = useRef<Group>(null);
   const [hovered, setHovered] = useState(false);
@@ -33,10 +34,10 @@ export function EvidenceCard({ shape, texture, accentMask, bumpMap, onSelect }: 
   const surfaceBump = useSurfaceBump(bumpMap, item.id);
   const [pinX, pinY] = pinOffsetOf(item);
   const hoverAngle = useMemo(() => {
-    if (shape.pins.length > 1) return 0;
+    if (!canLift) return 0;
     const reach = pinY + sizeOf(item).height / 2;
     return -Math.atan(Math.min(HOVER_EDGE_LIFT, minimumGap(shape)) / reach);
-  }, [item, pinY, shape]);
+  }, [canLift, item, pinY, shape]);
   const interactive = mode === "explore" || Boolean(item.link);
 
   useFrame((_, delta) => {

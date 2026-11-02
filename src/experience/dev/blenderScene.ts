@@ -52,8 +52,8 @@ export const buildBlenderScene = (locale: Locale, finale: FinaleVariant) => {
       };
     }),
     threadRadius: THREAD_RADIUS,
-    threads: surface.threads.map((thread) => ({
-      points: surface.threadPoints(thread).map((point) => point.toArray() as Vec3),
+    threads: surface.runs.map(({ thread, points }) => ({
+      points: points.map((point) => point.toArray() as Vec3),
       color: THREAD_COLORS[thread.area],
     })),
     reveal:
