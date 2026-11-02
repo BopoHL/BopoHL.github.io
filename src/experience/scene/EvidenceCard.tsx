@@ -11,6 +11,7 @@ import { createCardGeometry, minimumGap, type CardShape } from "./cardGeometry";
 import { usePaperShader } from "./look";
 import { cardZ } from "./layout3d";
 import { Pin } from "./Pin";
+import { isTap } from "./pointer";
 import { useSurfaceBump } from "./useSurfaceBump";
 
 interface EvidenceCardProps {
@@ -60,7 +61,7 @@ export function EvidenceCard({ shape, texture, accentMask, canLift, bumpMap, onS
   };
 
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
-    if (!interactive) return;
+    if (!interactive || !isTap(event)) return;
     event.stopPropagation();
     onSelect?.(item);
   };

@@ -15,6 +15,7 @@ import {
 import { playSwitchClick } from "@/audio/foley";
 import type { Quality } from "../quality";
 import { useLook, useWorldShader } from "../scene/look";
+import { isTap } from "../scene/pointer";
 import { pointerCursor } from "./deskState";
 import { onDesk, PROPS } from "./layout";
 
@@ -61,6 +62,7 @@ export function DeskLamp({ quality }: { quality: Quality }) {
   });
 
   const toggle = (event: ThreeEvent<MouseEvent>) => {
+    if (!isTap(event)) return;
     event.stopPropagation();
     playSwitchClick();
     setOn((value) => !value);

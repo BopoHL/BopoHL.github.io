@@ -10,6 +10,7 @@ import { createCardGeometry, type CardShape } from "./cardGeometry";
 import { useWorldShader } from "./look";
 import { REVEAL_STAMP, cardZ } from "./layout3d";
 import { Pin } from "./Pin";
+import { isTap } from "./pointer";
 import { Stamp } from "./Stamp";
 import { useSurfaceBump } from "./useSurfaceBump";
 
@@ -45,7 +46,7 @@ export function MugshotCard({ shape, front, back, bumpMap, stampText, onSelect }
   });
 
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
-    if (useExperience.getState().mode !== "explore") return;
+    if (useExperience.getState().mode !== "explore" || !isTap(event)) return;
     event.stopPropagation();
     onSelect(item);
   };
