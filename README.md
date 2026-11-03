@@ -67,7 +67,7 @@ docs/plan.md        concept, route, visual system and image prompts
 
 Both camera styles keep one height above the board for every investigation stop and glide sideways between stops; only the overview and the finale step back. The camera eases into each stop and rests there for a moment before moving on, at a pace measured in frame heights per second, so a fast scroll never skips anything: the scroll itself is held within about one section of what the camera has shown. Clicking a chapter on the progress thread travels there directly and faster. Scrolling non-stop from the first stop to the finale takes about 45 seconds on desktop. Tuning lives in `src/experience/camera/motion.ts` (`dwell`, `browse`, `travelSettle`) and `SCROLL_LEAD` in `src/experience/useScrollDriver.ts`.
 
-In free exploration the camera never comes closer than `MIN_DISTANCE` in `src/experience/camera/ExploreCamera.tsx`.
+In free exploration the camera never comes closer than `MIN_DISTANCE` in `src/experience/camera/ExploreCamera.tsx`. The cinematic lens blur belongs to the story: it fades out while exploring so every note stays readable, and its focus range grows as the camera pulls back (`src/experience/scene/lens.ts`). Paper textures are sampled with a slight negative mip bias (`PAPER_LOD_BIAS` in `src/experience/scene/look.ts`) so small type stays crisp at a distance.
 
 ## The desk
 
@@ -75,6 +75,7 @@ In free exploration the camera never comes closer than `MIN_DISTANCE` in `src/ex
 
 - The banker's lamp switches with a click on it.
 - The 1970s fan switches with a click, spins up and down, oscillates slowly and bends the cigarette smoke when it faces the ashtray.
+- The heavy glass ashtray is modelled in code (`src/experience/desk/ashtrayModel.ts`): three cigarette rests cut into the rim, a bed of ash, stubbed-out butts and fallen ash. The cigarette in the rest is built from sections (filter, paper, char, ember, ash) in `cigaretteModel.ts`, so its length and how far it has burnt are data. The glass refracts the desk on high quality and falls back to tinted transparent glass on phones.
 - The cassette recorder has working piano keys: REC (the tape is write-protected), REW, PLAY, FF, STOP and PAUSE. The reels, the tape packs and the counter follow the tape position, the deck auto-stops at either end and stops when you leave free exploration. PLAY turns the site sound on.
 
 Clicks that end a camera drag are ignored, so dragging across a prop does not switch it.
@@ -108,7 +109,7 @@ ink: l(
 - `notes` are handwritten: `at` is the position on the card from its top-left corner (0–1), `size` is the letter height as a share of the card width, `struck` crosses the note out.
 - Typed sheets accept `classified: l(["Зарплата:", ...], ["Salary:", ...])`, which adds a top secret box with each field blacked out by a felt-tip marker. Redacted documents do the same with `{ text, redact }` lines.
 
-Threads tie to the top pin of a card, or to a second pin at its bottom when the thread leaves downwards, so they do not run back across their own card.
+Threads tie to the top pin of a card, or to a second pin at its bottom when the thread leaves downwards, so they do not run back across their own card. Each thread winds a couple of turns round the pin body above its base, following the pin's tilt, and most cut ends hang down a little below the pin. Pins that hold several threads build the turns up in layers. Tuning is at the top of `src/experience/scene/boardSurface.ts`.
 
 ## Replacing placeholder images
 
