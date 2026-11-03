@@ -1,5 +1,7 @@
+import { Euler, MathUtils, Vector3 } from "three";
 import { pinOffsetOf, type PinSpot } from "@/content/geometry";
 import type { Area, Evidence } from "@/content/types";
+import { seededRandom } from "@/lib/random";
 
 export const CARD_BASE_Z = 0.03;
 export const CARD_LAYER_STEP = 0.008;
@@ -7,6 +9,19 @@ export const CARD_LAYER_STEP = 0.008;
 export const cardZ = (index: number) => CARD_BASE_Z + index * CARD_LAYER_STEP;
 
 export const pinLocal = (item: Evidence, spot: PinSpot): [number, number, number] => [...pinOffsetOf(item, spot), 0];
+
+const MAX_PIN_TILT = 0.07;
+const Z_AXIS = new Vector3(0, 0, 1);
+
+export const pinTilt = (item: Evidence, spot: PinSpot): [number, number, number] => {
+  const random = seededRandom(`${item.id}-${spot}-pin`);
+  return [(random() * 2 - 1) * MAX_PIN_TILT, (random() * 2 - 1) * MAX_PIN_TILT, 0];
+};
+
+export const pinAxis = (item: Evidence, spot: PinSpot): Vector3 =>
+  Z_AXIS.clone()
+    .applyEuler(new Euler(...pinTilt(item, spot)))
+    .applyAxisAngle(Z_AXIS, MathUtils.degToRad(item.rotation));
 
 export const PIN_COLORS: Record<Area, string> = {
   case: "#ffd21f",

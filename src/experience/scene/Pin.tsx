@@ -3,13 +3,10 @@
 import { useEffect, useMemo } from "react";
 import type { PinSpot } from "@/content/geometry";
 import type { Evidence } from "@/content/types";
-import { seededRandom } from "@/lib/random";
 import { useExperience } from "../state/store";
-import { PIN_COLORS, pinLocal } from "./layout3d";
+import { PIN_COLORS, pinLocal, pinTilt } from "./layout3d";
 import { useAccentShader, useWorldShader } from "./look";
 import { createPinParts } from "./pinModel";
-
-const MAX_TILT = 0.07;
 
 export function Pin({ item, spot }: { item: Evidence; spot: PinSpot }) {
   const style = useExperience((state) => state.variant.pins);
@@ -23,10 +20,7 @@ export function Pin({ item, spot }: { item: Evidence; spot: PinSpot }) {
     },
     [parts],
   );
-  const tilt = useMemo(() => {
-    const random = seededRandom(`${item.id}-${spot}-pin`);
-    return [(random() * 2 - 1) * MAX_TILT, (random() * 2 - 1) * MAX_TILT, 0] as const;
-  }, [item.id, spot]);
+  const tilt = useMemo(() => pinTilt(item, spot), [item, spot]);
   const color = PIN_COLORS[item.area];
 
   return (
