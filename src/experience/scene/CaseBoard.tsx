@@ -25,8 +25,12 @@ const isMugshot = (item: Evidence) => item.kind === "photo" && item.frame === "m
 
 export function CaseBoard({ content, textures, bumpMap, locale, onSelect }: CaseBoardProps) {
   const finale = useExperience((state) => state.variant.finale);
+  const pinStyle = useExperience((state) => state.variant.pins);
 
-  const surface = useMemo(() => new BoardSurface(content.evidence, content.threads), [content.evidence, content.threads]);
+  const surface = useMemo(
+    () => new BoardSurface(content.evidence, content.threads, pinStyle),
+    [content.evidence, content.threads, pinStyle],
+  );
 
   if (textures.front.size === 0) return null;
 

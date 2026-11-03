@@ -2,17 +2,34 @@ import { Vector3 } from "three";
 import { distanceOutside, pinOf, pinOffsetOf, toLocal, type PinSpot } from "@/content/geometry";
 import { pinBoard, type AnchoredThread } from "@/content/pinning";
 import type { Evidence, Thread, Vec2 } from "@/content/types";
+import { range, seededRandom } from "@/lib/random";
+import type { PinStyle } from "../state/variant";
 import { cardShapesFor, localHeight, type CardShape } from "./cardGeometry";
-import { cardZ } from "./layout3d";
-import { NEEDLE_RADIUS } from "./pinModel";
-import { threadPath, winding } from "./threadPath";
+import { cardZ, pinAxis } from "./layout3d";
+import { PIN_WRAP } from "./pinModel";
+import { hangingTail, threadPath, winding, type PinPost, type WindingOptions } from "./threadPath";
 import { THREAD_RADIUS } from "./threadShader";
 
 const THREAD_DRAPE = { radius: THREAD_RADIUS, clearance: 0.0025, sagPerUnit: 0.035, maxSag: 0.6, samplesPerUnit: 24 };
 const HINGE_MARGIN = 0.1;
-const WINDING = { radius: NEEDLE_RADIUS + THREAD_RADIUS, turns: 1.75, pitch: THREAD_RADIUS * 2.1, pointsPerTurn: 14 };
-const WINDING_BASE = THREAD_RADIUS + 0.0015;
-const WINDING_LAYER = 0.0045;
+const WINDING = { turns: 2.5, pitch: THREAD_RADIUS * 2.05, pointsPerTurn: 18 };
+const LAYER = { rise: THREAD_RADIUS * 1.1, grow: THREAD_RADIUS * 1.7 };
+const TAIL = {
+  chance: 0.75,
+  length: [0.1, 0.22] as const,
+  spread: 0.6,
+  sway: 0.05,
+  reach: 0.06,
+  lift: THREAD_RADIUS + 0.0015,
+  fall: 0.05,
+  samples: 12,
+};
+const HEAD_CLEARANCE: Record<PinStyle, number> = { push: 0.09, map: 0.02 };
+
+interface Wrap {
+  post: PinPost;
+  options: WindingOptions;
+}
 
 export interface ThreadRun {
   thread: AnchoredThread;
@@ -26,7 +43,11 @@ export class BoardSurface {
   private readonly carriers: Set<string>;
   private readonly windings = new Map<string, number>();
 
-  constructor(evidence: Evidence[], threads: Thread[]) {
+  constructor(
+    evidence: Evidence[],
+    threads: Thread[],
+    private readonly pinStyle: PinStyle = "push",
+  ) {
     const pinning = pinBoard(evidence, threads);
     this.shapes = cardShapesFor(evidence, pinning.spots);
     this.byId = new Map(this.shapes.map((shape) => [shape.item.id, shape]));
@@ -68,20 +89,40 @@ export class BoardSurface {
     return carriers;
   }
 
-  private needle(shape: CardShape, spot: PinSpot): Vector3 {
+  private wrap(shape: CardShape, spot: PinSpot): Wrap {
     const key = `${shape.item.id}:${spot}`;
     const layer = this.windings.get(key) ?? 0;
     this.windings.set(key, layer + 1);
+    const { radius, base } = PIN_WRAP[this.pinStyle];
+    const axis = pinAxis(shape.item, spot);
     const [x, y] = pinOf(shape.item, spot);
-    return new Vector3(x, y, cardZ(shape.index) + WINDING_BASE + layer * WINDING_LAYER);
+    const origin = new Vector3(x, y, cardZ(shape.index)).addScaledVector(axis, base + (layer % 2) * LAYER.rise);
+    return {
+      post: { base: origin, axis },
+      options: { ...WINDING, radius: radius + THREAD_RADIUS + layer * LAYER.grow },
+    };
   }
 
   private threadPoints(thread: AnchoredThread): Vector3[] {
-    const from = this.needle(this.shapeOf(thread.from), thread.fromSpot);
-    const to = this.needle(this.shapeOf(thread.to), thread.toSpot);
-    const start = winding(from, to, WINDING);
-    const end = winding(to, from, WINDING).reverse();
+    const random = seededRandom(`${thread.from}->${thread.to}-tail`);
+    const tailed = random() < TAIL.chance;
+    const from = this.wrap(this.shapeOf(thread.from), thread.fromSpot);
+    const to = this.wrap(this.shapeOf(thread.to), thread.toSpot);
+    const hangsFrom = -Math.PI / 2 + (random() * 2 - 1) * TAIL.spread;
+    const start = winding(from.post, to.post.base, from.options);
+    const end = winding(to.post, from.post.base, tailed ? { ...to.options, startAngle: hangsFrom } : to.options).reverse();
     const run = threadPath(this, start[start.length - 1], end[0], THREAD_DRAPE);
-    return [...start, ...run.slice(1, -1), ...end];
+    const points = [...start, ...run.slice(1, -1), ...end];
+    if (!tailed) return points;
+    const tail = hangingTail(this, end[end.length - 1], pinOf(this.shapeOf(thread.to).item, thread.toSpot), {
+      length: range(random, ...TAIL.length),
+      sway: (random() * 2 - 1) * TAIL.sway,
+      reach: TAIL.reach,
+      lift: TAIL.lift,
+      clearance: HEAD_CLEARANCE[this.pinStyle],
+      fall: TAIL.fall,
+      samples: TAIL.samples,
+    });
+    return [...points, ...tail.slice(1)];
   }
 }

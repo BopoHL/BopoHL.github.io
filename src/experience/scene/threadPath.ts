@@ -1,4 +1,4 @@
-import { Vector3 } from "three";
+import { MathUtils, Vector3 } from "three";
 import type { Vec2 } from "@/content/types";
 
 export interface Surface {
@@ -47,20 +47,58 @@ export interface WindingOptions {
   turns: number;
   pitch: number;
   pointsPerTurn: number;
+  startAngle?: number;
 }
 
-export const winding = (center: Vector3, toward: Vector3, options: WindingOptions): Vector3[] => {
-  const leave = Math.atan2(toward.y - center.y, toward.x - center.x) - Math.PI / 2;
-  const count = Math.max(2, Math.round(options.turns * options.pointsPerTurn));
-  const sweep = options.turns * Math.PI * 2;
+export interface PinPost {
+  base: Vector3;
+  axis: Vector3;
+}
+
+const X_AXIS = new Vector3(1, 0, 0);
+
+export const winding = ({ base, axis }: PinPost, toward: Vector3, options: WindingOptions): Vector3[] => {
+  const u = X_AXIS.clone().addScaledVector(axis, -axis.x).normalize();
+  const v = new Vector3().crossVectors(axis, u);
+  const direction = toward.clone().sub(base);
+  const leave = Math.atan2(direction.dot(v), direction.dot(u)) - Math.PI / 2;
+  const turnSweep = options.turns * Math.PI * 2;
+  const sweep =
+    options.startAngle === undefined ? turnSweep : turnSweep + MathUtils.euclideanModulo(leave - options.startAngle - turnSweep, Math.PI * 2);
+  const turns = sweep / (Math.PI * 2);
+  const count = Math.max(2, Math.round(turns * options.pointsPerTurn));
   return Array.from({ length: count + 1 }, (_, i) => {
     const t = i / count;
     const angle = leave - sweep * (1 - t);
-    return new Vector3(
-      center.x + Math.cos(angle) * options.radius,
-      center.y + Math.sin(angle) * options.radius,
-      center.z + options.pitch * options.turns * t,
-    );
+    return base
+      .clone()
+      .addScaledVector(axis, options.pitch * turns * t)
+      .addScaledVector(u, Math.cos(angle) * options.radius)
+      .addScaledVector(v, Math.sin(angle) * options.radius);
+  });
+};
+
+export interface TailOptions {
+  length: number;
+  sway: number;
+  reach: number;
+  lift: number;
+  clearance: number;
+  fall: number;
+  samples: number;
+}
+
+export const hangingTail = (surface: Surface, from: Vector3, pin: Vec2, options: TailOptions): Vector3[] => {
+  const out = new Vector3(from.x - pin[0], from.y - pin[1], 0).normalize();
+  return Array.from({ length: options.samples + 1 }, (_, i) => {
+    const t = i / options.samples;
+    const spread = 1 - (1 - t) ** 2;
+    const x = from.x + out.x * options.reach * spread + options.sway * t * t;
+    const y = from.y + out.y * options.reach * spread - options.length * t ** 1.2;
+    const resting = surface.heightAt([x, y]) + options.lift;
+    const away = Math.hypot(x - pin[0], y - pin[1]) - options.clearance;
+    const falling = MathUtils.smoothstep(away, 0, options.fall);
+    return new Vector3(x, y, Math.max(resting, MathUtils.lerp(from.z, resting, falling)));
   });
 };
 

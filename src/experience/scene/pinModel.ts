@@ -23,6 +23,16 @@ const PUSH_PIN_PROFILE: Array<[number, number]> = [
 
 const MAP_PIN = { radius: 0.052, height: 0.105 };
 
+export interface PinWrap {
+  radius: number;
+  base: number;
+}
+
+export const PIN_WRAP: Record<PinStyle, PinWrap> = {
+  push: { radius: 0.03, base: 0.066 },
+  map: { radius: NEEDLE_RADIUS, base: 0.014 },
+};
+
 export interface PinParts {
   head: BufferGeometry;
   needle: BufferGeometry;
