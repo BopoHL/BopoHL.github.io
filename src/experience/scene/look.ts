@@ -66,18 +66,29 @@ export interface SaturationShader {
   customProgramCacheKey: () => string;
 }
 
-export const saturationShader = (uniform: { value: number }): SaturationShader => ({
+const PAPER_LOD_BIAS = -0.6;
+
+const SHARP_MAP = /* glsl */ `
+#ifdef USE_MAP
+  diffuseColor *= texture2D(map, vMapUv, ${PAPER_LOD_BIAS.toFixed(2)});
+#endif
+`;
+
+export const saturationShader = (uniform: { value: number }, sharpMap = false): SaturationShader => ({
   onBeforeCompile: (shader) => {
     shader.uniforms.uSaturation = uniform;
     shader.fragmentShader = shader.fragmentShader
       .replace("#include <common>", `#include <common>\n${DESATURATE}`)
-      .replace("#include <map_fragment>", "#include <map_fragment>\ndiffuseColor.rgb = desaturate(diffuseColor.rgb);")
+      .replace(
+        "#include <map_fragment>",
+        `${sharpMap ? SHARP_MAP : "#include <map_fragment>"}\ndiffuseColor.rgb = desaturate(diffuseColor.rgb);`,
+      )
       .replace(
         "#include <emissivemap_fragment>",
         "#include <emissivemap_fragment>\ntotalEmissiveRadiance = desaturate(totalEmissiveRadiance);",
       );
   },
-  customProgramCacheKey: () => "desaturate",
+  customProgramCacheKey: () => (sharpMap ? "desaturate-sharp" : "desaturate"),
 });
 
 const INKED = /* glsl */ `
@@ -98,7 +109,7 @@ const inkedShader = (world: { value: number }, accent: { value: number }, mask: 
       .replace("#include <common>", `#include <common>\n${INKED}`)
       .replace(
         "#include <map_fragment>",
-        `#include <map_fragment>
+        `${SHARP_MAP}
         float inked = texture2D(uAccentMask, vMapUv).r;
         diffuseColor.rgb = desaturateTo(diffuseColor.rgb, mix(uSaturation, uAccentSaturation, inked));`,
       )
@@ -117,6 +128,7 @@ export class LookState {
   readonly accentSaturation: { value: number };
   readonly worldShader: SaturationShader;
   readonly accentShader: SaturationShader;
+  readonly paperShader: SaturationShader;
   readonly lampColor: Color;
   readonly hazeColor: Color;
   readonly skyColor: Color;
@@ -134,6 +146,7 @@ export class LookState {
     this.accentSaturation = { value: initial.accentSaturation };
     this.worldShader = saturationShader(this.saturation);
     this.accentShader = saturationShader(this.accentSaturation);
+    this.paperShader = saturationShader(this.saturation, true);
     this.lampColor = new Color(initial.lampColor);
     this.hazeColor = new Color(initial.hazeColor);
     this.skyColor = new Color(initial.skyColor);
@@ -199,7 +212,7 @@ export const useAccentShader = () => {
   return look.accentShader;
 };
 
-export const usePaperShader = (accentMask: Texture | undefined) => {
+export const usePaperShader = (accentMask?: Texture) => {
   const look = useLook();
-  return useMemo(() => (accentMask ? look.inkedShader(accentMask) : look.worldShader), [look, accentMask]);
+  return useMemo(() => (accentMask ? look.inkedShader(accentMask) : look.paperShader), [look, accentMask]);
 };

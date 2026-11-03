@@ -27,7 +27,7 @@ export const useEvidenceTextures = (evidence: Evidence[], locale: Locale, pixels
     let cancelled = false;
     let committed = false;
     const created: Texture[] = [];
-    const anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy());
+    const anisotropy = Math.min(16, gl.capabilities.getMaxAnisotropy());
 
     const toTexture = (canvas: HTMLCanvasElement, colorSpace: ColorSpace = SRGBColorSpace) => {
       const texture = new CanvasTexture(canvas);
