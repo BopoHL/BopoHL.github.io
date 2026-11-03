@@ -48,4 +48,9 @@ export class PeripheralBlurEffect extends Effect {
       ]),
     });
   }
+
+  setRadius(radius: number) {
+    const uniform = this.uniforms.get("uRadius");
+    if (uniform) uniform.value = radius;
+  }
 }
