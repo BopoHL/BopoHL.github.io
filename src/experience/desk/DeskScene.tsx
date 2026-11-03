@@ -28,7 +28,7 @@ export function DeskScene({ textures, bumpMap, quality, locale }: DeskSceneProps
       <Desk />
       <DeskPapers evidence={deskEvidence} textures={textures} bumpMap={bumpMap} />
       <DeskLamp quality={quality} />
-      <Ashtray />
+      <Ashtray quality={quality} />
       <DeskFan />
       <CassetteRecorder locale={locale} />
     </DeskContext.Provider>
