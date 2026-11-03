@@ -14,10 +14,14 @@ export const smokeVertexShader = /* glsl */ `
     vec3 p = uOrigin;
     p.y += uRise * (1.0 - pow(1.0 - age, 1.7));
     float curl = age * age;
-    p.x += sin(age * 9.0 + aSeed * 40.0 + uTime * 0.7) * 0.2 * curl + sin(age * 3.0 + uTime * 0.31) * 0.1 * age;
-    p.z += cos(age * 7.0 + aSeed * 23.0 + uTime * 0.53) * 0.2 * curl;
+    float rise = p.y - uOrigin.y;
+    float ribbon = smoothstep(0.0, 0.25, age) * (1.0 - smoothstep(0.35, 0.7, age));
+    p.x += sin(rise * 7.0 - uTime * 1.6) * 0.035 * ribbon;
+    p.z += cos(rise * 5.0 - uTime * 1.1) * 0.025 * ribbon;
+    p.x += sin(age * 9.0 + aSeed * 40.0 + uTime * 0.7) * 0.22 * curl + sin(age * 3.0 + uTime * 0.31) * 0.1 * age;
+    p.z += cos(age * 7.0 + aSeed * 23.0 + uTime * 0.53) * 0.22 * curl;
     p += uWind * curl * 2.2;
-    float size = mix(0.035, 0.95, pow(age, 0.85));
+    float size = mix(0.015, 0.85, pow(age, 1.45));
     float spin = aSeed * 6.2831 + age * 1.4;
     vec2 corner = mat2(cos(spin), -sin(spin), sin(spin), cos(spin)) * position.xy;
     vec3 right = vec3(viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]);
@@ -66,7 +70,7 @@ export const smokeFragmentShader = /* glsl */ `
     float wisps = fbm(vUv * 2.6 + vec2(vSeed * 13.0, -vAge * 1.6 - uTime * 0.04));
     float mask = smoothstep(1.0, 0.15, radius) * smoothstep(0.3, 0.8, wisps + 0.3 * (1.0 - radius));
     float life = smoothstep(0.0, 0.08, vAge) * (1.0 - smoothstep(0.4, 1.0, vAge));
-    float alpha = mask * life * uDensity * mix(1.1, 0.5, vAge);
+    float alpha = mask * life * uDensity * mix(0.6, 0.45, vAge);
     gl_FragColor = vec4(uColor, alpha);
   }
 `;

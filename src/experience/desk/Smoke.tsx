@@ -15,7 +15,7 @@ import { useLook } from "../scene/look";
 import { useDesk } from "./deskState";
 import { smokeFragmentShader, smokeVertexShader } from "./smokeShaders";
 
-const PUFFS = 72;
+const PUFFS = 110;
 const LIFE = 6.5;
 const RISE = 3.4;
 const DENSITY = 0.2;
