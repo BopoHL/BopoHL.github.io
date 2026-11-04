@@ -83,3 +83,26 @@ export const playKeyClunk = (latched: boolean) => {
   toneHit(rig.context, bus, at, KEY_THUMP, pitch, 1);
   if (latched) noiseHit(rig, bus, at + 0.035, KEY_LATCH, pitch, 1);
 };
+
+const DIAL_PULSE: NoiseLayer = { frequency: 2400, q: 5, gain: 0.22, decay: 0.012 };
+const DIAL_BODY: ToneLayer = { frequency: 320, drop: 0.7, gain: 0.08, decay: 0.03 };
+const DRAWER_SLIDE: NoiseLayer = { frequency: 500, q: 0.7, gain: 0.3, decay: 0.32 };
+const DRAWER_THUD: ToneLayer = { frequency: 110, drop: 0.6, gain: 0.35, decay: 0.12 };
+
+export const playDialPulse = () => {
+  const rig = audioRig();
+  if (!rig) return;
+  const at = rig.context.currentTime + 0.005;
+  const bus = panned(rig, CLICK_LEVEL);
+  noiseHit(rig, bus, at, DIAL_PULSE, between(0.95, 1.05), 1);
+  toneHit(rig.context, bus, at, DIAL_BODY, 1, 1);
+};
+
+export const playDrawer = (opening: boolean) => {
+  const rig = audioRig();
+  if (!rig) return;
+  const at = rig.context.currentTime + 0.005;
+  const bus = panned(rig, CLICK_LEVEL);
+  noiseHit(rig, bus, at, DRAWER_SLIDE, opening ? 1.1 : 0.9, 1);
+  toneHit(rig.context, bus, at + DRAWER_SLIDE.decay * 0.8, DRAWER_THUD, opening ? 1 : 0.85, 1);
+};
