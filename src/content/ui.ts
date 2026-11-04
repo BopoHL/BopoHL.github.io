@@ -29,6 +29,10 @@ export const ui = {
   contactTitle: l("Связаться", "Get in touch"),
   copy: l("скопировать", "copy"),
   copied: l("скопировано", "copied"),
+  boardUnavailable: l(
+    "3D-доска не запускается на этом устройстве, поэтому сразу открываем досье.",
+    "The 3D board can't run on this device, so here is the dossier straight away.",
+  ),
   dossier: {
     title: l("Досье", "Dossier"),
     close: l("Вернуться к доске", "Back to the board"),

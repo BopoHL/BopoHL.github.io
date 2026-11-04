@@ -9,6 +9,7 @@ import styles from "./dossier.module.css";
 export function DossierOverlay({ locale, children }: { locale: Locale; children: React.ReactNode }) {
   const open = useExperience((state) => state.dossierOpen);
   const setOpen = useExperience((state) => state.setDossierOpen);
+  const boardAvailable = useExperience((state) => state.boardAvailable);
   const closeButton = useRef<HTMLButtonElement>(null);
   const returnFocus = useRef<Element | null>(null);
 
@@ -38,10 +39,17 @@ export function DossierOverlay({ locale, children }: { locale: Locale; children:
     >
       <div className={styles.bar}>
         <span className={styles.barTitle}>{ui.dossier.title[locale]}</span>
-        <button ref={closeButton} type="button" className={styles.close} onClick={() => setOpen(false)}>
-          {ui.dossier.close[locale]}
-        </button>
+        {boardAvailable ? (
+          <button ref={closeButton} type="button" className={styles.close} onClick={() => setOpen(false)}>
+            {ui.dossier.close[locale]}
+          </button>
+        ) : null}
       </div>
+      {boardAvailable ? null : (
+        <p className={styles.notice} role="status">
+          {ui.boardUnavailable[locale]}
+        </p>
+      )}
       {children}
     </div>
   );

@@ -19,6 +19,7 @@ interface ExperienceState {
   ready: boolean;
   paintedCount: number;
   dossierOpen: boolean;
+  boardAvailable: boolean;
   soundOn: boolean;
   focusedEvidence: string | null;
   exploreView: ExploreView;
@@ -33,6 +34,7 @@ interface ExperienceState {
   setRevealed: (revealed: boolean) => void;
   setPainted: (count: number, ready: boolean) => void;
   setDossierOpen: (open: boolean) => void;
+  setBoardAvailable: (available: boolean) => void;
   toggleSound: () => void;
   enableSound: () => void;
   focusEvidence: (id: string | null) => void;
@@ -53,6 +55,7 @@ export const useExperience = create<ExperienceState>()((set) => ({
   ready: false,
   paintedCount: 0,
   dossierOpen: false,
+  boardAvailable: true,
   soundOn: false,
   focusedEvidence: null,
   exploreView: "board",
@@ -70,7 +73,8 @@ export const useExperience = create<ExperienceState>()((set) => ({
   setShot: (shotIndex, stationIndex) => set({ shotIndex, stationIndex }),
   setRevealed: (revealed) => set({ revealed }),
   setPainted: (paintedCount, ready) => set({ paintedCount, ready }),
-  setDossierOpen: (dossierOpen) => set({ dossierOpen }),
+  setDossierOpen: (dossierOpen) => set((state) => ({ dossierOpen: dossierOpen || !state.boardAvailable })),
+  setBoardAvailable: (boardAvailable) => set({ boardAvailable }),
   toggleSound: () => set((state) => ({ soundOn: !state.soundOn })),
   enableSound: () => set({ soundOn: true }),
   focusEvidence: (focusedEvidence) => set({ focusedEvidence }),

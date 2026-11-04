@@ -42,6 +42,14 @@
   cursor: pointer;
 }
 
+.notice {
+  width: min(820px, calc(100vw - 32px));
+  margin: 0 auto;
+  font-family: var(--font-typewriter), monospace;
+  font-size: 13px;
+  color: var(--muted);
+}
+
 .close:hover {
   background: rgba(232, 220, 192, 0.1);
 }
