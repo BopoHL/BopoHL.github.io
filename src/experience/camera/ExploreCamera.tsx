@@ -33,8 +33,8 @@ const typewriterView = () => {
 const VIEWS: Record<ExploreView, { position: Vector3; target: Vector3 }> = {
   board: { position: new Vector3(0, 0, 26), target: new Vector3(0, 0, 0) },
   desk: {
-    position: new Vector3(-0.5, DESK.top + 11.5, (DESK.back + DESK.front) / 2 + 12.5),
-    target: new Vector3(-0.5, DESK.top, (DESK.back + DESK.front) / 2),
+    position: new Vector3(0, DESK.top + 13.2, (DESK.back + DESK.front) / 2 + 15.6),
+    target: new Vector3(0, DESK.top - 0.2, (DESK.back + DESK.front) / 2 + 1.0),
   },
   typewriter: typewriterView(),
 };
