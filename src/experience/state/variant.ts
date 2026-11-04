@@ -32,7 +32,11 @@ const PIN_STYLES: readonly PinStyle[] = ["push", "map"];
 const oneOf = <T extends string>(value: string | null, allowed: readonly T[], fallback: T): T =>
   allowed.includes(value as T) ? (value as T) : fallback;
 
-export const variantToQuery = ({ finale, explore, palette, camera, typing, pins }: PilotVariant) => {
+export const PILOT_PARAM = "pilot";
+
+export const pilotRequested = (search: string) => new URLSearchParams(search).has(PILOT_PARAM);
+
+export const variantToQuery = ({ finale, explore, palette, camera, typing, pins }: PilotVariant, pilot = false) => {
   const params = new URLSearchParams({
     finale: FINALE_QUERY[finale],
     route: explore ? "free" : "linear",
@@ -41,6 +45,7 @@ export const variantToQuery = ({ finale, explore, palette, camera, typing, pins 
     typing,
     pins,
   });
+  if (pilot) params.set(PILOT_PARAM, "1");
   return `?${params.toString()}`;
 };
 

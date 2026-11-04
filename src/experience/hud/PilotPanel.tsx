@@ -83,7 +83,7 @@ export function PilotPanel({ locale }: { locale: Locale }) {
   const setVariant = useExperience((state) => state.setVariant);
 
   const update = (next: Partial<PilotVariant>) => {
-    window.history.replaceState(null, "", variantToQuery({ ...variant, ...next }));
+    window.history.replaceState(null, "", variantToQuery({ ...variant, ...next }, true));
     setVariant(next);
   };
 

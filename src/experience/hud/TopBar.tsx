@@ -6,6 +6,7 @@ import { ui } from "@/content/ui";
 import { unlockAudio } from "@/audio/rig";
 import { useExperience } from "../state/store";
 import { useAudioMute } from "./useAudioMute";
+import { usePilotAccess } from "../state/usePilotAccess";
 import { variantToQuery } from "../state/variant";
 import styles from "./hud.module.css";
 
@@ -16,6 +17,7 @@ export function TopBar({ locale }: { locale: Locale }) {
   const toggleSound = useExperience((state) => state.toggleSound);
   const setDossierOpen = useExperience((state) => state.setDossierOpen);
   const variant = useExperience((state) => state.variant);
+  const pilot = usePilotAccess();
 
   const skip = () => {
     track("investigation_skipped", { station: useExperience.getState().stationIndex });
@@ -41,7 +43,7 @@ export function TopBar({ locale }: { locale: Locale }) {
             <a
               key={code}
               className={styles.textButton}
-              href={`/${code}/${variantToQuery(variant)}`}
+              href={pilot ? `/${code}/${variantToQuery(variant, true)}` : `/${code}/`}
               hrefLang={code}
               aria-current={code === locale}
               {...trackOnClick("locale_switched", { to: code })}

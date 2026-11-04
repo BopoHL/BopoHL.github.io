@@ -25,6 +25,7 @@ import styles from "./hud/hud.module.css";
 import { detectQuality } from "./quality";
 import { Scene } from "./scene/Scene";
 import { useExperience } from "./state/store";
+import { usePilotAccess } from "./state/usePilotAccess";
 import { variantFromQuery } from "./state/variant";
 import { useScrollDriver } from "./useScrollDriver";
 import { useSecretMemory } from "./useSecretMemory";
@@ -49,6 +50,7 @@ export function Experience({ locale }: { locale: Locale }) {
   const setVariant = useExperience((state) => state.setVariant);
   const setLocale = useExperience((state) => state.setLocale);
   const stageRef = useRef<HTMLDivElement>(null);
+  const pilot = usePilotAccess();
   const aspect = useElementAspect(stageRef);
   useSecretMemory();
   const watchContext = useContextLossFallback();
@@ -105,7 +107,7 @@ export function Experience({ locale }: { locale: Locale }) {
         <CaseFilePanel locale={locale} />
         <StatementPanel locale={locale} />
         <DeskToast />
-        <PilotPanel locale={locale} />
+        {pilot ? <PilotPanel locale={locale} /> : null}
       </div>
       <Loader locale={locale} total={boardEvidence.length + deskEvidence.length} />
     </>
