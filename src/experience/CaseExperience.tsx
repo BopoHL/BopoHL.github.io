@@ -22,6 +22,8 @@ function BoardUnavailable({ reason }: AnalyticsEvents["board_unavailable"]) {
 
 export function CaseExperience({ locale }: { locale: Locale }) {
   const webgl = useWebGLSupport();
+  const boardAvailable = useExperience((state) => state.boardAvailable);
   if (webgl === null) return null;
-  return webgl ? <Experience locale={locale} /> : <BoardUnavailable reason="no-webgl" />;
+  if (!webgl) return <BoardUnavailable reason="no-webgl" />;
+  return boardAvailable ? <Experience locale={locale} /> : <BoardUnavailable reason="context-lost" />;
 }

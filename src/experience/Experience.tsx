@@ -30,6 +30,7 @@ import { useScrollDriver } from "./useScrollDriver";
 import { useSecretMemory } from "./useSecretMemory";
 import { useReducedMotion } from "./useReducedMotion";
 import { useElementAspect } from "./useViewport";
+import { useContextLossFallback } from "./useContextLossFallback";
 import { useJourneyAnalytics } from "./useJourneyAnalytics";
 import stage from "./stage.module.css";
 
@@ -50,6 +51,7 @@ export function Experience({ locale }: { locale: Locale }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const aspect = useElementAspect(stageRef);
   useSecretMemory();
+  const watchContext = useContextLossFallback();
   useRainAmbience();
 
   useEffect(() => {
@@ -79,6 +81,7 @@ export function Experience({ locale }: { locale: Locale }) {
           dpr={quality.dpr}
           camera={{ fov: CAMERA_FOV, near: 0.1, far: 200, position: [0, 0, 20] }}
           gl={{ antialias: false, powerPreference: "high-performance", alpha: false, stencil: false }}
+          onCreated={({ gl }) => watchContext(gl.domElement)}
         >
           <Scene content={content} shots={shots} motion={motion} locale={locale} quality={quality} />
         </Canvas>
