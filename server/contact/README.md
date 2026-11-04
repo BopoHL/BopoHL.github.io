@@ -1,58 +1,46 @@
 # Contact handler
 
-Takes the statement typed on the site's typewriter and forwards it to your Telegram. It is a single Node process with no dependencies, meant to sit behind the nginx that already serves the static site.
+Takes the statement typed on the site's typewriter and forwards it to your Telegram. It runs as a Cloudflare Worker on the free plan, so the site itself can stay a static page on GitHub Pages: the bot token lives in the Worker as a secret and never reaches the browser.
 
-## Run
+Each address may file 3 statements a minute (Cloudflare's rate limiting binding, counted per Cloudflare location). Requests are capped at 8 KB, fields are validated with the same rules as the form (`src/contact/statement.ts`), and a hidden `website` field quietly drops bots. Only the origin in `ALLOWED_ORIGIN` may post from a browser.
 
-Node 22.18 or newer runs the TypeScript sources directly.
+## 1. Telegram bot
 
-```bash
-TELEGRAM_BOT_TOKEN=123:abc TELEGRAM_CHAT_ID=123456789 npm run contact:serve
-```
+1. In Telegram, open [@BotFather](https://t.me/BotFather), send `/newbot`, pick a name and a username ending in `bot`. BotFather answers with the token, `123456789:AA...`.
+2. Open your new bot and press **Start**, so it is allowed to write to you.
+3. Open `https://api.telegram.org/bot<token>/getUpdates` in a browser. Your chat id is `result[0].message.chat.id`, a number like `123456789`.
 
-| Variable | Default | Meaning |
-|---|---|---|
-| `TELEGRAM_BOT_TOKEN` | required | Token of the bot that writes to you, from @BotFather |
-| `TELEGRAM_CHAT_ID` | required | Your chat id with that bot (send the bot a message, then read `getUpdates`) |
-| `ALLOWED_ORIGIN` | `*` | Origin allowed to post, e.g. `https://case404.example` |
-| `HOST` / `PORT` | `127.0.0.1` / `8787` | Where the handler listens |
+## 2. Deploy the Worker
 
-Each address may file 3 statements per 10 minutes. Requests are capped at 8 KB, fields are validated with the same rules as the form (`src/contact/statement.ts`), and a hidden `website` field quietly drops bots.
-
-## Wire it to the site
-
-Build the site with the endpoint, so the form posts instead of falling back to Telegram:
+You need a free Cloudflare account. The first time you open **Workers & Pages** in the dashboard, Cloudflare asks you to pick a `workers.dev` subdomain.
 
 ```bash
-NEXT_PUBLIC_CONTACT_ENDPOINT=/api/contact npm run build
+npm install
+npx wrangler login                     # opens the browser once
+npm run contact:deploy                 # prints https://case404-contact.<subdomain>.workers.dev
+npx wrangler secret put TELEGRAM_BOT_TOKEN --config server/contact/wrangler.jsonc
+npx wrangler secret put TELEGRAM_CHAT_ID --config server/contact/wrangler.jsonc
 ```
 
-nginx, inside the site's `server` block:
+Each `secret put` asks for the value and redeploys the Worker. `ALLOWED_ORIGIN` is set in `wrangler.jsonc`; change it there if the site moves to another address.
 
-```nginx
-location = /api/contact {
-    proxy_pass http://127.0.0.1:8787/contact;
-    proxy_set_header X-Real-IP $remote_addr;
-    client_max_body_size 8k;
-}
+Check it from the terminal; the message should arrive in Telegram and the command should print `204`:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" -X POST https://case404-contact.<subdomain>.workers.dev/contact \
+  -H "content-type: application/json" \
+  -d '{"contact":"@me","message":"Проверка связи","locale":"ru"}'
 ```
 
-systemd unit, e.g. `/etc/systemd/system/case404-contact.service`:
+## 3. Point the site at it
 
-```ini
-[Unit]
-Description=Case 404 contact handler
-After=network.target
+Set the endpoint, with the `/contact` path, as the `CONTACT_ENDPOINT` repository variable on GitHub (see the main README). For a local build, put it in `.env.local` as `NEXT_PUBLIC_CONTACT_ENDPOINT`; a browser on `localhost` is turned away by `ALLOWED_ORIGIN`, so test locally with `curl` or `npm run contact:dev`.
 
-[Service]
-WorkingDirectory=/srv/case404
-ExecStart=/usr/bin/node server/contact/main.ts
-Environment=TELEGRAM_BOT_TOKEN=123:abc
-Environment=TELEGRAM_CHAT_ID=123456789
-Environment=ALLOWED_ORIGIN=https://case404.example
-Restart=on-failure
-User=www-data
+## Local development
 
-[Install]
-WantedBy=multi-user.target
+```bash
+printf 'TELEGRAM_BOT_TOKEN="123:abc"\nTELEGRAM_CHAT_ID="123456789"\n' > server/contact/.dev.vars
+npm run contact:dev                    # http://localhost:8787/contact
 ```
+
+`.dev.vars` is ignored by git. Logs of the deployed Worker are in the dashboard under **Workers & Pages → case404-contact → Logs**.

@@ -20,7 +20,7 @@ npm run start        # serve ./out on http://localhost:3000
 npm run e2e          # build, serve on :4310 and run the browser scenarios in e2e/
 ```
 
-The build is a static site (`output: "export"`). Serve `out/` with any static server, for example nginx.
+The build is a static site (`output: "export"`). It is published to GitHub Pages (see Deploy) and can be served by any static server.
 
 The browser scenarios need Chromium once: `npx playwright install chromium`. They cover the recruiter's fast path (skip → dossier → PDF), the English version and its metadata, the fallback without WebGL and after a lost GPU context, the title card, and the route from the last chapter to the desk. WebGL runs in software, so a full run takes a few minutes.
 
@@ -31,9 +31,20 @@ Copy `.env.example` to `.env.local` (or set the variables in the build environme
 | Variable | Meaning |
 |---|---|
 | `NEXT_PUBLIC_SITE_URL` | Public address of the site. Canonical links, `sitemap.xml`, `robots.txt` and the Open Graph images are built from it |
-| `NEXT_PUBLIC_CONTACT_ENDPOINT` | Where the typewriter posts statements, e.g. `/api/contact`. Without it the statement is copied and Telegram opens instead |
+| `NEXT_PUBLIC_CONTACT_ENDPOINT` | Where the typewriter posts statements: the contact Worker's URL with `/contact`. Without it the statement is copied and Telegram opens instead |
 | `NEXT_PUBLIC_POSTHOG_KEY` | PostHog project key. Without it no analytics code is loaded |
 | `NEXT_PUBLIC_POSTHOG_HOST` | PostHog ingestion host, `https://eu.i.posthog.com` by default |
+
+## Deploy
+
+Pushing to `main` builds the site and publishes it to GitHub Pages (`.github/workflows/pages.yml`). The repository is `BopoHL.github.io`, so the site lives at the root of `https://bopohl.github.io/` and needs no base path; the workflow takes that address from GitHub and passes it as `NEXT_PUBLIC_SITE_URL`.
+
+Once, in the repository settings:
+
+1. **Pages → Build and deployment → Source:** GitHub Actions.
+2. **Secrets and variables → Actions → Variables:** `CONTACT_ENDPOINT` (the contact Worker's URL with `/contact`), and later `POSTHOG_KEY` and `POSTHOG_HOST`. Unset variables simply leave that feature off.
+
+The contact handler is deployed separately to Cloudflare: [server/contact/README.md](server/contact/README.md).
 
 ## Pilot variants
 
@@ -75,7 +86,7 @@ src/contact/        statement rules shared by the form and the handler, and the 
 src/analytics/      typed analytics events and the lazy PostHog start
 src/seo/            site address, Open Graph images, structured data
 src/audio/          synthesized typewriter, foley, fan hum, rain, tape deck and the noir jazz score
-server/contact/     the small Node handler that forwards statements to Telegram
+server/contact/     the Cloudflare Worker that forwards statements to Telegram
 e2e/                browser scenarios (Playwright)
 tools/              asset tooling: Blender previs, tape recording, résumé PDF, Open Graph images
 docs/plan.md        concept, route, visual system and image prompts
@@ -117,7 +128,7 @@ In free exploration a click on the main evidence of a job opens its case file: w
 
 ## Contact by typewriter
 
-The statement form posts to the handler in `server/contact/`, which forwards it to Telegram. Setup, nginx and systemd are in [server/contact/README.md](server/contact/README.md). Until `NEXT_PUBLIC_CONTACT_ENDPOINT` is set, sending copies the statement and opens Telegram.
+The statement form ("Contact the author") posts to a Cloudflare Worker in `server/contact/`, which checks it, keeps a rate limit and forwards it to Telegram, so the bot token never reaches the browser. Setup is in [server/contact/README.md](server/contact/README.md). Until `NEXT_PUBLIC_CONTACT_ENDPOINT` is set, sending copies the statement and opens Telegram.
 
 ## Analytics
 

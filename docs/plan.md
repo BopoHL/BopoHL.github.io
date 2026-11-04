@@ -127,7 +127,7 @@ src/
 tools/blender/  скрипт сборки сцены из src/content
 ```
 
-Сайт собирается в статику (`output: export`) и раздаётся nginx с твоего VPS.
+Сайт собирается в статику (`output: export`) и публикуется на GitHub Pages (`https://bopohl.github.io/`); форма «Связаться с автором» отправляет сообщения в Telegram через Cloudflare Worker.
 
 ## 8. Картинки для генерации (GPT)
 
