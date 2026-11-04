@@ -4,14 +4,16 @@ import { useEffect, useMemo } from "react";
 import { CanvasTexture, RepeatWrapping, SRGBColorSpace, type Texture } from "three";
 import { useWorldShader } from "../scene/look";
 import { paintWood } from "../textures/procedural";
-import { DESK } from "./layout";
+import type { Locale } from "@/content/types";
+import { DESK, DRAWER, drawerAnchor } from "./layout";
+import { DrawerFront } from "./DrawerFront";
+import { ResumeDrawer } from "./ResumeDrawer";
 
 const WIDTH = DESK.maxX - DESK.minX;
 const DEPTH = DESK.front - DESK.back;
 const CENTER_X = (DESK.minX + DESK.maxX) / 2;
 const CENTER_Z = (DESK.back + DESK.front) / 2;
 const LEG_HEIGHT = DESK.top - DESK.thickness - DESK.floor;
-const DRAWER = { width: 5.2, height: 0.9, inset: 0.6 };
 
 const woodTexture = (canvas: HTMLCanvasElement, repeatX: number, repeatY: number, color: boolean): Texture => {
   const texture = new CanvasTexture(canvas);
@@ -22,7 +24,7 @@ const woodTexture = (canvas: HTMLCanvasElement, repeatX: number, repeatY: number
   return texture;
 };
 
-export function Desk() {
+export function Desk({ locale }: { locale: Locale }) {
   const worldShader = useWorldShader();
   const wood = useMemo(() => {
     const canvas = paintWood(2048, 768);
@@ -56,18 +58,9 @@ export function Desk() {
         <boxGeometry args={[WIDTH - DRAWER.inset * 2, DESK.apron, 0.3]} />
         {woodMaterial}
       </mesh>
-      {[-1, 1].map((side) => (
-        <group key={side} position={[CENTER_X + side * (WIDTH / 4), apronY, DESK.front - DRAWER.inset + 0.17]}>
-          <mesh castShadow receiveShadow>
-            <boxGeometry args={[DRAWER.width, DRAWER.height, 0.06]} />
-            {woodMaterial}
-          </mesh>
-          <mesh position={[0, 0, 0.12]} rotation={[0, 0, Math.PI / 2]} castShadow>
-            <cylinderGeometry args={[0.06, 0.06, 0.9, 12]} />
-            <meshStandardMaterial {...worldShader} color="#b08d57" metalness={0.9} roughness={0.35} />
-          </mesh>
-        </group>
-      ))}
+      <group position={drawerAnchor(-1)}>
+        <DrawerFront material={woodMaterial} />
+      </group>
       {legX.flatMap((x) =>
         legZ.map((z) => (
           <mesh key={`${x}:${z}`} position={[x, DESK.floor + LEG_HEIGHT / 2, z]} castShadow receiveShadow>
@@ -76,6 +69,7 @@ export function Desk() {
           </mesh>
         )),
       )}
+      <ResumeDrawer locale={locale} material={woodMaterial} />
       <mesh position={[0, DESK.floor, 20]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[140, 60]} />
         <meshStandardMaterial {...worldShader} map={floor.map} bumpMap={floor.bump} bumpScale={0.4} roughness={0.8} color="#6b5a4c" />
