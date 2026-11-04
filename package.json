@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "blender:assets": "node tools/blender/export-assets.mjs",
-    "tape:render": "node tools/tape/render-tape.mjs"
+    "tape:render": "node tools/tape/render-tape.mjs",
+    "resume:render": "node tools/resume/render-resume.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
