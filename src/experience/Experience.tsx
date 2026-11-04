@@ -10,6 +10,7 @@ import type { Locale } from "@/content/types";
 import { CAMERA_FOV, buildShots, framingFor } from "./camera/framing";
 import { CINEMA_MOTION, CLASSIC_MOTION } from "./camera/motion";
 import { CaseFilePanel } from "./hud/CaseFilePanel";
+import { DeskToast } from "./hud/DeskToast";
 import { ExploreBar } from "./hud/ExploreBar";
 import { FinaleCard } from "./hud/FinaleCard";
 import { Loader } from "./hud/Loader";
@@ -25,6 +26,7 @@ import { Scene } from "./scene/Scene";
 import { useExperience } from "./state/store";
 import { variantFromQuery } from "./state/variant";
 import { useScrollDriver } from "./useScrollDriver";
+import { useSecretMemory } from "./useSecretMemory";
 import { useReducedMotion } from "./useReducedMotion";
 import { useElementAspect } from "./useViewport";
 import stage from "./stage.module.css";
@@ -45,6 +47,7 @@ export function Experience({ locale }: { locale: Locale }) {
   const setLocale = useExperience((state) => state.setLocale);
   const stageRef = useRef<HTMLDivElement>(null);
   const aspect = useElementAspect(stageRef);
+  useSecretMemory();
 
   useEffect(() => {
     setLocale(locale);
@@ -94,6 +97,7 @@ export function Experience({ locale }: { locale: Locale }) {
         <ExploreBar locale={locale} />
         <CaseFilePanel locale={locale} />
         <StatementPanel locale={locale} />
+        <DeskToast />
         <PilotPanel locale={locale} />
       </div>
       <Loader locale={locale} total={boardEvidence.length + deskEvidence.length} />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { secrets } from "@/content/desk";
 import type { Locale } from "@/content/types";
 import { ui } from "@/content/ui";
 import { useExperience } from "../state/store";
@@ -11,6 +12,7 @@ export function ExploreBar({ locale }: { locale: Locale }) {
   const setMode = useExperience((state) => state.setMode);
   const view = useExperience((state) => state.exploreView);
   const setView = useExperience((state) => state.setExploreView);
+  const found = useExperience((state) => state.foundSecrets.length);
 
   useEffect(() => {
     if (mode !== "explore") return;
@@ -29,6 +31,9 @@ export function ExploreBar({ locale }: { locale: Locale }) {
   return (
     <div className={styles.exploreBar}>
       <p>{ui.exploreHint[locale]}</p>
+      <p className={styles.secrets}>
+        {ui.secrets[locale]}: {found}/{secrets.length}
+      </p>
       <button
         type="button"
         className={styles.secondary}

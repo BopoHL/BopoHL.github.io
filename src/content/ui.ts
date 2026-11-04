@@ -33,6 +33,17 @@ export const ui = {
     "3D-доска не запускается на этом устройстве, поэтому сразу открываем досье.",
     "The 3D board can't run on this device, so here is the dossier straight away.",
   ),
+  secrets: l("Тайные улики", "Hidden evidence"),
+  secretFound: l("Тайная улика", "Hidden evidence"),
+  phone: {
+    dialing: l("Набираем 404… Соединяем с", "Dialing 404… Connecting you to"),
+    open: l("Открыть Telegram", "Open Telegram"),
+  },
+  drawer: {
+    folder: l("РЕЗЮМЕ", "RÉSUMÉ"),
+    note: l("Резюме лежит в ящике — скачать PDF", "The résumé is in the drawer — download the PDF"),
+    download: l("Скачать", "Download"),
+  },
   statement: {
     open: l("Дать показания", "Give a statement"),
     kicker: l("Показания", "Statement"),

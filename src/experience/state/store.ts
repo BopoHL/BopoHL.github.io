@@ -6,6 +6,12 @@ import { DEFAULT_VARIANT, type PilotVariant } from "./variant";
 export type CameraMode = "route" | "explore";
 export type ExploreView = "board" | "desk" | "typewriter";
 
+export interface Toast {
+  text: string;
+  link?: { label: string; href: string };
+  serial: number;
+}
+
 export interface Keystroke {
   char: string;
   serial: number;
@@ -33,6 +39,8 @@ interface ExperienceState {
   statement: StatementDraft;
   statementFiled: boolean;
   keystroke: Keystroke;
+  toast: Toast | null;
+  foundSecrets: string[];
   setLocale: (locale: Locale) => void;
   setVariant: (variant: Partial<PilotVariant>) => void;
   setMode: (mode: CameraMode) => void;
@@ -53,6 +61,9 @@ interface ExperienceState {
   editStatement: (draft: Partial<StatementDraft>) => void;
   fileStatement: () => void;
   strikeKey: (char: string) => void;
+  showToast: (toast: Omit<Toast, "serial"> | null) => void;
+  findSecret: (id: string) => void;
+  restoreSecrets: (ids: string[]) => void;
 }
 
 export const useExperience = create<ExperienceState>()((set) => ({
@@ -77,6 +88,8 @@ export const useExperience = create<ExperienceState>()((set) => ({
   statement: { name: "", contact: "", message: "" },
   statementFiled: false,
   keystroke: { char: "", serial: 0 },
+  toast: null,
+  foundSecrets: [],
   setLocale: (locale) => set({ locale }),
   setVariant: (variant) =>
     set((state) => {
@@ -106,4 +119,8 @@ export const useExperience = create<ExperienceState>()((set) => ({
   editStatement: (draft) => set((state) => ({ statement: { ...state.statement, ...draft }, statementFiled: false })),
   fileStatement: () => set({ statementFiled: true }),
   strikeKey: (char) => set((state) => ({ keystroke: { char, serial: state.keystroke.serial + 1 } })),
+  showToast: (toast) => set((state) => ({ toast: toast ? { ...toast, serial: (state.toast?.serial ?? 0) + 1 } : null })),
+  findSecret: (id) =>
+    set((state) => (state.foundSecrets.includes(id) ? {} : { foundSecrets: [...state.foundSecrets, id] })),
+  restoreSecrets: (ids) => set({ foundSecrets: ids }),
 }));

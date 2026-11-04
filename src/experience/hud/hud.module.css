@@ -371,6 +371,11 @@
   color: var(--muted);
 }
 
+.exploreBar .secrets {
+  color: var(--paper);
+  white-space: nowrap;
+}
+
 .exploreBar .secondary {
   border-color: var(--paper);
   color: var(--paper);

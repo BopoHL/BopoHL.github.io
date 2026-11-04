@@ -1,0 +1,38 @@
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: calc(4vh + 78px);
+  transform: translateX(-50%);
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  max-width: min(560px, calc(100vw - 32px));
+  padding: 12px 16px;
+  background: var(--dossier-sheet);
+  color: var(--ink);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  font-family: var(--font-typewriter), monospace;
+  font-size: 13px;
+  line-height: 1.45;
+  text-shadow: none;
+  pointer-events: auto;
+  animation: rise 280ms ease-out;
+}
+
+.toast p {
+  margin: 0;
+}
+
+.toast a {
+  flex-shrink: 0;
+  color: #a3161a;
+  font-weight: 600;
+  text-underline-offset: 3px;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+}
