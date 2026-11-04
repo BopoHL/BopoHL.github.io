@@ -11,7 +11,8 @@
     "test": "vitest run",
     "blender:assets": "node tools/blender/export-assets.mjs",
     "tape:render": "node tools/tape/render-tape.mjs",
-    "resume:render": "node tools/resume/render-resume.mjs"
+    "resume:render": "node tools/resume/render-resume.mjs",
+    "og:render": "node tools/og/render-og.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
