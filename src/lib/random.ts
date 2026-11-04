@@ -23,3 +23,8 @@ export const seededRandom = (seed: string): Random => {
 export const range = (random: Random, min: number, max: number) => min + random() * (max - min);
 
 export const jitter = (random: Random, amount: number) => (random() * 2 - 1) * amount;
+
+export const hashNumber01 = (value: number) => {
+  const s = Math.sin(value * 127.1 + 311.7) * 43758.5453;
+  return s - Math.floor(s);
+};

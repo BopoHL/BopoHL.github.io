@@ -23,6 +23,7 @@ import { useRig } from "../camera/rig";
 import type { Quality } from "../quality";
 import { useReducedMotion } from "../useReducedMotion";
 import { lampBrightness, lampSway } from "./lampLife";
+import { NeonSpill } from "./NeonSpill";
 import { RainyBlinds } from "./rainyBlinds";
 import { useLook } from "./look";
 import { KEY_ANGLE, KEY_DIRECTION as KEY_DIRECTION_TUPLE, KEY_DISTANCE_RATIO, KEY_PENUMBRA, LAMP_COLOR } from "./constants";
@@ -237,6 +238,7 @@ export function Lighting({ quality }: { quality: Quality }) {
       <Ambient />
       <KeyLight quality={quality} />
       <Flashlight />
+      <NeonSpill />
     </>
   );
 }
