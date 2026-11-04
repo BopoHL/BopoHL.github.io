@@ -12,17 +12,32 @@ npm run dev          # http://localhost:3000
 Open the site on a phone in the same network: `npm run dev -- -H 0.0.0.0` and visit `http://<computer-ip>:3000`.
 
 ```bash
-npm test             # content and camera framing tests
+npm test             # unit tests: content, camera framing, contact rules, analytics
 npm run lint
 npm run typecheck
 npm run build        # static export to ./out
+npm run start        # serve ./out on http://localhost:3000
+npm run e2e          # build, serve on :4310 and run the browser scenarios in e2e/
 ```
 
 The build is a static site (`output: "export"`). Serve `out/` with any static server, for example nginx.
 
+The browser scenarios need Chromium once: `npx playwright install chromium`. They cover the recruiter's fast path (skip → dossier → PDF), the English version and its metadata, the fallback without WebGL and after a lost GPU context, the title card, and the route from the last chapter to the desk. WebGL runs in software, so a full run takes a few minutes.
+
+## Configuration
+
+Copy `.env.example` to `.env.local` (or set the variables in the build environment). All of them are read at build time.
+
+| Variable | Meaning |
+|---|---|
+| `NEXT_PUBLIC_SITE_URL` | Public address of the site. Canonical links, `sitemap.xml`, `robots.txt` and the Open Graph images are built from it |
+| `NEXT_PUBLIC_CONTACT_ENDPOINT` | Where the typewriter posts statements, e.g. `/api/contact`. Without it the statement is copied and Telegram opens instead |
+| `NEXT_PUBLIC_POSTHOG_KEY` | PostHog project key. Without it no analytics code is loaded |
+| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog ingestion host, `https://eu.i.posthog.com` by default |
+
 ## Pilot variants
 
-The pilot panel in the bottom-left corner switches the variants under review. The same switches live in the URL:
+The pilot panel in the bottom-left corner switches the variants under review. It is always there in development; in production it appears only with `?pilot=1` in the URL. The same switches live in the URL and work without the panel:
 
 | Query | Meaning |
 |---|---|
@@ -47,17 +62,22 @@ The typewriter group has a "Listen" button that plays a short phrase with the se
 ## Where things live
 
 ```
-src/content/        typed board content: evidence, threads, route, dossier, UI strings (RU/EN)
+src/content/        typed board content: evidence, threads, route, dossier, case files, UI strings (RU/EN)
 src/experience/     the 3D experience
   painters/         canvas painters that draw every piece of evidence
   wear/             deterministic folds, curled corners and scuffs shared by geometry and painters
-  scene/            board, cards, pins, threads, lighting, post-processing
+  scene/            board, cards, pins, threads, lighting, rain and neon, post-processing
   camera/           shot framing, scroll route camera, free exploration camera
-  desk/             the desk under the board: lamp, fan, ashtray, cassette recorder, loose clippings
-  hud/              subtitles, progress thread, finale card, pilot panel
-src/dossier/        server-rendered résumé shown by "Skip the investigation"
-src/audio/          synthesized typewriter, foley, fan hum, tape deck and the noir jazz score
-tools/              asset tooling: Blender previs, tape recording
+  desk/             the desk under the board and everything on it
+  hud/              title card, subtitles, progress thread, finale card, case files, statement form, pilot panel
+src/dossier/        server-rendered résumé shown by "Skip the investigation" and printed to PDF
+src/contact/        statement rules shared by the form and the handler, and the form's client
+src/analytics/      typed analytics events and the lazy PostHog start
+src/seo/            site address, Open Graph images, structured data
+src/audio/          synthesized typewriter, foley, fan hum, rain, tape deck and the noir jazz score
+server/contact/     the small Node handler that forwards statements to Telegram
+e2e/                browser scenarios (Playwright)
+tools/              asset tooling: Blender previs, tape recording, résumé PDF, Open Graph images
 docs/plan.md        concept, route, visual system and image prompts
 ```
 
@@ -77,8 +97,44 @@ In free exploration the camera never comes closer than `MIN_DISTANCE` in `src/ex
 - The 1970s fan switches with a click, spins up and down, oscillates slowly and bends the cigarette smoke when it faces the ashtray.
 - The heavy glass ashtray is modelled in code (`src/experience/desk/ashtrayModel.ts`): three cigarette rests cut into the rim, a bed of ash, stubbed-out butts and fallen ash. The cigarette in the rest is built from sections (filter, paper, char, ember, ash) in `cigaretteModel.ts`, so its length and how far it has burnt are data. The glass refracts the desk on high quality and falls back to tinted transparent glass on phones.
 - The cassette recorder has working piano keys: REC (the tape is write-protected), REW, PLAY, FF, STOP and PAUSE. The reels, the tape packs and the counter follow the tape position, the deck auto-stops at either end and stops when you leave free exploration. PLAY turns the site sound on.
+- The typewriter takes a statement: "Give a statement" (in the finale card, or a click on the machine) turns the camera to it, and what you type in the form appears on the sheet in the platen, key by key. Sending goes to the contact handler (see below).
+- The rotary phone dials 404 when clicked and offers to continue in Telegram.
+- The right-hand drawer slides out with the résumé folder; clicking the folder downloads the PDF.
+- Four pieces of hidden evidence lie among the props (`secrets` in `src/content/desk.ts`). Each reveals a fact when clicked; the count of found ones is shown in the exploration bar and remembered in the browser.
 
 Clicks that end a camera drag are ignored, so dragging across a prop does not switch it.
+
+## Atmosphere
+
+- After loading, a short title card ("Tashkent · night · rain") plays once per browser session; any key or tap skips it, and it is left out entirely when the system asks for reduced motion (`src/experience/hud/useTitleCard.ts`).
+- Rain runs down the window glass in the light that falls through the blinds: drops sit, merge, slide down and leave a trail (`src/experience/scene/rainGlass.ts`, painted into the light's gobo by `rainyBlinds.ts`). With reduced motion the drops stay still.
+- A red neon sign outside spills onto the left edge of the frame and stutters now and then, never more than three times a second (`neonLife.ts`, `NeonSpill.tsx`).
+- With the sound on, rain against the window plays quietly under everything (`src/audio/rain.ts`), synthesized once and looped.
+
+## Case files
+
+In free exploration a click on the main evidence of a job opens its case file: what was done, a small diagram where it helps (a before/after bar, a request flow) and the stack. Files live in `src/content/caseFiles.ts`; `evidence` lists the cards that open each one.
+
+## Contact by typewriter
+
+The statement form posts to the handler in `server/contact/`, which forwards it to Telegram. Setup, nginx and systemd are in [server/contact/README.md](server/contact/README.md). Until `NEXT_PUBLIC_CONTACT_ENDPOINT` is set, sending copies the statement and opens Telegram.
+
+## Analytics
+
+With `NEXT_PUBLIC_POSTHOG_KEY` set, PostHog loads after the page starts and records page views and the events listed in `src/analytics/track.ts`: how far the visitor got through the case, the solved case, skips, exploration, case files, the dossier, résumé downloads (and from where), contact clicks and copies, statements, the phone, the drawer, hidden evidence, sound and language. Links rendered on the server declare their event with `trackOnClick`, everything else calls `track`.
+
+It runs without autocapture, session recording or surveys, keeps its identifier in local storage instead of cookies, creates no person profiles and respects Do Not Track. Without the key nothing is loaded and `track` does nothing.
+
+## Résumé PDF and link previews
+
+The downloadable résumés in `public/cv/` are printed from the same data as the dossier, and the Open Graph images in `public/og/` are rendered from the board itself. With `npm run dev` running:
+
+```bash
+npm run resume:render          # public/cv/leonid-voronin-cv-{ru,en}.pdf
+npm run og:render              # public/og/case-404-{ru,en}.jpg; add -- --software without a GPU
+```
+
+Both use the installed Chrome; pass `--chrome /path/to/chrome` or set `CHROME_PATH` otherwise. `/{ru|en}/resume/` shows the print layout in development.
 
 ## Tape recording
 
