@@ -1,7 +1,7 @@
 import { HERALD } from "./board";
 import { l } from "./localize";
 import { contacts } from "./profile";
-import type { Evidence } from "./types";
+import type { Evidence, Localized } from "./types";
 
 const telegram = contacts.find((contact) => contact.id === "telegram");
 if (!telegram) throw new Error("Profile has no Telegram contact for the desk note");
@@ -110,7 +110,7 @@ export const deskEvidence: Evidence[] = [
     kind: "photo",
     area: "case",
     frame: "polaroid",
-    position: [5.8, 6.9],
+    position: [5.3, 7.0],
     rotation: 16,
     width: 2.2,
     image: { scene: "busStop" },
@@ -126,3 +126,52 @@ export const cassette = {
   model: l("МК-404", "MK-404"),
   recording: { src: "/audio/case-404.mp3", seconds: 77.9 },
 };
+
+export type SecretKind = "matchbook" | "ticket" | "bib" | "note";
+
+export interface Secret {
+  id: string;
+  kind: SecretKind;
+  at: [number, number];
+  yaw: number;
+  print: Localized<string[]>;
+  reveal: Localized;
+}
+
+export const secrets: Secret[] = [
+  {
+    id: "matchbook",
+    kind: "matchbook",
+    at: [4.0, 8.15],
+    yaw: -24,
+    print: l(["БАР «НУАР»", "Ташкент", "UTC+5"], ["NOIR BAR", "Tashkent", "UTC+5"]),
+    reveal: l("Спички из бара: подозреваемый живёт в Ташкенте, UTC+5.", "Matches from a bar: the suspect lives in Tashkent, UTC+5."),
+  },
+  {
+    id: "ticket",
+    kind: "ticket",
+    at: [-2.35, 7.75],
+    yaw: 9,
+    print: l(["БИЛЕТ", "Ташкент → Испания", "EPAM · 1 из 8"], ["TICKET", "Tashkent → Spain", "EPAM · 1 of 8"]),
+    reveal: l(
+      "Билет в Испанию: стажировка EPAM, выбрали 8 студентов — он один из них.",
+      "A ticket to Spain: an EPAM internship for 8 students, and he was one of them.",
+    ),
+  },
+  {
+    id: "bib",
+    kind: "bib",
+    at: [2.6, 0.75],
+    yaw: -12,
+    print: l(["МАРАФОН", "404"], ["MARATHON", "404"]),
+    reveal: l("Номер марафонца. Выносливость подтверждена.", "A marathon bib. Stamina confirmed."),
+  },
+  {
+    id: "spanish",
+    kind: "note",
+    at: [-6.2, 0.9],
+    yaw: 14,
+    print: l(["¡Hola!", "¿Qué tal?"], ["¡Hola!", "¿Qué tal?"]),
+    reveal: l("Шпаргалка по испанскому: учит язык, уровень A1.", "A Spanish crib note: learning the language, level A1."),
+  },
+];
