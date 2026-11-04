@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "npx serve out",
+    "start": "serve out",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -14,7 +14,8 @@
     "tape:render": "node tools/tape/render-tape.mjs",
     "resume:render": "node tools/resume/render-resume.mjs",
     "og:render": "node tools/og/render-og.mjs",
-    "contact:serve": "node server/contact/main.ts"
+    "contact:serve": "node server/contact/main.ts",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
@@ -31,6 +32,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.0",
     "@types/node": "^22.20.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -38,6 +40,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
     "playwright-core": "^1.56.0",
+    "serve": "^14.2.6",
     "typescript": "^5",
     "vitest": "^5.0.5"
   }
