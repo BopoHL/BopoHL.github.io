@@ -1,0 +1,111 @@
+import { CanvasTexture } from "three";
+import { seededRandom } from "@/lib/random";
+import { context2d, createCanvas } from "../painters/surface";
+import { paintBlinds } from "../textures/procedural";
+import { RainGlass } from "./rainGlass";
+
+const SIZE = 512;
+const FRAMES_PER_SECOND = 12;
+const LONGEST_STEP = 0.25;
+const SPRITE = 64;
+const RUNNER_STRETCH = 1.3;
+const CAUSTIC = 0.5;
+const CORE = 0.45;
+
+const paintDropSprite = () => {
+  const canvas = createCanvas(SPRITE, SPRITE);
+  const ctx = context2d(canvas);
+  const half = SPRITE / 2;
+  const lens = ctx.createRadialGradient(half, half * 1.12, 0, half, half, half);
+  lens.addColorStop(0, "rgba(255, 255, 255, 0)");
+  lens.addColorStop(0.4, "rgba(214, 214, 214, 0.55)");
+  lens.addColorStop(0.78, "rgba(72, 72, 72, 0.9)");
+  lens.addColorStop(1, "rgba(72, 72, 72, 0)");
+  ctx.fillStyle = lens;
+  ctx.fillRect(0, 0, SPRITE, SPRITE);
+  return canvas;
+};
+
+const paintCausticSprite = () => {
+  const canvas = createCanvas(SPRITE, SPRITE);
+  const ctx = context2d(canvas);
+  const half = SPRITE / 2;
+  const glow = ctx.createRadialGradient(half, half, 0, half, half, half);
+  glow.addColorStop(0, "rgba(255, 255, 255, 1)");
+  glow.addColorStop(1, "rgba(255, 255, 255, 0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, SPRITE, SPRITE);
+  return canvas;
+};
+
+const luminanceOf = (canvas: HTMLCanvasElement) => {
+  const { data } = context2d(canvas).getImageData(0, 0, canvas.width, canvas.height);
+  const light = new Float32Array(canvas.width * canvas.height);
+  for (let i = 0; i < light.length; i++) light[i] = data[i * 4] / 255;
+  return light;
+};
+
+export class RainyBlinds {
+  readonly texture: CanvasTexture;
+  private readonly base = paintBlinds(SIZE);
+  private readonly light = luminanceOf(this.base);
+  private readonly drop = paintDropSprite();
+  private readonly caustic = paintCausticSprite();
+  private readonly canvas = createCanvas(SIZE, SIZE);
+  private readonly ctx = context2d(this.canvas);
+  private readonly glass = new RainGlass(seededRandom("rain on the window"));
+  private pending = 0;
+
+  constructor() {
+    this.texture = new CanvasTexture(this.canvas);
+    this.paint();
+  }
+
+  update(delta: number) {
+    this.pending += delta;
+    if (this.pending < 1 / FRAMES_PER_SECOND) return;
+    this.glass.step(Math.min(this.pending, LONGEST_STEP));
+    this.pending = 0;
+    this.paint();
+    this.texture.needsUpdate = true;
+  }
+
+  dispose() {
+    this.texture.dispose();
+  }
+
+  private paint() {
+    const ctx = this.ctx;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.drawImage(this.base, 0, 0);
+    ctx.globalCompositeOperation = "multiply";
+    for (const runner of this.glass.runners) {
+      const width = runner.radius * SIZE * 0.8;
+      const trail = ctx.createLinearGradient(0, runner.top * SIZE, 0, runner.y * SIZE);
+      trail.addColorStop(0, "rgba(100, 100, 100, 0)");
+      trail.addColorStop(1, "rgba(100, 100, 100, 0.75)");
+      ctx.fillStyle = trail;
+      ctx.fillRect(runner.x * SIZE - width / 2, runner.top * SIZE, width, (runner.y - runner.top) * SIZE);
+    }
+    for (const bead of this.glass.beads) this.stamp(this.drop, bead.x, bead.y, bead.radius, 1);
+    for (const runner of this.glass.runners) this.stamp(this.drop, runner.x, runner.y, runner.radius, RUNNER_STRETCH);
+    ctx.globalCompositeOperation = "lighter";
+    for (const bead of [...this.glass.beads, ...this.glass.runners]) {
+      ctx.globalAlpha = CAUSTIC * this.lightAt(bead.x, bead.y);
+      this.stamp(this.caustic, bead.x, bead.y + bead.radius * 0.15, bead.radius * CORE, 1);
+    }
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+  }
+
+  private lightAt(x: number, y: number) {
+    const column = Math.min(SIZE - 1, Math.max(0, Math.floor(x * SIZE)));
+    const row = Math.min(SIZE - 1, Math.max(0, Math.floor(y * SIZE)));
+    return this.light[row * SIZE + column];
+  }
+
+  private stamp(sprite: HTMLCanvasElement, x: number, y: number, radius: number, stretch: number) {
+    const size = radius * SIZE * 2;
+    this.ctx.drawImage(sprite, x * SIZE - size / 2, y * SIZE - (size * stretch) / 2, size, size * stretch);
+  }
+}

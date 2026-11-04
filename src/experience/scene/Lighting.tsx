@@ -6,7 +6,6 @@ import {
   AdditiveBlending,
   BufferAttribute,
   BufferGeometry,
-  CanvasTexture,
   Color,
   ConeGeometry,
   MathUtils,
@@ -23,8 +22,8 @@ import {
 import { useRig } from "../camera/rig";
 import type { Quality } from "../quality";
 import { useReducedMotion } from "../useReducedMotion";
-import { paintBlinds } from "../textures/procedural";
 import { lampBrightness, lampSway } from "./lampLife";
+import { RainyBlinds } from "./rainyBlinds";
 import { useLook } from "./look";
 import { KEY_ANGLE, KEY_DIRECTION as KEY_DIRECTION_TUPLE, KEY_DISTANCE_RATIO, KEY_PENUMBRA, LAMP_COLOR } from "./constants";
 import { beamFragmentShader, beamVertexShader, dustFragmentShader, dustVertexShader } from "./shaders";
@@ -86,7 +85,7 @@ function KeyLight({ quality }: { quality: Quality }) {
     [],
   );
   const dustUniforms = useMemo(() => ({ uTime: { value: 0 }, uSize: { value: 9 }, uColor: { value: new Color() } }), []);
-  const blinds = useMemo(() => new CanvasTexture(paintBlinds(512)), []);
+  const blinds = useMemo(() => new RainyBlinds(), []);
 
   useEffect(() => {
     if (light.current && target.current) light.current.target = target.current;
@@ -114,7 +113,8 @@ function KeyLight({ quality }: { quality: Quality }) {
       light.current.intensity = KEY_INTENSITY * (m.reach / REFERENCE_DISTANCE) ** 2 * brightness;
       light.current.color.copy(look.lampColor);
       light.current.penumbra = look.penumbra;
-      const map = look.blinds ? blinds : null;
+      if (look.blinds && !still) blinds.update(delta);
+      const map = look.blinds ? blinds.texture : null;
       if (light.current.map !== map) light.current.map = map;
     }
     if (beam.current) {
