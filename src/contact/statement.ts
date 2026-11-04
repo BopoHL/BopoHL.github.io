@@ -2,10 +2,13 @@ export const STATEMENT_LIMITS = { name: 80, contact: 120, message: 2000, minMess
 
 export type StatementLocale = "ru" | "en";
 
-export interface Statement {
+export interface StatementDraft {
   name: string;
   contact: string;
   message: string;
+}
+
+export interface Statement extends StatementDraft {
   locale: StatementLocale;
 }
 

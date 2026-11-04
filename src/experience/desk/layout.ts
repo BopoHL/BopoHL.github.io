@@ -23,4 +23,5 @@ export const PROPS = {
   recorder: { at: [-4.4, 5.3] as Vec2, yaw: 14 },
   ashtray: { at: [2.85, 7.4] as Vec2, yaw: 0, scale: 0.9 },
   fan: { at: [7.4, 2.5] as Vec2, yaw: -40 },
+  typewriter: { at: [-9.0, 6.2] as Vec2, yaw: 22 },
 } as const;

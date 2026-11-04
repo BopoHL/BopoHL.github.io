@@ -1,9 +1,15 @@
 import { create } from "zustand";
 import type { Locale } from "@/content/types";
+import type { StatementDraft } from "@/contact/statement";
 import { DEFAULT_VARIANT, type PilotVariant } from "./variant";
 
 export type CameraMode = "route" | "explore";
-export type ExploreView = "board" | "desk";
+export type ExploreView = "board" | "desk" | "typewriter";
+
+export interface Keystroke {
+  char: string;
+  serial: number;
+}
 
 interface ExperienceState {
   locale: Locale;
@@ -23,6 +29,10 @@ interface ExperienceState {
   soundOn: boolean;
   focusedEvidence: string | null;
   exploreView: ExploreView;
+  statementOpen: boolean;
+  statement: StatementDraft;
+  statementFiled: boolean;
+  keystroke: Keystroke;
   setLocale: (locale: Locale) => void;
   setVariant: (variant: Partial<PilotVariant>) => void;
   setMode: (mode: CameraMode) => void;
@@ -39,6 +49,10 @@ interface ExperienceState {
   enableSound: () => void;
   focusEvidence: (id: string | null) => void;
   setExploreView: (view: ExploreView) => void;
+  openStatement: (open: boolean) => void;
+  editStatement: (draft: Partial<StatementDraft>) => void;
+  fileStatement: () => void;
+  strikeKey: (char: string) => void;
 }
 
 export const useExperience = create<ExperienceState>()((set) => ({
@@ -59,13 +73,17 @@ export const useExperience = create<ExperienceState>()((set) => ({
   soundOn: false,
   focusedEvidence: null,
   exploreView: "board",
+  statementOpen: false,
+  statement: { name: "", contact: "", message: "" },
+  statementFiled: false,
+  keystroke: { char: "", serial: 0 },
   setLocale: (locale) => set({ locale }),
   setVariant: (variant) =>
     set((state) => {
       const next = { ...state.variant, ...variant };
       return { variant: next, mode: next.explore ? state.mode : "route" };
     }),
-  setMode: (mode) => set({ mode, focusedEvidence: null, exploreView: "board" }),
+  setMode: (mode) => set({ mode, focusedEvidence: null, exploreView: "board", statementOpen: false }),
   setProgress: (progress) => set({ progress }),
   setViewedProgress: (viewedProgress) => set({ viewedProgress }),
   travelTo: (travelTarget) => set({ travelTarget }),
@@ -78,5 +96,14 @@ export const useExperience = create<ExperienceState>()((set) => ({
   toggleSound: () => set((state) => ({ soundOn: !state.soundOn })),
   enableSound: () => set({ soundOn: true }),
   focusEvidence: (focusedEvidence) => set({ focusedEvidence }),
-  setExploreView: (exploreView) => set({ exploreView, focusedEvidence: null }),
+  setExploreView: (exploreView) => set({ exploreView, focusedEvidence: null, statementOpen: exploreView === "typewriter" }),
+  openStatement: (open) =>
+    set((state) =>
+      open
+        ? { statementOpen: true, mode: "explore", exploreView: "typewriter", focusedEvidence: null }
+        : { statementOpen: false, exploreView: state.exploreView === "typewriter" ? "desk" : state.exploreView },
+    ),
+  editStatement: (draft) => set((state) => ({ statement: { ...state.statement, ...draft }, statementFiled: false })),
+  fileStatement: () => set({ statementFiled: true }),
+  strikeKey: (char) => set((state) => ({ keystroke: { char, serial: state.keystroke.serial + 1 } })),
 }));
