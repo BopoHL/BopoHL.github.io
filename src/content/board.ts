@@ -268,20 +268,22 @@ const dmedEvidence: Evidence[] = [
       "National health system linked to Interior Ministry and prosecutors",
     ),
     body: l(
-      "Единая государственная медицинская система DMed. Интеграции разработаны в сжатые сроки при высоких государственных требованиях. Имя разработчика в отчётах не фигурирует.",
-      "DMed is Uzbekistan's unified state medical system. The integrations were built on tight deadlines under strict government requirements. The developer's name appears in no report.",
+      "Единая государственная медицинская система DMed: более 10 млн пользователей. Интеграции разработаны в сжатые сроки при высоких государственных требованиях. Имя разработчика в отчётах не фигурирует.",
+      "DMed is Uzbekistan's unified state medical system, with 10M+ users. The integrations were built on tight deadlines under strict government requirements. The developer's name appears in no report.",
     ),
     image: { scene: "corridor" },
     ink: l(
       {
         marks: [
           { phrase: "DMed", stroke: "circle", tool: "marker" },
+          { phrase: "10 млн", stroke: "circle", tool: "marker" },
           { phrase: "Имя разработчика в отчётах не фигурирует", stroke: "underline", tool: "marker" },
         ],
       },
       {
         marks: [
           { phrase: "DMed", stroke: "circle", tool: "marker" },
+          { phrase: "10M+", stroke: "circle", tool: "marker" },
           { phrase: "The developer's name appears in no report", stroke: "underline", tool: "marker" },
         ],
       },

@@ -30,12 +30,14 @@ export const dossierSections: DossierSection[] = [
         period: l("Февраль 2026 — август 2026", "February 2026 — August 2026"),
         points: l(
           [
+            "Работал над высоконагруженной системой с аудиторией более 10 млн пользователей.",
             "Проектировал и писал высоконагруженные оптимизированные запросы PostgreSQL.",
             "Разрабатывал интеграции со службами МВД и прокуратуры.",
             "Оптимизировал хранение файлов в базе данных и SeaweedFS, сократив затраты на серверные хранилища.",
             "Работал в сжатые сроки при высоких государственных требованиях к системе.",
           ],
           [
+            "Worked on a high-load system serving more than 10 million users.",
             "Designed and wrote optimized high-load PostgreSQL queries.",
             "Built integrations with the Interior Ministry and the Prosecutor's Office.",
             "Optimized file storage in the database and SeaweedFS, cutting server storage costs.",
