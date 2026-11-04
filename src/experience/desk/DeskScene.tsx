@@ -13,6 +13,7 @@ import { DeskFan } from "./DeskFan";
 import { DeskLamp } from "./DeskLamp";
 import { DeskPapers } from "./DeskPapers";
 import { DeskContext, DeskState } from "./deskState";
+import { Typewriter } from "./Typewriter";
 
 interface DeskSceneProps {
   textures: EvidenceTextures;
@@ -31,6 +32,7 @@ export function DeskScene({ textures, bumpMap, quality, locale }: DeskSceneProps
       <Ashtray quality={quality} />
       <DeskFan />
       <CassetteRecorder locale={locale} />
+      <Typewriter locale={locale} />
     </DeskContext.Provider>
   );
 }
