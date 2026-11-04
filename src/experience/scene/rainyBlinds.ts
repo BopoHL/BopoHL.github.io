@@ -2,10 +2,15 @@ import { CanvasTexture } from "three";
 import { seededRandom } from "@/lib/random";
 import { context2d, createCanvas } from "../painters/surface";
 import { paintBlinds } from "../textures/procedural";
-import { RainGlass } from "./rainGlass";
+import { RainGlass, type RainSettings } from "./rainGlass";
 
-const SIZE = 512;
-const FRAMES_PER_SECOND = 12;
+export interface WindowPane {
+  size: number;
+  slats: number;
+  framesPerSecond: number;
+  rain: RainSettings;
+}
+
 const LONGEST_STEP = 0.25;
 const SPRITE = 64;
 const RUNNER_STRETCH = 1.3;
@@ -47,23 +52,32 @@ const luminanceOf = (canvas: HTMLCanvasElement) => {
 
 export class RainyBlinds {
   readonly texture: CanvasTexture;
-  private readonly base = paintBlinds(SIZE);
-  private readonly light = luminanceOf(this.base);
+  private readonly size: number;
+  private readonly frameTime: number;
+  private readonly base: HTMLCanvasElement;
+  private readonly light: Float32Array;
   private readonly drop = paintDropSprite();
   private readonly caustic = paintCausticSprite();
-  private readonly canvas = createCanvas(SIZE, SIZE);
-  private readonly ctx = context2d(this.canvas);
-  private readonly glass = new RainGlass(seededRandom("rain on the window"));
+  private readonly canvas: HTMLCanvasElement;
+  private readonly ctx: CanvasRenderingContext2D;
+  private readonly glass: RainGlass;
   private pending = 0;
 
-  constructor() {
+  constructor({ size, slats, framesPerSecond, rain }: WindowPane) {
+    this.size = size;
+    this.frameTime = 1 / framesPerSecond;
+    this.base = paintBlinds(size, slats);
+    this.light = luminanceOf(this.base);
+    this.canvas = createCanvas(size, size);
+    this.ctx = context2d(this.canvas);
+    this.glass = new RainGlass(seededRandom("rain on the window"), rain);
     this.texture = new CanvasTexture(this.canvas);
     this.paint();
   }
 
   update(delta: number) {
     this.pending += delta;
-    if (this.pending < 1 / FRAMES_PER_SECOND) return;
+    if (this.pending < this.frameTime) return;
     this.glass.step(Math.min(this.pending, LONGEST_STEP));
     this.pending = 0;
     this.paint();
@@ -75,17 +89,17 @@ export class RainyBlinds {
   }
 
   private paint() {
-    const ctx = this.ctx;
+    const { ctx, size } = this;
     ctx.globalCompositeOperation = "source-over";
     ctx.drawImage(this.base, 0, 0);
     ctx.globalCompositeOperation = "multiply";
     for (const runner of this.glass.runners) {
-      const width = runner.radius * SIZE * 0.8;
-      const trail = ctx.createLinearGradient(0, runner.top * SIZE, 0, runner.y * SIZE);
+      const width = runner.radius * size * 0.8;
+      const trail = ctx.createLinearGradient(0, runner.top * size, 0, runner.y * size);
       trail.addColorStop(0, "rgba(100, 100, 100, 0)");
       trail.addColorStop(1, "rgba(100, 100, 100, 0.75)");
       ctx.fillStyle = trail;
-      ctx.fillRect(runner.x * SIZE - width / 2, runner.top * SIZE, width, (runner.y - runner.top) * SIZE);
+      ctx.fillRect(runner.x * size - width / 2, runner.top * size, width, (runner.y - runner.top) * size);
     }
     for (const bead of this.glass.beads) this.stamp(this.drop, bead.x, bead.y, bead.radius, 1);
     for (const runner of this.glass.runners) this.stamp(this.drop, runner.x, runner.y, runner.radius, RUNNER_STRETCH);
@@ -99,13 +113,15 @@ export class RainyBlinds {
   }
 
   private lightAt(x: number, y: number) {
-    const column = Math.min(SIZE - 1, Math.max(0, Math.floor(x * SIZE)));
-    const row = Math.min(SIZE - 1, Math.max(0, Math.floor(y * SIZE)));
-    return this.light[row * SIZE + column];
+    const { size } = this;
+    const column = Math.min(size - 1, Math.max(0, Math.floor(x * size)));
+    const row = Math.min(size - 1, Math.max(0, Math.floor(y * size)));
+    return this.light[row * size + column];
   }
 
   private stamp(sprite: HTMLCanvasElement, x: number, y: number, radius: number, stretch: number) {
-    const size = radius * SIZE * 2;
-    this.ctx.drawImage(sprite, x * SIZE - size / 2, y * SIZE - (size * stretch) / 2, size, size * stretch);
+    const { size } = this;
+    const extent = radius * size * 2;
+    this.ctx.drawImage(sprite, x * size - extent / 2, y * size - (extent * stretch) / 2, extent, extent * stretch);
   }
 }

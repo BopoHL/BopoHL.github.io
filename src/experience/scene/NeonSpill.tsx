@@ -9,7 +9,7 @@ import { neonLevel } from "./neonLife";
 
 const NEON = {
   color: "#ff2c3d",
-  intensity: 260,
+  intensity: 200,
   referenceReach: 12,
   angle: 0.55,
   follow: 1.6,

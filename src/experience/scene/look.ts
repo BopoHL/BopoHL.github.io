@@ -14,7 +14,8 @@ export interface Look {
   skyColor: string;
   groundColor: string;
   ambient: number;
-  blinds: boolean;
+  keyLight: number;
+  windowLight: number;
   contrast: number;
   grain: number;
   vignette: number;
@@ -28,7 +29,8 @@ const NOIR_BASE = {
   skyColor: "#5a5a5a",
   groundColor: "#101010",
   ambient: 0.16,
-  blinds: true,
+  keyLight: 0.18,
+  windowLight: 1,
   contrast: 0.24,
   grain: 0.05,
   vignette: 0.95,
@@ -45,7 +47,8 @@ export const LOOKS: Record<Palette, Look> = {
     skyColor: "#3c4a66",
     groundColor: "#160e08",
     ambient: 0.35,
-    blinds: false,
+    keyLight: 1,
+    windowLight: 0,
     contrast: 0,
     grain: 0.04,
     vignette: 0.82,
@@ -139,6 +142,8 @@ export class LookState {
   private readonly targetGround = new Color();
   private penumbraValue: number;
   private ambientValue: number;
+  private keyLightValue: number;
+  private windowLightValue: number;
   private target: Look;
 
   constructor(initial: Look) {
@@ -153,6 +158,8 @@ export class LookState {
     this.groundColor = new Color(initial.groundColor);
     this.penumbraValue = initial.lampPenumbra;
     this.ambientValue = initial.ambient;
+    this.keyLightValue = initial.keyLight;
+    this.windowLightValue = initial.windowLight;
     this.target = initial;
     this.setTarget(initial);
   }
@@ -165,8 +172,12 @@ export class LookState {
     return this.ambientValue;
   }
 
-  get blinds() {
-    return this.target.blinds;
+  get keyLight() {
+    return this.keyLightValue;
+  }
+
+  get windowLight() {
+    return this.windowLightValue;
   }
 
   inkedShader(mask: Texture): SaturationShader {
@@ -187,6 +198,8 @@ export class LookState {
     this.accentSaturation.value = MathUtils.lerp(this.accentSaturation.value, this.target.accentSaturation, k);
     this.penumbraValue = MathUtils.lerp(this.penumbraValue, this.target.lampPenumbra, k);
     this.ambientValue = MathUtils.lerp(this.ambientValue, this.target.ambient, k);
+    this.keyLightValue = MathUtils.lerp(this.keyLightValue, this.target.keyLight, k);
+    this.windowLightValue = MathUtils.lerp(this.windowLightValue, this.target.windowLight, k);
     this.lampColor.lerp(this.targetLamp, k);
     this.hazeColor.lerp(this.targetHaze, k);
     this.skyColor.lerp(this.targetSky, k);

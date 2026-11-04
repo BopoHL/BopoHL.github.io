@@ -24,7 +24,7 @@ import type { Quality } from "../quality";
 import { useReducedMotion } from "../useReducedMotion";
 import { lampBrightness, lampSway } from "./lampLife";
 import { NeonSpill } from "./NeonSpill";
-import { RainyBlinds } from "./rainyBlinds";
+import { WindowLight } from "./WindowLight";
 import { useLook } from "./look";
 import { KEY_ANGLE, KEY_DIRECTION as KEY_DIRECTION_TUPLE, KEY_DISTANCE_RATIO, KEY_PENUMBRA, LAMP_COLOR } from "./constants";
 import { beamFragmentShader, beamVertexShader, dustFragmentShader, dustVertexShader } from "./shaders";
@@ -86,7 +86,6 @@ function KeyLight({ quality }: { quality: Quality }) {
     [],
   );
   const dustUniforms = useMemo(() => ({ uTime: { value: 0 }, uSize: { value: 9 }, uColor: { value: new Color() } }), []);
-  const blinds = useMemo(() => new RainyBlinds(), []);
 
   useEffect(() => {
     if (light.current && target.current) light.current.target = target.current;
@@ -94,7 +93,6 @@ function KeyLight({ quality }: { quality: Quality }) {
 
   useEffect(() => () => cone.dispose(), [cone]);
   useEffect(() => () => dust.dispose(), [dust]);
-  useEffect(() => () => blinds.dispose(), [blinds]);
 
   useFrame((state, delta) => {
     const m = motion.current;
@@ -111,12 +109,9 @@ function KeyLight({ quality }: { quality: Quality }) {
     rig.trackLamp(m.lit, m.aim);
     if (light.current) {
       light.current.position.copy(m.lit);
-      light.current.intensity = KEY_INTENSITY * (m.reach / REFERENCE_DISTANCE) ** 2 * brightness;
+      light.current.intensity = KEY_INTENSITY * (m.reach / REFERENCE_DISTANCE) ** 2 * brightness * look.keyLight;
       light.current.color.copy(look.lampColor);
       light.current.penumbra = look.penumbra;
-      if (look.blinds && !still) blinds.update(delta);
-      const map = look.blinds ? blinds.texture : null;
-      if (light.current.map !== map) light.current.map = map;
     }
     if (beam.current) {
       const length = m.lit.distanceTo(m.aim);
@@ -237,6 +232,7 @@ export function Lighting({ quality }: { quality: Quality }) {
     <>
       <Ambient />
       <KeyLight quality={quality} />
+      <WindowLight quality={quality} />
       <Flashlight />
       <NeonSpill />
     </>
