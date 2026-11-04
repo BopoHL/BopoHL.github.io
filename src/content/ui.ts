@@ -51,7 +51,7 @@ export const ui = {
   statement: {
     open: l("Дать показания", "Give a statement"),
     kicker: l("Показания", "Statement"),
-    title: l("Напечатайте показания", "Type your statement"),
+    title: l("Связаться с автором", "Contact the author"),
     intro: l(
       "Есть вакансия или вопрос? Напечатайте здесь — сообщение придёт мне в Telegram.",
       "Got a role or a question? Type it here and it lands in my Telegram.",
