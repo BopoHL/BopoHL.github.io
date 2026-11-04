@@ -185,7 +185,7 @@ export interface Station {
 }
 
 export interface Contact {
-  id: "telegram" | "linkedin" | "email" | "github" | "resume";
+  id: "telegram" | "linkedin" | "email" | "github";
   label: Localized;
   value: string;
   href: string;

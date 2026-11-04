@@ -1,11 +1,11 @@
 import { dossierLanguages, dossierSections, dossierSkills, dossierSummary } from "@/content/dossier";
-import { contacts, profile } from "@/content/profile";
+import { pick } from "@/content/localize";
+import { contacts, profile, resume } from "@/content/profile";
 import type { Locale } from "@/content/types";
 import { ui } from "@/content/ui";
 import styles from "./dossier.module.css";
 
 export function DossierContent({ locale }: { locale: Locale }) {
-  const resume = contacts.find((contact) => contact.id === "resume");
   return (
     <article className={styles.sheet}>
       <header className={styles.header}>
@@ -14,11 +14,9 @@ export function DossierContent({ locale }: { locale: Locale }) {
         </h1>
         <p className={styles.role}>{profile.role[locale]}</p>
         <p className={styles.location}>{profile.location[locale]}</p>
-        {resume ? (
-          <a className={styles.download} href={resume.href} download>
-            {ui.dossier.download[locale]}
-          </a>
-        ) : null}
+        <a className={styles.download} href={pick(resume.href, locale)} download>
+          {ui.dossier.download[locale]}
+        </a>
       </header>
 
       <section className={styles.section} aria-labelledby="dossier-summary">
@@ -80,16 +78,14 @@ export function DossierContent({ locale }: { locale: Locale }) {
           {ui.dossier.contacts[locale]}
         </h2>
         <ul className={styles.contactList}>
-          {contacts
-            .filter((contact) => contact.id !== "resume")
-            .map((contact) => (
-              <li key={contact.id}>
-                <span>{contact.label[locale]}</span>
-                <a href={contact.href} target={contact.id === "email" ? undefined : "_blank"} rel="noopener">
-                  {contact.value}
-                </a>
-              </li>
-            ))}
+          {contacts.map((contact) => (
+            <li key={contact.id}>
+              <span>{contact.label[locale]}</span>
+              <a href={contact.href} target={contact.id === "email" ? undefined : "_blank"} rel="noopener">
+                {contact.value}
+              </a>
+            </li>
+          ))}
         </ul>
       </section>
     </article>

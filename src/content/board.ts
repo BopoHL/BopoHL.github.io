@@ -6,10 +6,7 @@ export const BOARD_SIZE = { width: 32, height: 18 } as const;
 
 export const HERALD = l("ТАШКЕНТСКИЙ ВЕСТНИК", "THE TASHKENT HERALD");
 
-const contactLines = (locale: Locale) =>
-  contacts
-    .filter((contact) => contact.id !== "resume")
-    .map((contact) => `${contact.label[locale]}: ${contact.value}`);
+const contactLines = (locale: Locale) => contacts.map((contact) => `${contact.label[locale]}: ${contact.value}`);
 
 const caseEvidence: Evidence[] = [
   {

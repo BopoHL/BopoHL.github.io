@@ -11,7 +11,10 @@ export const profile = {
 
 export const portrait: EvidenceImage = { scene: "portrait" };
 
-export const RESUME_PATH = "/cv/leonid-voronin-cv-ru.pdf";
+export const resume = {
+  label: l("Резюме, PDF", "Résumé, PDF"),
+  href: l("/cv/leonid-voronin-cv-ru.pdf", "/cv/leonid-voronin-cv-en.pdf"),
+};
 
 export const contacts: Contact[] = [
   {
@@ -33,9 +36,9 @@ export const contacts: Contact[] = [
     href: "mailto:vlo99@yandex.ru",
   },
   {
-    id: "resume",
-    label: l("Резюме, PDF", "Résumé, PDF"),
-    value: "PDF",
-    href: RESUME_PATH,
+    id: "github",
+    label: l("GitHub", "GitHub"),
+    value: "BopoHL",
+    href: "https://github.com/BopoHL",
   },
 ];
