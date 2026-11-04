@@ -1,15 +1,16 @@
 "use client";
 
 import { RoundedBox } from "@react-three/drei";
-import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useFrame, type ThreeEvent } from "@react-three/fiber";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { CatmullRomCurve3, DoubleSide, MathUtils, PlaneGeometry, Vector3, type Group, type Texture } from "three";
 import { pick } from "@/content/localize";
 import type { Locale } from "@/content/types";
 import { ui } from "@/content/ui";
-import { loadFonts, resolveFontFamilies } from "../painters/fonts";
+import type { FontFamilies } from "../painters/fonts";
 import { useWorldShader } from "../scene/look";
 import { isTap } from "../scene/pointer";
+import { useFontPainted } from "../textures/useFontPainted";
 import { useExperience } from "../state/store";
 import { pointerCursor } from "./deskState";
 import { onDesk, PROPS } from "./layout";
@@ -47,33 +48,19 @@ interface TypewriterTextures {
   sheet: StatementSheet;
 }
 
-const useTypewriterTextures = (locale: Locale) => {
-  const gl = useThree((state) => state.gl);
-  const [textures, setTextures] = useState<TypewriterTextures | null>(null);
-  useEffect(() => {
-    let cancelled = false;
-    let created: TypewriterTextures | null = null;
-    const paint = async () => {
-      const fonts = resolveFontFamilies();
-      await loadFonts(fonts);
-      if (cancelled) return;
-      created = { atlas: paintKeyAtlas(keySpots(locale), fonts), sheet: new StatementSheet(fonts) };
-      setTextures(created);
-    };
-    void paint();
-    return () => {
-      cancelled = true;
-      created?.atlas.dispose();
-      created?.sheet.dispose();
-    };
-  }, [gl, locale]);
-  return textures;
+const disposeTextures = ({ atlas, sheet }: TypewriterTextures) => {
+  atlas.dispose();
+  sheet.dispose();
 };
 
 export function Typewriter({ locale }: { locale: Locale }) {
   const worldShader = useWorldShader();
-  const textures = useTypewriterTextures(locale);
   const spots = useMemo(() => keySpots(locale), [locale]);
+  const paint = useCallback(
+    (fonts: FontFamilies): TypewriterTextures => ({ atlas: paintKeyAtlas(spots, fonts), sheet: new StatementSheet(fonts) }),
+    [spots],
+  );
+  const textures = useFontPainted(paint, disposeTextures);
   const caps = useMemo(() => spots.map((spot) => createCapGeometry(spot.cell)), [spots]);
   const paper = useMemo(() => createPaper(), []);
   const lever = useMemo(() => returnLever(), []);
