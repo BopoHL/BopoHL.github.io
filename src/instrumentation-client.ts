@@ -1,3 +1,3 @@
 import { startAnalytics } from "./analytics/posthog";
 
-void startAnalytics();
+startAnalytics().catch((error: unknown) => console.warn("Analytics did not start", error));
