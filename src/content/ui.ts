@@ -13,6 +13,10 @@ export const ui = {
   caseOpen: l("личность не установлена", "identity unknown"),
   caseClosed: l("дело раскрыто", "case closed"),
   loading: l("Собираем улики", "Gathering evidence"),
+  titleCard: {
+    scene: l("Ташкент · ночь · дождь", "Tashkent · night · rain"),
+    skip: l("Любая клавиша или касание — пропустить", "Any key or tap to skip"),
+  },
   scrollHint: l("Листайте, чтобы начать расследование", "Scroll to start the investigation"),
   skip: l("Пропустить расследование", "Skip the investigation"),
   soundOn: l("Звук включён", "Sound on"),

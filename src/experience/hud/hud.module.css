@@ -430,6 +430,76 @@
   font-variant-numeric: tabular-nums;
 }
 
+.titleCard {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 0 24px;
+  text-align: center;
+}
+
+.titleCard p {
+  margin: 0;
+  opacity: 0;
+}
+
+.titleScene {
+  animation: titleIn 900ms ease-out forwards;
+  font-size: 12px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.titleCase {
+  font-family: var(--font-headline), serif;
+  font-weight: 900;
+  font-size: clamp(44px, 9vw, 96px);
+  line-height: 1;
+  animation: titleFocus 1400ms ease-out 350ms forwards;
+}
+
+.titleSubject {
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  color: var(--thread-work);
+  animation: titleIn 900ms ease-out 1100ms forwards;
+}
+
+.titleSkip {
+  position: fixed;
+  bottom: 28px;
+  left: 0;
+  right: 0;
+  font-size: 11px;
+  color: var(--muted);
+  animation: titleIn 900ms ease-out 1600ms forwards;
+}
+
+@keyframes titleIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes titleFocus {
+  from {
+    opacity: 0;
+    filter: blur(10px);
+    letter-spacing: 0.18em;
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    letter-spacing: 0.01em;
+  }
+}
+
 .pilot {
   position: absolute;
   left: 20px;
