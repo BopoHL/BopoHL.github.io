@@ -2,6 +2,7 @@
   "name": "noir-portfolio",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -12,7 +13,8 @@
     "blender:assets": "node tools/blender/export-assets.mjs",
     "tape:render": "node tools/tape/render-tape.mjs",
     "resume:render": "node tools/resume/render-resume.mjs",
-    "og:render": "node tools/og/render-og.mjs"
+    "og:render": "node tools/og/render-og.mjs",
+    "contact:serve": "node server/contact/main.ts"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
