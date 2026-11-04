@@ -33,6 +33,12 @@ export const ui = {
     "3D-доска не запускается на этом устройстве, поэтому сразу открываем досье.",
     "The 3D board can't run on this device, so here is the dossier straight away.",
   ),
+  caseFile: {
+    kicker: l("Материалы дела", "Case file"),
+    findings: l("Установлено", "Findings"),
+    stack: l("Инструменты", "Tools"),
+    close: l("Закрыть материалы", "Close the case file"),
+  },
   dossier: {
     title: l("Досье", "Dossier"),
     close: l("Вернуться к доске", "Back to the board"),

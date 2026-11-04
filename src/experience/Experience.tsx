@@ -9,6 +9,7 @@ import { boardContentFor } from "@/content/selectors";
 import type { Locale } from "@/content/types";
 import { CAMERA_FOV, buildShots, framingFor } from "./camera/framing";
 import { CINEMA_MOTION, CLASSIC_MOTION } from "./camera/motion";
+import { CaseFilePanel } from "./hud/CaseFilePanel";
 import { ExploreBar } from "./hud/ExploreBar";
 import { FinaleCard } from "./hud/FinaleCard";
 import { Loader } from "./hud/Loader";
@@ -90,6 +91,7 @@ export function Experience({ locale }: { locale: Locale }) {
         ) : null}
         <FinaleCard locale={locale} />
         <ExploreBar locale={locale} />
+        <CaseFilePanel locale={locale} />
         <PilotPanel locale={locale} />
       </div>
       <Loader locale={locale} total={boardEvidence.length + deskEvidence.length} />

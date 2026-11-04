@@ -15,7 +15,10 @@ export function ExploreBar({ locale }: { locale: Locale }) {
   useEffect(() => {
     if (mode !== "explore") return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMode("route");
+      if (event.key !== "Escape") return;
+      const { focusedEvidence, focusEvidence } = useExperience.getState();
+      if (focusedEvidence) focusEvidence(null);
+      else setMode("route");
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
