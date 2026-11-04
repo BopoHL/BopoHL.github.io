@@ -16,6 +16,7 @@ import { Loader } from "./hud/Loader";
 import { PilotPanel } from "./hud/PilotPanel";
 import { ProgressThread } from "./hud/ProgressThread";
 import { ScrollHint } from "./hud/ScrollHint";
+import { StatementPanel } from "./hud/StatementPanel";
 import { Subtitle } from "./hud/Subtitle";
 import { TopBar } from "./hud/TopBar";
 import styles from "./hud/hud.module.css";
@@ -92,6 +93,7 @@ export function Experience({ locale }: { locale: Locale }) {
         <FinaleCard locale={locale} />
         <ExploreBar locale={locale} />
         <CaseFilePanel locale={locale} />
+        <StatementPanel locale={locale} />
         <PilotPanel locale={locale} />
       </div>
       <Loader locale={locale} total={boardEvidence.length + deskEvidence.length} />

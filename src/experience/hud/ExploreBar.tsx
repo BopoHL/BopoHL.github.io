@@ -16,8 +16,9 @@ export function ExploreBar({ locale }: { locale: Locale }) {
     if (mode !== "explore") return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
-      const { focusedEvidence, focusEvidence } = useExperience.getState();
-      if (focusedEvidence) focusEvidence(null);
+      const { focusedEvidence, focusEvidence, statementOpen, openStatement } = useExperience.getState();
+      if (statementOpen) openStatement(false);
+      else if (focusedEvidence) focusEvidence(null);
       else setMode("route");
     };
     window.addEventListener("keydown", onKey);
