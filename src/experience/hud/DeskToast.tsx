@@ -21,7 +21,7 @@ export function DeskToast() {
     <div key={toast.serial} className={styles.toast} role="status">
       <p>{toast.text}</p>
       {toast.link ? (
-        <a href={toast.link.href} target="_blank" rel="noopener">
+        <a href={toast.link.href} target="_blank" rel="noopener" {...toast.link.tracking}>
           {toast.link.label} →
         </a>
       ) : null}

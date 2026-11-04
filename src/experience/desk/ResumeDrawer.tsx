@@ -3,6 +3,7 @@
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { useCallback, useRef, useState } from "react";
 import { CanvasTexture, MathUtils, SRGBColorSpace, type Group } from "three";
+import { track, trackOnClick } from "@/analytics/track";
 import { playDrawer } from "@/audio/foley";
 import { pick } from "@/content/localize";
 import { profile, resume } from "@/content/profile";
@@ -86,12 +87,22 @@ export function ResumeDrawer({ locale, material }: { locale: Locale; material: R
     event.stopPropagation();
     if (useExperience.getState().soundOn) playDrawer(!open);
     setOpen(!open);
-    if (!open) useExperience.getState().showToast({ text: pick(ui.drawer.note, locale), link: { label: pick(ui.drawer.download, locale), href: pick(resume.href, locale) } });
+    if (open) return;
+    track("drawer_opened", {});
+    useExperience.getState().showToast({
+      text: pick(ui.drawer.note, locale),
+      link: {
+        label: pick(ui.drawer.download, locale),
+        href: pick(resume.href, locale),
+        tracking: trackOnClick("resume_downloaded", { from: "drawer" }),
+      },
+    });
   };
 
   const takeFolder = (event: ThreeEvent<MouseEvent>) => {
     if (!isTap(event) || !open) return;
     event.stopPropagation();
+    track("resume_downloaded", { from: "drawer" });
     download(pick(resume.href, locale));
   };
 

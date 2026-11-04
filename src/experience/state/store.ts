@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { TrackedClick } from "@/analytics/track";
 import type { Locale } from "@/content/types";
 import type { StatementDraft } from "@/contact/statement";
 import { DEFAULT_VARIANT, type PilotVariant } from "./variant";
@@ -8,7 +9,7 @@ export type ExploreView = "board" | "desk" | "typewriter";
 
 export interface Toast {
   text: string;
-  link?: { label: string; href: string };
+  link?: { label: string; href: string; tracking?: TrackedClick };
   serial: number;
 }
 

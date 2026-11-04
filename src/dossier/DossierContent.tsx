@@ -1,3 +1,4 @@
+import { trackOnClick } from "@/analytics/track";
 import { CopyButton } from "@/components/CopyButton";
 import { dossierLanguages, dossierSections, dossierSkills, dossierSummary } from "@/content/dossier";
 import { pick } from "@/content/localize";
@@ -15,7 +16,12 @@ export function DossierContent({ locale }: { locale: Locale }) {
         </h1>
         <p className={styles.role}>{profile.role[locale]}</p>
         <p className={styles.location}>{profile.location[locale]}</p>
-        <a className={styles.download} href={pick(resume.href, locale)} download>
+        <a
+          className={styles.download}
+          href={pick(resume.href, locale)}
+          download
+          {...trackOnClick("resume_downloaded", { from: "dossier" })}
+        >
           {ui.dossier.download[locale]}
         </a>
       </header>
@@ -83,10 +89,17 @@ export function DossierContent({ locale }: { locale: Locale }) {
             <li key={contact.id}>
               <span>{contact.label[locale]}</span>
               <span className={styles.contactValue}>
-                <a href={contact.href} target={contact.id === "email" ? undefined : "_blank"} rel="noopener">
+                <a
+                  href={contact.href}
+                  target={contact.id === "email" ? undefined : "_blank"}
+                  rel="noopener"
+                  {...trackOnClick("contact_clicked", { channel: contact.id, from: "dossier" })}
+                >
                   {contact.value}
                 </a>
-                {contact.copy ? <CopyButton text={contact.copy} locale={locale} /> : null}
+                {contact.copy ? (
+                  <CopyButton text={contact.copy} locale={locale} tracking={{ channel: contact.id, from: "dossier" }} />
+                ) : null}
               </span>
             </li>
           ))}

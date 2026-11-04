@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { track, type AnalyticsEvents } from "@/analytics/track";
 import type { Locale } from "@/content/types";
 import { ui } from "@/content/ui";
 import styles from "./copyButton.module.css";
@@ -11,9 +12,10 @@ interface CopyButtonProps {
   text: string;
   locale: Locale;
   className?: string;
+  tracking?: AnalyticsEvents["contact_copied"];
 }
 
-export function CopyButton({ text, locale, className }: CopyButtonProps) {
+export function CopyButton({ text, locale, className, tracking }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -26,6 +28,7 @@ export function CopyButton({ text, locale, className }: CopyButtonProps) {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
+      if (tracking) track("contact_copied", tracking);
     } catch {
       setCopied(false);
     }

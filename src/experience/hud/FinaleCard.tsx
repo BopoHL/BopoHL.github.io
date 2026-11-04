@@ -1,5 +1,6 @@
 "use client";
 
+import { trackOnClick } from "@/analytics/track";
 import { CopyButton } from "@/components/CopyButton";
 import { pick } from "@/content/localize";
 import { contacts, profile, resume } from "@/content/profile";
@@ -28,16 +29,33 @@ export function FinaleCard({ locale }: { locale: Locale }) {
           <li key={contact.id}>
             <span className={styles.contactLabel}>
               {contact.label[locale]}
-              {contact.copy ? <CopyButton text={contact.copy} locale={locale} className={styles.copy} /> : null}
+              {contact.copy ? (
+                <CopyButton
+                  text={contact.copy}
+                  locale={locale}
+                  className={styles.copy}
+                  tracking={{ channel: contact.id, from: "finale" }}
+                />
+              ) : null}
             </span>
-            <a href={contact.href} target={contact.id === "email" ? undefined : "_blank"} rel="noopener">
+            <a
+              href={contact.href}
+              target={contact.id === "email" ? undefined : "_blank"}
+              rel="noopener"
+              {...trackOnClick("contact_clicked", { channel: contact.id, from: "finale" })}
+            >
               {contact.value}
             </a>
           </li>
         ))}
       </ul>
       <div className={styles.actions}>
-        <a className={styles.primary} href={pick(resume.href, locale)} download>
+        <a
+          className={styles.primary}
+          href={pick(resume.href, locale)}
+          download
+          {...trackOnClick("resume_downloaded", { from: "finale" })}
+        >
           {ui.dossier.download[locale]}
         </a>
         <button type="button" className={styles.secondary} onClick={() => setDossierOpen(true)}>

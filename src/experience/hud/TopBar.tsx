@@ -1,5 +1,6 @@
 "use client";
 
+import { track, trackOnClick } from "@/analytics/track";
 import { LOCALES, type Locale } from "@/content/types";
 import { ui } from "@/content/ui";
 import { unlockAudio } from "@/audio/rig";
@@ -15,6 +16,11 @@ export function TopBar({ locale }: { locale: Locale }) {
   const toggleSound = useExperience((state) => state.toggleSound);
   const setDossierOpen = useExperience((state) => state.setDossierOpen);
   const variant = useExperience((state) => state.variant);
+
+  const skip = () => {
+    track("investigation_skipped", { station: useExperience.getState().stationIndex });
+    setDossierOpen(true);
+  };
 
   const handleSound = () => {
     if (!soundOn) unlockAudio();
@@ -38,6 +44,7 @@ export function TopBar({ locale }: { locale: Locale }) {
               href={`/${code}/${variantToQuery(variant)}`}
               hrefLang={code}
               aria-current={code === locale}
+              {...trackOnClick("locale_switched", { to: code })}
             >
               {code.toUpperCase()}
             </a>
@@ -46,7 +53,7 @@ export function TopBar({ locale }: { locale: Locale }) {
         <button type="button" className={styles.textButton} aria-pressed={soundOn} onClick={handleSound}>
           {soundOn ? ui.soundOn[locale] : ui.soundOff[locale]}
         </button>
-        <button type="button" className={styles.skip} onClick={() => setDossierOpen(true)}>
+        <button type="button" className={styles.skip} onClick={skip}>
           {ui.skip[locale]}
         </button>
       </nav>

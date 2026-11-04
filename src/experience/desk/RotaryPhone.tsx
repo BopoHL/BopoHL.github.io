@@ -1,6 +1,7 @@
 "use client";
 
 import { RoundedBox } from "@react-three/drei";
+import { track, trackOnClick } from "@/analytics/track";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { useMemo, useRef, useState } from "react";
 import { CatmullRomCurve3, MathUtils, Vector3, type Group } from "three";
@@ -60,9 +61,14 @@ export function RotaryPhone({ locale }: { locale: Locale }) {
     if (!isTap(event)) return;
     event.stopPropagation();
     if (!dialer.dial(NUMBER) || !telegram) return;
+    track("phone_dialed", {});
     useExperience.getState().showToast({
       text: `${pick(ui.phone.dialing, locale)} ${telegram.value}`,
-      link: { label: pick(ui.phone.open, locale), href: telegram.href },
+      link: {
+        label: pick(ui.phone.open, locale),
+        href: telegram.href,
+        tracking: trackOnClick("contact_clicked", { channel: "telegram", from: "phone" }),
+      },
     });
   };
 

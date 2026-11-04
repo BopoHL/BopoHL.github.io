@@ -30,6 +30,7 @@ import { useScrollDriver } from "./useScrollDriver";
 import { useSecretMemory } from "./useSecretMemory";
 import { useReducedMotion } from "./useReducedMotion";
 import { useElementAspect } from "./useViewport";
+import { useJourneyAnalytics } from "./useJourneyAnalytics";
 import stage from "./stage.module.css";
 
 const SCROLL_PER_SHOT_VH = { classic: 120, cinema: 110 } as const;
@@ -61,6 +62,7 @@ export function Experience({ locale }: { locale: Locale }) {
   }, [palette]);
 
   const content = useMemo(() => boardContentFor(finale), [finale]);
+  useJourneyAnalytics(content.stations.length);
   const shots = useMemo(
     () => buildShots(content.stations, content.evidence, framingFor(aspect, cameraStyle), cameraStyle),
     [content, aspect, cameraStyle],

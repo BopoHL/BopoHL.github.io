@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState, type FormEvent, type KeyboardEvent } from "react";
+import { track } from "@/analytics/track";
 import { playKeystroke } from "@/audio/typewriter";
 import { CONTACT_ENDPOINT, sendStatement, type Delivery } from "@/contact/client";
 import { checkStatement, STATEMENT_LIMITS, statementAsText, type StatementProblem } from "@/contact/statement";
@@ -43,12 +44,14 @@ export function StatementPanel({ locale }: { locale: Locale }) {
     if (!CONTACT_ENDPOINT) {
       void navigator.clipboard?.writeText(statementAsText(check.statement)).catch(() => {});
       if (telegram) window.open(telegram.href, "_blank", "noopener");
+      track("contact_clicked", { channel: "telegram", from: "statement" });
       setStatus({ kind: "copied" });
       return;
     }
     setStatus({ kind: "sending" });
     const delivery = await sendStatement(CONTACT_ENDPOINT, check.statement, website);
     if (delivery === "sent") fileStatement();
+    track("statement_sent", { result: delivery });
     setStatus({ kind: delivery });
   };
 

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ThreeEvent } from "@react-three/fiber";
+import { track } from "@/analytics/track";
 import { useCallback } from "react";
 import { MathUtils, type Texture } from "three";
 import { secrets, type Secret } from "@/content/desk";
@@ -29,7 +30,9 @@ function SecretItem({ secret, map, locale }: { secret: Secret; map: Texture; loc
     if (!isTap(event)) return;
     event.stopPropagation();
     const state = useExperience.getState();
+    const fresh = !state.foundSecrets.includes(secret.id);
     state.findSecret(secret.id);
+    if (fresh) track("secret_found", { secret: secret.id, found: useExperience.getState().foundSecrets.length });
     state.showToast({ text: `${pick(ui.secretFound, locale)}: ${pick(secret.reveal, locale)}` });
   };
   const paperProps = { ...worldShader, roughness: 0.8 };
