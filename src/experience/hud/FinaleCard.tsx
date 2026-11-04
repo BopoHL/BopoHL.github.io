@@ -1,5 +1,6 @@
 "use client";
 
+import { CopyButton } from "@/components/CopyButton";
 import { pick } from "@/content/localize";
 import { contacts, profile, resume } from "@/content/profile";
 import type { Locale } from "@/content/types";
@@ -24,7 +25,10 @@ export function FinaleCard({ locale }: { locale: Locale }) {
       <ul className={styles.contacts}>
         {contacts.map((contact) => (
           <li key={contact.id}>
-            <span className={styles.contactLabel}>{contact.label[locale]}</span>
+            <span className={styles.contactLabel}>
+              {contact.label[locale]}
+              {contact.copy ? <CopyButton text={contact.copy} locale={locale} className={styles.copy} /> : null}
+            </span>
             <a href={contact.href} target={contact.id === "email" ? undefined : "_blank"} rel="noopener">
               {contact.value}
             </a>

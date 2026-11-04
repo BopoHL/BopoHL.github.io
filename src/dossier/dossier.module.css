@@ -186,8 +186,15 @@
   display: contents;
 }
 
-.contactList span {
+.contactList li > span:first-child {
   color: var(--ink-muted);
+}
+
+.contactValue {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  align-items: baseline;
 }
 
 .contactList a {

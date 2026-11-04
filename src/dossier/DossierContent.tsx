@@ -1,3 +1,4 @@
+import { CopyButton } from "@/components/CopyButton";
 import { dossierLanguages, dossierSections, dossierSkills, dossierSummary } from "@/content/dossier";
 import { pick } from "@/content/localize";
 import { contacts, profile, resume } from "@/content/profile";
@@ -81,9 +82,12 @@ export function DossierContent({ locale }: { locale: Locale }) {
           {contacts.map((contact) => (
             <li key={contact.id}>
               <span>{contact.label[locale]}</span>
-              <a href={contact.href} target={contact.id === "email" ? undefined : "_blank"} rel="noopener">
-                {contact.value}
-              </a>
+              <span className={styles.contactValue}>
+                <a href={contact.href} target={contact.id === "email" ? undefined : "_blank"} rel="noopener">
+                  {contact.value}
+                </a>
+                {contact.copy ? <CopyButton text={contact.copy} locale={locale} /> : null}
+              </span>
             </li>
           ))}
         </ul>

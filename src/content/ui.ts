@@ -27,6 +27,8 @@ export const ui = {
   toBoard: l("К доске", "To the board"),
   stationsLabel: l("Ход расследования", "Investigation progress"),
   contactTitle: l("Связаться", "Get in touch"),
+  copy: l("скопировать", "copy"),
+  copied: l("скопировано", "copied"),
   dossier: {
     title: l("Досье", "Dossier"),
     close: l("Вернуться к доске", "Back to the board"),

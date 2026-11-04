@@ -22,6 +22,7 @@ export const contacts: Contact[] = [
     label: l("Telegram", "Telegram"),
     value: "@BopoH_L",
     href: "https://t.me/BopoH_L",
+    copy: "@BopoH_L",
   },
   {
     id: "linkedin",
@@ -34,6 +35,7 @@ export const contacts: Contact[] = [
     label: l("Почта", "Email"),
     value: "vlo99@yandex.ru",
     href: "mailto:vlo99@yandex.ru",
+    copy: "vlo99@yandex.ru",
   },
   {
     id: "github",

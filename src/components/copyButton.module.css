@@ -1,0 +1,17 @@
+.copy {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-typewriter), monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.copy:hover,
+.copy:focus-visible {
+  color: #a3161a;
+}

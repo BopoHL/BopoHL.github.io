@@ -304,9 +304,15 @@
 }
 
 .contactLabel {
-  display: block;
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
   font-size: 11px;
   color: var(--ink-muted);
+}
+
+.copy {
+  font-size: 10px;
 }
 
 .actions {

@@ -189,4 +189,5 @@ export interface Contact {
   label: Localized;
   value: string;
   href: string;
+  copy?: string;
 }
