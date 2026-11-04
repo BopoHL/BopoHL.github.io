@@ -14,8 +14,9 @@
     "tape:render": "node tools/tape/render-tape.mjs",
     "resume:render": "node tools/resume/render-resume.mjs",
     "og:render": "node tools/og/render-og.mjs",
-    "contact:serve": "node server/contact/main.ts",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "contact:dev": "wrangler dev --config server/contact/wrangler.jsonc",
+    "contact:deploy": "wrangler deploy --config server/contact/wrangler.jsonc"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
@@ -42,6 +43,7 @@
     "playwright-core": "^1.56.0",
     "serve": "^14.2.6",
     "typescript": "^5",
-    "vitest": "^5.0.5"
+    "vitest": "^5.0.5",
+    "wrangler": "^4.151.3"
   }
 }

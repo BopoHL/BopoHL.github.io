@@ -1,0 +1,18 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "case404-contact",
+  "main": "worker.ts",
+  "compatibility_date": "2026-10-20",
+  "workers_dev": true,
+  "vars": {
+    "ALLOWED_ORIGIN": "https://bopohl.github.io"
+  },
+  "ratelimits": [
+    {
+      "name": "CONTACT_LIMITER",
+      "namespace_id": "4040",
+      "simple": { "limit": 3, "period": 60 }
+    }
+  ],
+  "observability": { "enabled": true }
+}
