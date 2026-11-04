@@ -16,6 +16,7 @@ import { FinaleCard } from "./hud/FinaleCard";
 import { Loader } from "./hud/Loader";
 import { PilotPanel } from "./hud/PilotPanel";
 import { ProgressThread } from "./hud/ProgressThread";
+import { useRainAmbience } from "./hud/useRainAmbience";
 import { ScrollHint } from "./hud/ScrollHint";
 import { StatementPanel } from "./hud/StatementPanel";
 import { Subtitle } from "./hud/Subtitle";
@@ -48,6 +49,7 @@ export function Experience({ locale }: { locale: Locale }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const aspect = useElementAspect(stageRef);
   useSecretMemory();
+  useRainAmbience();
 
   useEffect(() => {
     setLocale(locale);
