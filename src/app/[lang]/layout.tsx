@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
+import { ClickTracker } from "@/analytics/ClickTracker";
 import { pick } from "@/content/localize";
 import { LOCALES, type Locale } from "@/content/types";
 import { ui } from "@/content/ui";
@@ -49,7 +50,10 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   if (!isLocale(lang)) notFound();
   return (
     <html lang={lang} className={fontVariables}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <ClickTracker />
+      </body>
     </html>
   );
 }
