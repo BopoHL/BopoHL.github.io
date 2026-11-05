@@ -438,6 +438,48 @@ const projectEvidence: Evidence[] = [
     lines: l(["Рассекречивание ожидается."], ["Declassification pending."]),
     stamp: l("Секретно", "Classified"),
   },
+  {
+    id: "bots",
+    kind: "typed",
+    area: "work",
+    paper: "index",
+    position: [13.75, 7.35],
+    rotation: 2,
+    width: 3.3,
+    title: l("ДЕЛО № 3", "FILE № 3"),
+    subtitle: l("Платформа Telegram-ботов, личный проект", "Telegram bot platform, side project"),
+    lines: l(
+      [
+        "170+ ботов проверяют спрос на идеи",
+        "Считает, кто и откуда пришёл по /start",
+        "Ведёт аудиторию в рабочие продукты",
+        "MCP-сервер: ботами управляют AI-агенты",
+      ],
+      [
+        "170+ bots testing demand for ideas",
+        "Tracks who came from where via /start",
+        "Routes the audience to working products",
+        "MCP server: AI agents manage the bots",
+      ],
+    ),
+    ink: l(
+      { marks: [{ phrase: "170+ ботов", stroke: "circle", tool: "marker" }] },
+      { marks: [{ phrase: "170+ bots", stroke: "circle", tool: "marker" }] },
+    ),
+  },
+  {
+    id: "username-checker",
+    kind: "sticky",
+    area: "work",
+    position: [14.65, 4.85],
+    rotation: 5,
+    width: 1.8,
+    text: l(
+      "Ник в Telegram свободен? t.me/CheckTelegramUsername_Bot",
+      "Is that Telegram username free? t.me/CheckTelegramUsername_Bot",
+    ),
+    link: "https://t.me/CheckTelegramUsername_Bot",
+  },
 ];
 
 const studyEvidence: Evidence[] = [
@@ -825,6 +867,8 @@ export const threads: Thread[] = [
   { from: "stb-file", to: "github", area: "work" },
   { from: "github", to: "this-site", area: "work" },
   { from: "stb-file", to: "file-two", area: "work" },
+  { from: "file-two", to: "bots", area: "work" },
+  { from: "bots", to: "username-checker", area: "work" },
 
   { from: "mugshot", to: "itpu-id", area: "study" },
   { from: "itpu-id", to: "alif-academy", area: "study" },
