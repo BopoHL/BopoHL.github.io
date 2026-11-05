@@ -45,14 +45,14 @@ const investigation: Station[] = [
   {
     id: "study",
     label: l("Учёба", "Education"),
-    focus: ["itpu-id", "alif-academy", "academy-sticky", "proweb", "citymove"],
+    focus: ["itpu-id", "alif-academy", "academy-sticky", "proweb", "citymove", "techstars"],
     angle: [-8, 0],
     subtitle: l("Улика № 4. Университет, курсы, первый стартап.", "Exhibit 4. University, courses, a first startup."),
   },
   {
     id: "spain",
     label: l("Испания и соревнования", "Spain and competitions"),
-    focus: ["spain-clip", "codebattle", "hackathon", "olympiad", "volunteer"],
+    focus: ["spain-clip", "codebattle", "hackathon", "olympiad", "volunteer", "ekids"],
     angle: [-10, 3],
     subtitle: l(
       "Восемь студентов. Испания. Один из них — подозреваемый.",
@@ -60,11 +60,21 @@ const investigation: Station[] = [
     ),
   },
   {
+    id: "graduation",
+    label: l("Выпуск", "Graduation"),
+    focus: ["graduation", "scholarship", "web3", "recommendation"],
+    angle: [-6, 6],
+    subtitle: l(
+      "Улика № 5. Диплом, стипендия и характеристика из университета.",
+      "Exhibit 5. A degree, a scholarship and a reference from the university.",
+    ),
+  },
+  {
     id: "hobby",
     label: l("Горы и марафоны", "Mountains and marathons"),
     focus: ["mountains", "mountains-sticky", "marathon", "marathon-sticky", "race-results"],
     angle: [-3, 8],
-    subtitle: l("Улика № 5. Горы и марафоны. Выносливость подтверждена.", "Exhibit 5. Mountains and marathons. Stamina confirmed."),
+    subtitle: l("Улика № 6. Горы и марафоны. Выносливость подтверждена.", "Exhibit 6. Mountains and marathons. Stamina confirmed."),
   },
   {
     id: "overview",
