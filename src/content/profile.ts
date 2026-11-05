@@ -9,7 +9,7 @@ export const profile = {
   location: l("Ташкент, удалённо или гибрид", "Tashkent, remote or hybrid"),
 };
 
-export const portrait: EvidenceImage = { scene: "portrait" };
+export const portrait: EvidenceImage = { scene: "portrait", src: "/evidence/portrait.jpg" };
 
 export const resume = {
   label: l("Резюме, PDF", "Résumé, PDF"),
