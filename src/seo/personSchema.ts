@@ -18,7 +18,11 @@ export const personSchema = (locale: Locale) => {
     sameAs: contacts.filter((contact) => contact.href.startsWith("https://")).map((contact) => contact.href),
     knowsAbout: pick(dossierSkills, locale).flatMap((line) => line.split(/,\s*|\s—\s/)).filter(Boolean),
     knowsLanguage: dossierLanguages.en.map((line) => line.split(" — ")[0]),
-    alumniOf: { "@type": "CollegeOrUniversity", name: "IT Park University", address: { "@type": "PostalAddress", addressLocality: "Tashkent", addressCountry: "UZ" } },
+    alumniOf: {
+      "@type": "CollegeOrUniversity",
+      name: "IT Park University",
+      address: { "@type": "PostalAddress", addressLocality: "Tashkent", addressCountry: "UZ" },
+    },
   };
 };
 
