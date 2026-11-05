@@ -71,10 +71,10 @@ const investigation: Station[] = [
   },
   {
     id: "hobby",
-    label: l("Горы и марафоны", "Mountains and marathons"),
-    focus: ["mountains", "mountains-sticky", "marathon", "marathon-sticky", "race-results"],
+    label: l("Горы и забеги", "Mountains and races"),
+    focus: ["marathon-2025", "mountains", "mountains-sticky", "marathon", "marathon-sticky", "race-results"],
     angle: [-3, 8],
-    subtitle: l("Улика № 6. Горы и марафоны. Выносливость подтверждена.", "Exhibit 6. Mountains and marathons. Stamina confirmed."),
+    subtitle: l("Улика № 6. Горы и ночные забеги. Выносливость подтверждена.", "Exhibit 6. Mountains and night races. Stamina confirmed."),
   },
   {
     id: "overview",

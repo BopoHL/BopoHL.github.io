@@ -732,8 +732,19 @@ const hobbyEvidence: Evidence[] = [
     position: [1.25, -6.6],
     rotation: 4,
     width: 2.4,
-    image: { scene: "marathon" },
-    caption: l("Марафон", "Marathon"),
+    image: { scene: "marathon", src: "/evidence/bukhara-2026.jpg" },
+    caption: l("Bukhara Night Race 2026", "Bukhara Night Race 2026"),
+  },
+  {
+    id: "marathon-2025",
+    kind: "photo",
+    area: "hobby",
+    frame: "polaroid",
+    position: [-5.8, -6.45],
+    rotation: -3,
+    width: 2.4,
+    image: { scene: "marathon", src: "/evidence/bukhara-2025.jpg" },
+    caption: l("Bukhara Night Race 2025", "Bukhara Night Race 2025"),
   },
   {
     id: "marathon-sticky",
@@ -742,7 +753,7 @@ const hobbyEvidence: Evidence[] = [
     position: [3.85, -4.95],
     rotation: -4,
     width: 1.75,
-    text: l("Был замечен на марафоне. Но он ли это?", "Spotted at a marathon. But was it him?"),
+    text: l("Замечен на ночном забеге в Бухаре. Дважды.", "Spotted at the Bukhara night race. Twice."),
   },
   {
     id: "race-results",
@@ -754,14 +765,14 @@ const hobbyEvidence: Evidence[] = [
     aspect: 0.6,
     masthead: HERALD,
     dateline: l("Ташкент", "Tashkent"),
-    headline: l("Итоги забега", "Race results"),
+    headline: l("Итоги забегов", "Race results"),
     body: l(
-      "Дистанция: ██ км. Участник № ███. Время уточняется.",
-      "Distance: ██ km. Runner № ███. Time pending.",
+      "Zaamin Ultra 2025: 5 км. Bukhara Night Race 2025: полумарафон, 21,1 км. Bukhara Night Race 2026: 10 км. Время участник следствию не сообщил.",
+      "Zaamin Ultra 2025: 5 km. Bukhara Night Race 2025: half marathon, 21.1 km. Bukhara Night Race 2026: 10 km. The runner declined to give his times.",
     ),
     ink: l(
-      { marks: [{ phrase: "Время уточняется.", stroke: "circle", tool: "marker" }] },
-      { marks: [{ phrase: "Time pending.", stroke: "circle", tool: "marker" }] },
+      { marks: [{ phrase: "21,1 км", stroke: "circle", tool: "marker" }] },
+      { marks: [{ phrase: "21.1 km", stroke: "circle", tool: "marker" }] },
     ),
   },
 ];
@@ -838,6 +849,7 @@ export const threads: Thread[] = [
   { from: "mountains-sticky", to: "marathon", area: "hobby" },
   { from: "marathon", to: "marathon-sticky", area: "hobby" },
   { from: "marathon", to: "race-results", area: "hobby" },
+  { from: "mountains", to: "marathon-2025", area: "hobby" },
 
   { from: "academy-sticky", to: "alif-question", area: "study" },
 
