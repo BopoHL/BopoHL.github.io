@@ -191,6 +191,17 @@ const alifEvidence: Evidence[] = [
     text: l("Двое джунов утверждают, что он был их наставником.", "Two juniors claim he was their mentor."),
   },
   {
+    id: "alif-photo",
+    kind: "photo",
+    area: "work",
+    frame: "polaroid",
+    position: [-13.6, 6.35],
+    rotation: 4,
+    width: 2.3,
+    image: { scene: "servers", src: "/evidence/alif-office.jpg" },
+    caption: l("Офис Alif, апрель 2024", "Alif office, April 2024"),
+  },
+  {
     id: "alif-cloud",
     kind: "newspaper",
     area: "work",
@@ -820,6 +831,7 @@ export const threads: Thread[] = [
   { from: "scholarship", to: "recommendation", area: "study" },
   { from: "graduation", to: "web3", area: "study" },
   { from: "citymove", to: "techstars", area: "study" },
+  { from: "alif-rumor", to: "alif-photo", area: "work" },
 
   { from: "mugshot", to: "mountains-sticky", area: "hobby" },
   { from: "mountains-sticky", to: "mountains", area: "hobby" },

@@ -21,7 +21,7 @@ const investigation: Station[] = [
   {
     id: "alif-deep",
     label: l("Alif: досье", "Alif: file"),
-    focus: ["alif-file", "alif-rumor", "alif-cloud"],
+    focus: ["alif-file", "alif-rumor", "alif-photo", "alif-cloud"],
     angle: [9, -3],
     subtitle: l(
       "Следы ведут глубже: архитектура, интеграции, наставничество.",
