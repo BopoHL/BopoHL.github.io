@@ -1,6 +1,6 @@
 import { dossierLanguages, dossierSkills } from "@/content/dossier";
 import { pick } from "@/content/localize";
-import { contacts, profile } from "@/content/profile";
+import { contacts, portrait, profile } from "@/content/profile";
 import type { Locale } from "@/content/types";
 import { absoluteUrl, localePath, ogImagePath } from "./site";
 
@@ -12,12 +12,13 @@ export const personSchema = (locale: Locale) => {
     name: pick(profile.name, locale),
     jobTitle: pick(profile.role, locale),
     url: absoluteUrl(localePath(locale)),
-    image: absoluteUrl(ogImagePath(locale)),
+    image: absoluteUrl(portrait.src ?? ogImagePath(locale)),
     email: email?.value,
     address: { "@type": "PostalAddress", addressLocality: locale === "ru" ? "Ташкент" : "Tashkent", addressCountry: "UZ" },
     sameAs: contacts.filter((contact) => contact.href.startsWith("https://")).map((contact) => contact.href),
     knowsAbout: pick(dossierSkills, locale).flatMap((line) => line.split(/,\s*|\s—\s/)).filter(Boolean),
     knowsLanguage: dossierLanguages.en.map((line) => line.split(" — ")[0]),
+    alumniOf: { "@type": "CollegeOrUniversity", name: "IT Park University", address: { "@type": "PostalAddress", addressLocality: "Tashkent", addressCountry: "UZ" } },
   };
 };
 

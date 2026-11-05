@@ -11,6 +11,8 @@ describe("personSchema", () => {
     expect(schema.sameAs.every((href) => href.startsWith("https://"))).toBe(true);
     expect(schema.knowsAbout).toContain("Laravel");
     expect(schema.knowsLanguage).toEqual(["Russian", "English", "Spanish"]);
+    expect(schema.image).toMatch(/\/evidence\/portrait\.jpg$/);
+    expect(schema.alumniOf.name).toBe("IT Park University");
   });
 
   it("cannot be broken out of its script tag", () => {
