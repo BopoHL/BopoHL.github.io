@@ -42,7 +42,7 @@ export function DossierContent({ locale }: { locale: Locale }) {
             <div key={`${entry.place.en}-${entry.title.en}`} className={styles.entry}>
               <div className={styles.entryHead}>
                 <h3 className={styles.entryTitle}>{entry.title[locale]}</h3>
-                <p className={styles.period}>{entry.period[locale]}</p>
+                {entry.period ? <p className={styles.period}>{entry.period[locale]}</p> : null}
               </div>
               <p className={styles.place}>{entry.place[locale]}</p>
               {entry.points[locale].length > 0 ? (

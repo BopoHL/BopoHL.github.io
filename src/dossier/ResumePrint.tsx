@@ -38,7 +38,7 @@ export function ResumePrint({ locale }: { locale: Locale }) {
                 <h3 className={styles.entryTitle}>
                   {pick(entry.title, locale)} <span className={styles.place}>· {pick(entry.place, locale)}</span>
                 </h3>
-                <p className={styles.period}>{pick(entry.period, locale)}</p>
+                {entry.period ? <p className={styles.period}>{pick(entry.period, locale)}</p> : null}
               </div>
               {pick(entry.points, locale).length > 0 ? (
                 <ul className={styles.points}>

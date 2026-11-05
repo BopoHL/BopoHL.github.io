@@ -4,7 +4,7 @@ import type { Localized } from "./types";
 export interface DossierEntry {
   title: Localized;
   place: Localized;
-  period: Localized;
+  period?: Localized;
   points: Localized<string[]>;
 }
 
@@ -15,8 +15,8 @@ export interface DossierSection {
 }
 
 export const dossierSummary = l(
-  "Backend-разработчик на PHP/Laravel, 2,5 года в финтехе и медтехе. Декомпозирую сложные системы в масштабируемую архитектуру с фокусом на производительности кода и стоимости его работы в облаке. Активно использую AI-инструменты в работе.",
-  "Backend developer working in PHP/Laravel, with 2.5 years in fintech and medtech. I break complex systems down into scalable architecture, with a focus on code performance and its cost to run in the cloud. I use AI tools heavily in daily work.",
+  "Backend-разработчик на PHP/Laravel, 2,5 года в финтехе и медтехе, бакалавр программной инженерии (IT Park University, школа EPAM, 2026). Декомпозирую сложные системы в масштабируемую архитектуру с фокусом на производительности кода и стоимости его работы в облаке. Активно использую AI-инструменты в работе.",
+  "Backend developer working in PHP/Laravel, with 2.5 years in fintech and medtech and a BSc in Software Engineering (IT Park University, EPAM school, 2026). I break complex systems down into scalable architecture, with a focus on code performance and its cost to run in the cloud. I use AI tools heavily in daily work.",
 );
 
 export const dossierSections: DossierSection[] = [
@@ -83,12 +83,22 @@ export const dossierSections: DossierSection[] = [
         place: l("IT Park University, филиал школы инженерии EPAM", "IT Park University, EPAM School of Engineering branch"),
         period: l("2023 — 2026", "2023 — 2026"),
         points: l(
-          ["Алгоритмы и структуры данных, криптография, backend и frontend, QA, анализ данных."],
-          ["Algorithms and data structures, cryptography, backend and frontend, QA, data analysis."],
+          [
+            "Диплом бакалавра, июнь 2026; в программе EPAM — специализация Front-End.",
+            "Стипендия за успеваемость от Дирекции IT Park за 6-й семестр.",
+            "Академический директор в рекомендации: «один из самых перспективных студентов своего потока».",
+            "Алгоритмы и структуры данных, криптография, backend и frontend, QA, анализ данных.",
+          ],
+          [
+            "Bachelor's degree, June 2026; Front-End specialization in the EPAM program.",
+            "Merit-based scholarship from the IT Park Directorate for the 6th semester.",
+            "The academic director's reference: “one of the most promising students in his cohort.”",
+            "Algorithms and data structures, cryptography, backend and frontend, QA, data analysis.",
+          ],
         ),
       },
       {
-        title: l("Back-End разработка", "Back-End development"),
+        title: l("Backend Engineering in PHP", "Backend Engineering in PHP"),
         place: l("Alif Academy", "Alif Academy"),
         period: l("2023 — 2024", "2023 — 2024"),
         points: l(
@@ -97,10 +107,15 @@ export const dossierSections: DossierSection[] = [
         ),
       },
       {
-        title: l("Мобильная разработка", "Mobile development"),
+        title: l("Android и iOS на Flutter", "Android and iOS with Flutter"),
         place: l("PROWEB", "PROWEB"),
         period: l("2023", "2023"),
-        points: l(["Шесть пет-проектов на Flutter."], ["Six pet projects in Flutter."]),
+        points: l(["8 месяцев, 64 занятия, шесть пет-проектов на Flutter."], ["8 months, 64 lessons, six pet projects in Flutter."]),
+      },
+      {
+        title: l("Blockchain Engineering", "Blockchain Engineering"),
+        place: l("Web3 Academy — Armenian Code Academy × Asterium", "Web3 Academy — Armenian Code Academy × Asterium"),
+        points: l([], []),
       },
     ],
   },
@@ -127,7 +142,19 @@ export const dossierSections: DossierSection[] = [
         title: l("AI-хакатон", "AI hackathon"),
         place: l("New Uzbekistan University", "New Uzbekistan University"),
         period: l("2024", "2024"),
-        points: l(["Обучающее приложение на Unity с применением ИИ."], ["An AI-powered learning app built in Unity."]),
+        points: l(
+          ["Обучающее приложение на Unity с применением ИИ.", "Приз участника — сертификат на 3 млн сум на курсы Tehnikum."],
+          ["An AI-powered learning app built in Unity.", "Participant prize: a 3M sum voucher for Tehnikum courses."],
+        ),
+      },
+      {
+        title: l("Techstars Startup Weekend", "Techstars Startup Weekend"),
+        place: l("Ташкент", "Tashkent"),
+        period: l("2026", "2026"),
+        points: l(
+          ["54-часовой ideathon: от идеи к продукту, Business Model Canvas, проверка гипотез на клиентах."],
+          ["A 54-hour ideathon: from idea to product, the Business Model Canvas, customer validation."],
+        ),
       },
       {
         title: l("Олимпиада по спортивному программированию", "Competitive programming olympiad"),
@@ -143,9 +170,34 @@ export const dossierSections: DossierSection[] = [
       },
       {
         title: l("Волонтёр", "Volunteer"),
-        place: l("ICTWeek Uzbekistan, EPAM E-kids", "ICTWeek Uzbekistan, EPAM E-kids"),
-        period: l("2023", "2023"),
-        points: l([], []),
+        place: l("ICTWeek Uzbekistan, EPAM e-Kids", "ICTWeek Uzbekistan, EPAM e-Kids"),
+        period: l("2023 — 2024", "2023 — 2024"),
+        points: l(
+          ["ICTWeek: стенд ITPU.", "EPAM e-Kids: ментор, учил детей программированию на Scratch."],
+          ["ICTWeek: the ITPU booth.", "EPAM e-Kids: mentor teaching children to code in Scratch."],
+        ),
+      },
+    ],
+  },
+  {
+    id: "outside",
+    title: l("Вне работы", "Outside work"),
+    entries: [
+      {
+        title: l("Бег и горы", "Running and mountains"),
+        place: l("Узбекистан", "Uzbekistan"),
+        points: l(
+          [
+            "Bukhara Night Race: полумарафон 21,1 км (2025) и 10 км (2026).",
+            "Zaamin Ultra 2025: 5 км.",
+            "По выходным — горы.",
+          ],
+          [
+            "Bukhara Night Race: a 21.1 km half marathon (2025) and 10 km (2026).",
+            "Zaamin Ultra 2025: 5 km.",
+            "Mountains on weekends.",
+          ],
+        ),
       },
     ],
   },
