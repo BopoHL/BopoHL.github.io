@@ -145,8 +145,10 @@ export const paintCertificate = ({ item, locale, surface }: PaintJob<Certificate
     ctx.fillText(line, W / 2, baseline);
   });
 
-  ctx.font = font(400, H * 0.045, fonts.typewriter);
-  ctx.fillText(item.year, W / 2, H * 0.86);
+  if (item.year) {
+    ctx.font = font(400, H * 0.045, fonts.typewriter);
+    ctx.fillText(item.year, W / 2, H * 0.86);
+  }
 
   ctx.strokeStyle = "rgba(29, 40, 71, 0.85)";
   ctx.lineWidth = Math.max(1.5, W * 0.003);

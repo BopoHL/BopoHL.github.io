@@ -8,6 +8,9 @@ import type { Rect } from "../surface";
 import { drawJustifiedLine, fitText, wrapText } from "../text";
 import type { PaintJob } from "./job";
 
+const PRINTED_DRAWING = { grade: { warmth: 0, contrast: 1.25, lift: 0.04, vignette: 0.2, grain: 0.024 }, dotsAcross: 120 };
+const PRINTED_PHOTO = { grade: { warmth: 0, contrast: 1.1, lift: 0.14, vignette: 0.12, grain: 0.012 }, dotsAcross: 210 };
+
 const TWO_COLUMN_WIDTH = 3.2;
 
 const layoutColumns = (
@@ -83,11 +86,12 @@ export const paintNewspaper = async ({ item, locale, surface }: PaintJob<Newspap
     const imageHeight = Math.max(inner * 0.3, Math.min(inner * 0.5, H - y - reservedForBody - W * 0.06));
     const imageRect = { x: pad, y, width: inner, height: imageHeight };
     const sourceWidth = 480;
+    const print = item.image.src ? PRINTED_PHOTO : PRINTED_DRAWING;
     const source = await renderImage(item.image, sourceWidth, (sourceWidth * imageHeight) / inner, random, fonts);
-    const graded = gradePhoto(source, random, { warmth: 0, contrast: 1.25, lift: 0.04, vignette: 0.2, grain: 0.024 });
+    const graded = gradePhoto(source, random, print.grade);
     ctx.fillStyle = "rgba(255,255,255,0.08)";
     ctx.fillRect(imageRect.x, imageRect.y, imageRect.width, imageRect.height);
-    halftone(graded, ctx, imageRect, Math.max(2.5, W / 120), "rgba(28,26,23,0.92)");
+    halftone(graded, ctx, imageRect, Math.max(2, W / print.dotsAcross), "rgba(28,26,23,0.92)");
     y += imageRect.height + W * 0.012;
     ctx.fillStyle = INK;
     ctx.font = font(400, W * 0.021, fonts.newsprint, "italic");

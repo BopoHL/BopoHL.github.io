@@ -119,7 +119,7 @@ export interface CertificateEvidence extends EvidenceBase {
   issuer: Localized;
   title: Localized;
   details: Localized;
-  year: string;
+  year?: string;
 }
 
 export interface RedactedLine {
