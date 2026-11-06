@@ -342,7 +342,7 @@ const projectEvidence: Evidence[] = [
     width: 2.2,
     image: { scene: "phone" },
     caption: l("Split the Bill", "Split the Bill"),
-    link: "https://t.me/split_the_bills_bot",
+    link: "https://t.me/splitt_app",
   },
   {
     id: "stb-file",
@@ -358,28 +358,28 @@ const projectEvidence: Evidence[] = [
     lines: l(
       [
         "Делит общий счёт прямо в Telegram",
-        "Backend: Laravel Octane + FrankenPHP",
-        "Frontend: React + TypeScript",
+        "Backend: FastAPI + PostgreSQL",
+        "Frontend: Next.js, Tailwind, Zustand",
         "Docker, свой VPS, nginx, CI/CD",
       ],
       [
         "Splits a shared bill right inside Telegram",
-        "Backend: Laravel Octane + FrankenPHP",
-        "Frontend: React + TypeScript",
+        "Backend: FastAPI + PostgreSQL",
+        "Frontend: Next.js, Tailwind, Zustand",
         "Docker, own VPS, nginx, CI/CD",
       ],
     ),
-    link: "https://t.me/split_the_bills_bot",
+    link: "https://t.me/splitt_app",
     ink: l(
       {
-        marks: [{ phrase: "Laravel Octane + FrankenPHP", stroke: "underline", tool: "pen" }],
+        marks: [{ phrase: "FastAPI + PostgreSQL", stroke: "underline", tool: "pen" }],
         notes: [
           { text: "просто хобби?", at: [0.1, 0.93], size: 0.06, rotation: -3, struck: true },
           { text: "→ в проде", at: [0.5, 0.94], size: 0.065, rotation: -4 },
         ],
       },
       {
-        marks: [{ phrase: "Laravel Octane + FrankenPHP", stroke: "underline", tool: "pen" }],
+        marks: [{ phrase: "FastAPI + PostgreSQL", stroke: "underline", tool: "pen" }],
         notes: [
           { text: "just a hobby?", at: [0.1, 0.93], size: 0.06, rotation: -3, struck: true },
           { text: "→ in production", at: [0.48, 0.94], size: 0.065, rotation: -4 },
@@ -394,8 +394,8 @@ const projectEvidence: Evidence[] = [
     position: [4.55, 4.45],
     rotation: -6,
     width: 1.85,
-    text: l("t.me/split_the_bills_bot — проверить лично", "t.me/split_the_bills_bot — check it yourself"),
-    link: "https://t.me/split_the_bills_bot",
+    text: l("t.me/splitt_app — проверить лично", "t.me/splitt_app — check it yourself"),
+    link: "https://t.me/splitt_app",
   },
   {
     id: "github",
@@ -425,18 +425,36 @@ const projectEvidence: Evidence[] = [
     text: l("Этот сайт — тоже улика. Next.js + Three.js.", "This website is evidence too. Next.js + Three.js."),
   },
   {
-    id: "file-two",
+    id: "tg-serp",
     kind: "typed",
     area: "work",
     paper: "manila",
-    position: [9.85, 7.1],
+    position: [9.75, 7.0],
     rotation: -2,
-    width: 2.5,
-    aspect: 0.66,
+    width: 3.1,
+    aspect: 0.72,
     title: l("ДЕЛО № 2", "FILE № 2"),
-    subtitle: l("Материалы засекречены", "Materials classified"),
-    lines: l(["Рассекречивание ожидается."], ["Declassification pending."]),
-    stamp: l("Секретно", "Classified"),
+    subtitle: l("TG SERP, tg-serp.uz", "TG SERP, tg-serp.uz"),
+    lines: l(
+      [
+        "Посты Telegram-каналов становятся страницами в Google, Яндексе и AI-поиске",
+        "NestJS, BullMQ, PostgreSQL, S3 + CDN",
+        "Next.js SSR, JSON-LD, sitemap",
+        "Модерация через OpenAI, оплата Click и Payme",
+      ],
+      [
+        "Telegram channel posts become pages in Google, Yandex and AI search",
+        "NestJS, BullMQ, PostgreSQL, S3 + CDN",
+        "Next.js SSR, JSON-LD, sitemaps",
+        "OpenAI moderation, Click and Payme billing",
+      ],
+    ),
+    stamp: l("Рассекречено", "Declassified"),
+    link: "https://tg-serp.uz/authors",
+    ink: l(
+      { marks: [{ phrase: "JSON-LD", stroke: "circle", tool: "pen" }] },
+      { marks: [{ phrase: "JSON-LD", stroke: "circle", tool: "pen" }] },
+    ),
   },
   {
     id: "bots",
@@ -866,8 +884,8 @@ export const threads: Thread[] = [
   { from: "stb-file", to: "stb-link", area: "work" },
   { from: "stb-file", to: "github", area: "work" },
   { from: "github", to: "this-site", area: "work" },
-  { from: "stb-file", to: "file-two", area: "work" },
-  { from: "file-two", to: "bots", area: "work" },
+  { from: "stb-file", to: "tg-serp", area: "work" },
+  { from: "tg-serp", to: "bots", area: "work" },
   { from: "bots", to: "username-checker", area: "work" },
 
   { from: "mugshot", to: "itpu-id", area: "study" },

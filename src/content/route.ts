@@ -38,7 +38,7 @@ const investigation: Station[] = [
   {
     id: "projects",
     label: l("Личные проекты", "Side projects"),
-    focus: ["stb-photo", "stb-file", "stb-link", "github", "this-site", "file-two", "bots", "username-checker"],
+    focus: ["stb-photo", "stb-file", "stb-link", "github", "this-site", "tg-serp", "bots", "username-checker"],
     angle: [-5, -6],
     subtitle: l("Улика № 3. Личные проекты. Работает даже по ночам.", "Exhibit 3. Side projects. Works even at night."),
   },
