@@ -12,15 +12,15 @@ import { RainyBlinds, type WindowPane } from "./rainyBlinds";
 const WINDOW = {
   aim: new Vector3(0, -3, 0),
   distance: 60,
-  angle: 0.35,
-  penumbra: 0.3,
+  angle: 0.38,
+  penumbra: 0.1,
   intensity: 22000,
 };
 const POSITION = new Vector3(...KEY_DIRECTION).normalize().multiplyScalar(WINDOW.distance).add(WINDOW.aim);
 
 const PANES: Record<Quality["tier"], WindowPane> = {
-  high: { size: 1024, slats: 28, framesPerSecond: 12, rain: { beads: 1200, runners: 50, scale: 0.6 } },
-  low: { size: 1024, slats: 28, framesPerSecond: 6, rain: { beads: 900, runners: 36, scale: 0.6 } },
+  high: { size: 1024, slats: 22, framesPerSecond: 12, rain: { beads: 1200, runners: 50, scale: 0.6 } },
+  low: { size: 1024, slats: 22, framesPerSecond: 6, rain: { beads: 900, runners: 36, scale: 0.6 } },
 };
 
 export function WindowLight({ quality }: { quality: Quality }) {

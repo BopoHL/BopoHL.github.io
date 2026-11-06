@@ -125,26 +125,47 @@ export const paintPaperBump = (size: number) => {
   return canvas;
 };
 
+const WINDOW_PANE: ReadonlyArray<[number, number]> = [
+  [0.15, 0.1],
+  [0.83, 0.04],
+  [0.89, 0.88],
+  [0.09, 0.95],
+];
+const SLAT_GAP = 0.24;
+
+const paneMask = (size: number) => {
+  const mask = createCanvas(size, size);
+  const ctx = context2d(mask);
+  ctx.filter = `blur(${Math.round(size * 0.012)}px)`;
+  ctx.fillStyle = "#fff";
+  ctx.beginPath();
+  for (const [x, y] of WINDOW_PANE) ctx.lineTo(x * size, y * size);
+  ctx.closePath();
+  ctx.fill();
+  return mask;
+};
+
 export const paintBlinds = (size: number, slats: number) => {
-  const canvas = createCanvas(size, size);
-  const ctx = context2d(canvas);
-  ctx.fillStyle = "#2c2c2c";
+  const light = createCanvas(size, size);
+  const ctx = context2d(light);
+  const glow = ctx.createRadialGradient(size * 0.5, size * 0.45, size * 0.1, size * 0.5, size * 0.5, size * 0.62);
+  glow.addColorStop(0, "#f4f4f4");
+  glow.addColorStop(1, "#bdbdbd");
+  ctx.fillStyle = glow;
   ctx.fillRect(0, 0, size, size);
   const pitch = size / slats;
-  ctx.filter = `blur(${Math.max(1, Math.round(pitch * 0.07))}px)`;
-  for (let i = 0; i < slats; i++) {
-    const gradient = ctx.createLinearGradient(0, i * pitch, 0, i * pitch + pitch * 0.62);
-    gradient.addColorStop(0, "#f2f2f2");
-    gradient.addColorStop(1, "#d6d6d6");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, i * pitch + pitch * 0.12, size, pitch * 0.62);
-  }
+  ctx.filter = `blur(${Math.max(1, Math.round(pitch * 0.09))}px)`;
+  ctx.fillStyle = "#101010";
+  for (let i = 0; i < slats; i++) ctx.fillRect(0, (i + 1 - SLAT_GAP) * pitch, size, SLAT_GAP * pitch);
   ctx.filter = "none";
-  const vignette = ctx.createRadialGradient(size / 2, size / 2, size * 0.3, size / 2, size / 2, size * 0.72);
-  vignette.addColorStop(0, "rgba(0,0,0,0)");
-  vignette.addColorStop(1, "rgba(0,0,0,0.4)");
-  ctx.fillStyle = vignette;
-  ctx.fillRect(0, 0, size, size);
+  ctx.globalCompositeOperation = "destination-in";
+  ctx.drawImage(paneMask(size), 0, 0);
+
+  const canvas = createCanvas(size, size);
+  const out = context2d(canvas);
+  out.fillStyle = "#000";
+  out.fillRect(0, 0, size, size);
+  out.drawImage(light, 0, 0);
   return canvas;
 };
 

@@ -29,7 +29,7 @@ const NOIR_BASE = {
   skyColor: "#5a5a5a",
   groundColor: "#101010",
   ambient: 0.16,
-  keyLight: 0.18,
+  keyLight: 0.28,
   windowLight: 1,
   contrast: 0.24,
   grain: 0.05,
