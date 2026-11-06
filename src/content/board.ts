@@ -428,11 +428,11 @@ const projectEvidence: Evidence[] = [
     id: "tg-serp",
     kind: "typed",
     area: "work",
-    paper: "manila",
+    paper: "index",
     position: [9.75, 7.0],
     rotation: -2,
-    width: 3.1,
-    aspect: 0.72,
+    width: 3.3,
+    aspect: 0.7,
     title: l("ДЕЛО № 2", "FILE № 2"),
     subtitle: l("TG SERP, tg-serp.uz", "TG SERP, tg-serp.uz"),
     lines: l(
@@ -449,11 +449,16 @@ const projectEvidence: Evidence[] = [
         "OpenAI moderation, Click and Payme billing",
       ],
     ),
-    stamp: l("Рассекречено", "Declassified"),
     link: "https://tg-serp.uz/authors",
     ink: l(
-      { marks: [{ phrase: "JSON-LD", stroke: "circle", tool: "pen" }] },
-      { marks: [{ phrase: "JSON-LD", stroke: "circle", tool: "pen" }] },
+      {
+        marks: [{ phrase: "JSON-LD", stroke: "circle", tool: "pen" }],
+        notes: [{ text: "рассекречено!", at: [0.55, 0.93], size: 0.065, rotation: -4 }],
+      },
+      {
+        marks: [{ phrase: "JSON-LD", stroke: "circle", tool: "pen" }],
+        notes: [{ text: "declassified!", at: [0.55, 0.93], size: 0.065, rotation: -4 }],
+      },
     ),
   },
   {
