@@ -8,6 +8,7 @@ import { useReducedMotion } from "../useReducedMotion";
 import { KEY_DIRECTION } from "./constants";
 import { useLook } from "./look";
 import { RainyBlinds, type WindowPane } from "./rainyBlinds";
+import { windowDrift } from "./windowDrift";
 
 const WINDOW = {
   aim: new Vector3(0, -3, 0),
@@ -36,8 +37,11 @@ export function WindowLight({ quality }: { quality: Quality }) {
 
   useEffect(() => () => blinds.dispose(), [blinds]);
 
-  useFrame((_, delta) => {
-    if (!light.current) return;
+  useFrame((state, delta) => {
+    if (!light.current || !target.current) return;
+    const [across, down] = still ? [0, 0] : windowDrift(state.clock.elapsedTime);
+    light.current.position.set(POSITION.x + across, POSITION.y + down, POSITION.z);
+    target.current.position.set(WINDOW.aim.x + across, WINDOW.aim.y + down, WINDOW.aim.z);
     light.current.intensity = WINDOW.intensity * look.windowLight;
     light.current.color.copy(look.lampColor);
     if (look.windowLight > 0.01 && !still) blinds.update(delta);

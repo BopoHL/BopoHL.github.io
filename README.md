@@ -118,7 +118,7 @@ Clicks that end a camera drag are ignored, so dragging across a prop does not sw
 ## Atmosphere
 
 - After loading, a short title card ("Tashkent · night · rain") plays once per browser session; any key or tap skips it, and it is left out entirely when the system asks for reduced motion (`src/experience/hud/useTitleCard.ts`).
-- Light from the window falls through the blinds onto the board and the desk, and rain runs down the glass: drops sit, merge, slide down and leave a trail (`src/experience/scene/rainGlass.ts`, painted into the light's gobo by `rainyBlinds.ts`). The window light is fixed in the room (`WindowLight.tsx`), so the slats and the drops stay put while the camera moves; the lamp that follows the camera only fills in, more strongly in the warm look, which has no blinds. With reduced motion the drops stay still.
+- Light from the window falls through the blinds onto the board and the desk as one skewed pane of slats, and rain runs down the glass: drops sit, merge, slide down and leave a trail (`src/experience/scene/rainGlass.ts`, painted into the light's gobo by `rainyBlinds.ts`). The window light belongs to the room, not the camera (`WindowLight.tsx`): it creeps slowly across the board (`windowDrift.ts`) and ignores the camera's travel; the lamp that follows the camera only fills in, more strongly in the warm look, which has no blinds. With reduced motion the window and the drops stay still.
 - A red neon sign outside spills onto the left edge of the frame and stutters now and then, never more than three times a second (`neonLife.ts`, `NeonSpill.tsx`).
 - With the sound on, rain against the window plays quietly under everything (`src/audio/rain.ts`), synthesized once and looped.
 
