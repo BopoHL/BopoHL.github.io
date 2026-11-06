@@ -737,6 +737,7 @@ const graduationEvidence: Evidence[] = [
     issuer: l("WEB3 ACADEMY", "WEB3 ACADEMY"),
     title: l("Blockchain Engineering", "Blockchain Engineering"),
     details: l("Armenian Code Academy × Asterium", "Armenian Code Academy × Asterium"),
+    year: "2026",
   },
   {
     id: "recommendation",
