@@ -71,6 +71,7 @@
 
 .heading {
   margin: 0 0 2mm;
+  break-after: avoid;
   font-family: var(--font-stamp), sans-serif;
   font-size: 10.5pt;
   font-weight: 600;
