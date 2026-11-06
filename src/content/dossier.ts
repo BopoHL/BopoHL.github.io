@@ -75,6 +75,54 @@ export const dossierSections: DossierSection[] = [
     ],
   },
   {
+    id: "projects",
+    title: l("Личные проекты", "Side projects"),
+    entries: [
+      {
+        title: l("Split the Bill", "Split the Bill"),
+        place: l("Telegram Mini App · t.me/splitt_app", "Telegram Mini App · t.me/splitt_app"),
+        points: l(
+          [
+            "Делит счёт в ресторане прямо в Telegram: вход через Telegram, оплаты в реальном времени, EN/RU/UZ.",
+            "FastAPI и PostgreSQL, Next.js, Tailwind и Zustand; воронки в PostHog.",
+          ],
+          [
+            "Splits a restaurant bill right inside Telegram: Telegram sign-in, live payment tracking, EN/RU/UZ.",
+            "FastAPI and PostgreSQL, Next.js, Tailwind and Zustand; product funnels in PostHog.",
+          ],
+        ),
+      },
+      {
+        title: l("TG SERP", "TG SERP"),
+        place: l("tg-serp.uz", "tg-serp.uz"),
+        points: l(
+          [
+            "Превращает посты публичных Telegram-каналов в страницы для Google, Яндекса и AI-поиска.",
+            "NestJS, воркеры на Redis и BullMQ, PostgreSQL, S3 + CDN, модерация и SEO-метаданные через OpenAI, Next.js с SSR и JSON-LD, оплата Click и Payme.",
+          ],
+          [
+            "Turns posts from public Telegram channels into pages for Google, Yandex and AI search.",
+            "NestJS, Redis and BullMQ workers, PostgreSQL, S3 + CDN, OpenAI moderation and SEO metadata, server-rendered Next.js with JSON-LD, Click and Payme billing.",
+          ],
+        ),
+      },
+      {
+        title: l("Платформа Telegram-ботов", "Telegram bot platform"),
+        place: l("Личный проект", "Side project"),
+        points: l(
+          [
+            "170+ ботов проверяют спрос на идеи и ведут в рабочие продукты; приём вебхуков с дедупликацией и атрибуцией источников.",
+            "MCP-сервер для AI-агентов; Username Checker на MTProto с оплатой в Telegram Stars.",
+          ],
+          [
+            "170+ bots test demand for ideas and route people to working products; webhook ingestion with deduplication and source attribution.",
+            "An MCP server for AI agents; a username checker on MTProto with Telegram Stars payments.",
+          ],
+        ),
+      },
+    ],
+  },
+  {
     id: "education",
     title: l("Образование", "Education"),
     entries: [
@@ -115,6 +163,7 @@ export const dossierSections: DossierSection[] = [
       {
         title: l("Blockchain Engineering", "Blockchain Engineering"),
         place: l("Web3 Academy — Armenian Code Academy × Asterium", "Web3 Academy — Armenian Code Academy × Asterium"),
+        period: l("Лето 2026", "Summer 2026"),
         points: l([], []),
       },
     ],
@@ -209,14 +258,14 @@ export const dossierSkills = l(
     "Docker, Kubernetes, Redis, Kafka, ElasticSearch",
     "DDD, CQRS, микросервисы, SOLID",
     "Grafana, Prometheus, Sentry",
-    "React, Next.js — в личных проектах",
+    "FastAPI, NestJS, Next.js, React — в личных проектах",
   ],
   [
     "PHP, Laravel, PostgreSQL, MySQL",
     "Docker, Kubernetes, Redis, Kafka, ElasticSearch",
     "DDD, CQRS, microservices, SOLID",
     "Grafana, Prometheus, Sentry",
-    "React, Next.js — in side projects",
+    "FastAPI, NestJS, Next.js, React — in side projects",
   ],
 );
 
