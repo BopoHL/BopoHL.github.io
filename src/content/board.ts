@@ -51,8 +51,8 @@ const caseEvidence: Evidence[] = [
     width: 2.8,
     header: l("Особые приметы", "Distinguishing marks"),
     lines: l(
-      ["PHP, Laravel, PostgreSQL", "Docker, Kubernetes, Redis, Kafka", "DDD, CQRS, микросервисы", "2,5 года: финтех и медтех"],
-      ["PHP, Laravel, PostgreSQL", "Docker, Kubernetes, Redis, Kafka", "DDD, CQRS, microservices", "2.5 years: fintech and medtech"],
+      ["PHP, Laravel, PostgreSQL", "Docker, Kubernetes, Redis, Kafka", "DDD, CQRS, микросервисы", "3 года: финтех и медтех"],
+      ["PHP, Laravel, PostgreSQL", "Docker, Kubernetes, Redis, Kafka", "DDD, CQRS, microservices", "3 years: fintech and medtech"],
     ),
   },
   {

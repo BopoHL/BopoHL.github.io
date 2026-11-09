@@ -97,12 +97,12 @@ export const deskEvidence: Evidence[] = [
     dateline: l("Ташкент", "Tashkent"),
     headline: l("Highload без перебоев", "Highload without hiccups"),
     body: l(
-      "Неизвестный специалист уже 2,5 года оптимизирует запросы и интеграции в финтехе и медтехе.",
-      "For 2.5 years an unnamed specialist has been tuning queries and integrations in fintech and medtech.",
+      "Неизвестный специалист уже 3 года оптимизирует запросы и интеграции в финтехе и медтехе.",
+      "For 3 years an unnamed specialist has been tuning queries and integrations in fintech and medtech.",
     ),
     ink: l(
-      { marks: [{ phrase: "2,5 года", stroke: "underline", tool: "marker" }] },
-      { marks: [{ phrase: "2.5 years", stroke: "underline", tool: "marker" }] },
+      { marks: [{ phrase: "3 года", stroke: "underline", tool: "marker" }] },
+      { marks: [{ phrase: "3 years", stroke: "underline", tool: "marker" }] },
     ),
   },
   {
