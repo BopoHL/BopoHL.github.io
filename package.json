@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "serve out",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "blender:assets": "node tools/blender/export-assets.mjs",
     "tape:render": "node tools/tape/render-tape.mjs",
