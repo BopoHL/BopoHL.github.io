@@ -1,4 +1,7 @@
-import { CatmullRomCurve3, TubeGeometry, Vector3 } from "three";
+import { CatmullRomCurve3, TubeGeometry, Vector3, type BufferGeometry } from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import type { Thread } from "@/content/types";
+import type { ThreadRun } from "./boardSurface";
 import { THREAD_RADIUS } from "./threadShader";
 
 export const THREAD_RADIAL_SEGMENTS = 4;
@@ -29,4 +32,16 @@ export const createThreadGeometry = (points: Vector3[]) => {
     for (let j = 0; j < ring; j++) uv.setX(i * ring + j, along);
   }
   return geometry;
+};
+
+export const createThreadStrands = (runs: ThreadRun[]) => {
+  const byArea = new Map<Thread["area"], BufferGeometry[]>();
+  for (const { thread, points } of runs) byArea.set(thread.area, [...(byArea.get(thread.area) ?? []), createThreadGeometry(points)]);
+  return new Map(
+    [...byArea].map(([area, parts]) => {
+      const strand = mergeGeometries(parts);
+      for (const part of parts) part.dispose();
+      return [area, strand] as const;
+    }),
+  );
 };

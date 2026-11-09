@@ -1,36 +1,33 @@
 "use client";
 
-import { useThree, useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
-import type { PerspectiveCamera, Vector3 } from "three";
+import type { PerspectiveCamera } from "three";
+import type { ThreadRun } from "./boardSurface";
+import { THREAD_COLORS } from "./layout3d";
 import { useAccentShader } from "./look";
-import { createThreadGeometry } from "./threadGeometry";
+import { createThreadStrands } from "./threadGeometry";
 import { ThreadShader } from "./threadShader";
 
-interface ThreadProps {
-  points: Vector3[];
-  color: string;
-}
-
-export function Thread({ points, color }: ThreadProps) {
+export function Threads({ runs }: { runs: ThreadRun[] }) {
   const accentShader = useAccentShader();
   const viewportHeight = useThree((state) => state.size.height);
-  const geometry = useMemo(() => createThreadGeometry(points), [points]);
-  useEffect(() => () => geometry.dispose(), [geometry]);
+  const strands = useMemo(() => createThreadStrands(runs), [runs]);
+  useEffect(() => () => strands.forEach((strand) => strand.dispose()), [strands]);
   const shader = useMemo(() => new ThreadShader(accentShader), [accentShader]);
 
   useFrame((state) => shader.updateView((state.camera as PerspectiveCamera).fov, viewportHeight));
 
-  return (
-    <mesh geometry={geometry} castShadow>
+  return [...strands].map(([area, strand]) => (
+    <mesh key={area} geometry={strand} castShadow>
       <meshStandardMaterial
         onBeforeCompile={shader.onBeforeCompile}
         customProgramCacheKey={shader.customProgramCacheKey}
-        color={color}
+        color={THREAD_COLORS[area]}
         roughness={0.85}
-        emissive={color}
+        emissive={THREAD_COLORS[area]}
         emissiveIntensity={0.1}
       />
     </mesh>
-  );
+  ));
 }

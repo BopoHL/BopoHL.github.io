@@ -9,10 +9,9 @@ import { useExperience } from "../state/store";
 import type { EvidenceTextures } from "../textures/useEvidenceTextures";
 import { BoardSurface } from "./boardSurface";
 import { EvidenceCard } from "./EvidenceCard";
-import { THREAD_COLORS } from "./layout3d";
 import { MugshotCard } from "./MugshotCard";
 import { Pins } from "./Pins";
-import { Thread } from "./Thread";
+import { Threads } from "./Threads";
 
 interface CaseBoardProps {
   content: BoardContent;
@@ -71,9 +70,7 @@ export function CaseBoard({ content, textures, bumpMap, locale, onSelect }: Case
         );
       })}
       <Pins shapes={pinned} />
-      {surface.runs.map(({ thread, points }) => (
-        <Thread key={`${thread.from}->${thread.to}`} points={points} color={THREAD_COLORS[thread.area]} />
-      ))}
+      <Threads runs={surface.runs} />
     </group>
   );
 }
