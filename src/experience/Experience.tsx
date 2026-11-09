@@ -23,6 +23,7 @@ import { StatementPanel } from "./hud/StatementPanel";
 import { Subtitle } from "./hud/Subtitle";
 import { TopBar } from "./hud/TopBar";
 import styles from "./hud/hud.module.css";
+import { PacedFrames } from "./PacedFrames";
 import { detectQuality } from "./quality";
 import { Scene } from "./scene/Scene";
 import { useExperience } from "./state/store";
@@ -81,7 +82,7 @@ export function Experience({ locale }: { locale: Locale }) {
     <>
       <div ref={stageRef} className={stage.canvas} data-mode={mode} inert={dossierOpen}>
         <Canvas
-          frameloop={ready ? "always" : "demand"}
+          frameloop={ready ? "never" : "demand"}
           shadows={{ type: PCFShadowMap }}
           dpr={quality.dpr}
           camera={{ fov: CAMERA_FOV, near: 0.1, far: 200, position: [0, 0, 20] }}
@@ -89,6 +90,7 @@ export function Experience({ locale }: { locale: Locale }) {
           onCreated={({ gl }) => watchContext(gl.domElement)}
         >
           <Scene content={content} shots={shots} motion={motion} locale={locale} quality={quality} />
+          {ready ? <PacedFrames rate={quality.frameRate} /> : null}
         </Canvas>
       </div>
       <div className={stage.track} style={{ height: `${(shots.length - 1) * SCROLL_PER_SHOT_VH[cameraStyle] + 100}vh` }} aria-hidden="true" />

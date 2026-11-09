@@ -1,3 +1,5 @@
+import type { FrameRate } from "./framePacer";
+
 export interface FocusBlur {
   resolutionScale: number;
   bokehScale: number;
@@ -14,6 +16,7 @@ export interface Quality {
   multisampling: number;
   flashlightShadows: boolean;
   focusBlur: FocusBlur;
+  frameRate: FrameRate;
 }
 
 const HIGH: Quality = {
@@ -26,6 +29,7 @@ const HIGH: Quality = {
   multisampling: 4,
   flashlightShadows: false,
   focusBlur: { resolutionScale: 0.5, bokehScale: 2.4, peripheralRadius: 5 },
+  frameRate: { active: 60, idle: 30 },
 };
 
 const LOW: Quality = {
@@ -38,6 +42,7 @@ const LOW: Quality = {
   multisampling: 0,
   flashlightShadows: false,
   focusBlur: { resolutionScale: 0.3, bokehScale: 1.6, peripheralRadius: 4 },
+  frameRate: { active: 60, idle: 20 },
 };
 
 export const detectQuality = (): Quality => {
