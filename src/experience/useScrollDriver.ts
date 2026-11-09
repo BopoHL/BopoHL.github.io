@@ -12,11 +12,13 @@ const TRAVEL_DURATION = 2.2;
 
 const maxScroll = () => Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
 
+const isPaused = (state: { mode: string; dossierOpen: boolean }) => state.mode === "explore" || state.dossierOpen;
+
 export const useScrollDriver = (shotCount: number) => {
   const lenis = useRef<Lenis | null>(null);
   const setProgress = useExperience((state) => state.setProgress);
   const travelTo = useExperience((state) => state.travelTo);
-  const paused = useExperience((state) => state.mode === "explore" || state.dossierOpen);
+  const paused = useExperience(isPaused);
   const reduceMotion = useReducedMotion();
 
   useEffect(() => {
@@ -38,6 +40,7 @@ export const useScrollDriver = (shotCount: number) => {
       if (useExperience.getState().travelTarget !== null) travelTo(null);
     });
     update();
+    if (isPaused(useExperience.getState())) instance.stop();
     lenis.current = instance;
     return () => {
       instance.destroy();
