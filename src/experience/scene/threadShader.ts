@@ -2,6 +2,8 @@ import type { WebGLProgramParametersWithUniforms } from "three";
 import type { SaturationShader } from "./look";
 
 export const THREAD_RADIUS = 0.0045;
+export const THREAD_SIDES = 4;
+const AS_WIDE_AS_ROUND = Math.PI / (THREAD_SIDES * Math.sin(Math.PI / THREAD_SIDES));
 const MIN_SCREEN_RADIUS_PX = 0.55;
 const TWISTS_PER_UNIT = 38;
 const STRANDS = 3;
@@ -16,7 +18,7 @@ const VERTEX_BODY = /* glsl */ `
 vec3 threadCenter = position - normal * uRadius;
 float cameraDistance = distance((modelMatrix * vec4(threadCenter, 1.0)).xyz, cameraPosition);
 float threadRadius = max(uRadius, ${MIN_SCREEN_RADIUS_PX.toFixed(2)} * uPixelAngle * cameraDistance);
-vec3 transformed = threadCenter + normal * threadRadius;
+vec3 transformed = threadCenter + normal * threadRadius * ${AS_WIDE_AS_ROUND.toFixed(4)};
 vThreadUv = uv;
 `;
 

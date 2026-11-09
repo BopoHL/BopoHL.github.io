@@ -2,7 +2,8 @@ import { Vector3 } from "three";
 import { describe, expect, it } from "vitest";
 import { boardContentFor } from "@/content/selectors";
 import { BoardSurface } from "../boardSurface";
-import { THREAD_RADIAL_SEGMENTS, createThreadGeometry, createThreadStrands } from "../threadGeometry";
+import { createThreadGeometry, createThreadStrands } from "../threadGeometry";
+import { THREAD_SIDES } from "../threadShader";
 
 const coilThenRun = [
   ...Array.from({ length: 21 }, (_, i) => new Vector3(Math.cos(i * 0.6) * 0.03, Math.sin(i * 0.6) * 0.03, i * 0.0005)),
@@ -12,12 +13,12 @@ const coilThenRun = [
 
 describe("thread geometry", () => {
   const geometry = createThreadGeometry(coilThenRun);
-  const ring = THREAD_RADIAL_SEGMENTS + 1;
+  const ring = THREAD_SIDES + 1;
   const along = Array.from({ length: geometry.attributes.uv.count / ring }, (_, i) => geometry.attributes.uv.getX(i * ring));
 
   it("spends two segments on every span between control points", () => {
     const segments = (coilThenRun.length - 1) * 2;
-    expect(geometry.index?.count).toBe(segments * THREAD_RADIAL_SEGMENTS * 6);
+    expect(geometry.index?.count).toBe(segments * THREAD_SIDES * 6);
   });
 
   it("measures the twist by distance along the thread", () => {

@@ -2,9 +2,8 @@ import { CatmullRomCurve3, TubeGeometry, Vector3, type BufferGeometry } from "th
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import type { Thread } from "@/content/types";
 import type { ThreadRun } from "./boardSurface";
-import { THREAD_RADIUS } from "./threadShader";
+import { THREAD_RADIUS, THREAD_SIDES } from "./threadShader";
 
-export const THREAD_RADIAL_SEGMENTS = 4;
 const SEGMENTS_PER_SPAN = 2;
 
 class SpanCurve extends CatmullRomCurve3 {
@@ -20,9 +19,9 @@ class SpanCurve extends CatmullRomCurve3 {
 export const createThreadGeometry = (points: Vector3[]) => {
   const curve = new SpanCurve(points, false, "centripetal");
   const segments = (points.length - 1) * SEGMENTS_PER_SPAN;
-  const geometry = new TubeGeometry(curve, segments, THREAD_RADIUS, THREAD_RADIAL_SEGMENTS, false);
+  const geometry = new TubeGeometry(curve, segments, THREAD_RADIUS, THREAD_SIDES, false);
   const uv = geometry.attributes.uv;
-  const ring = THREAD_RADIAL_SEGMENTS + 1;
+  const ring = THREAD_SIDES + 1;
   let along = 0;
   let previous = curve.getPoint(0);
   for (let i = 0; i <= segments; i++) {
