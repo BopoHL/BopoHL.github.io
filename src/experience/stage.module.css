@@ -5,6 +5,10 @@
   touch-action: pan-y;
 }
 
+.canvas[data-mode="explore"] {
+  touch-action: none;
+}
+
 .track {
   position: relative;
   width: 1px;

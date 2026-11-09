@@ -1,102 +1,147 @@
 "use client";
 
-import { CameraControls } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
-import CameraControlsImpl from "camera-controls";
-import { useEffect, useRef } from "react";
-import { Box3, MathUtils, Vector3 } from "three";
-import { BOARD_SIZE } from "@/content/board";
+import { useFrame, useThree } from "@react-three/fiber";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { boundsOf } from "@/content/geometry";
 import type { Evidence } from "@/content/types";
-import { DESK, PROPS } from "../desk/layout";
 import { useExperience, type ExploreView } from "../state/store";
+import { useReducedMotion } from "../useReducedMotion";
+import { LOOK, LookAround, TYPEWRITER_POSE, boardPose, cardPose, createPose, deskPose, type Place } from "./lookAround";
 import { useRig } from "./rig";
+import { VectorSpring } from "./spring";
 
-const { ACTION } = CameraControlsImpl;
-const MIN_DISTANCE = 5.5;
+const SMOOTH_TIME = 0.45;
+const WHEEL_ZOOM_PER_PIXEL = 0.0015;
+const WHEEL_LINE_PIXELS = 16;
+const PINCH_GAIN = 8;
+const CASE_PANEL = { widthPx: 428, fromViewportPx: 900 };
 
-const roomBox = new Box3(
-  new Vector3(-BOARD_SIZE.width / 2, DESK.top, 0),
-  new Vector3(BOARD_SIZE.width / 2, BOARD_SIZE.height / 2, DESK.front),
-);
-
-const typewriterView = () => {
-  const [x, z] = PROPS.typewriter.at;
-  const yaw = MathUtils.degToRad(PROPS.typewriter.yaw);
-  const up = new Vector3(0, 1, 0);
-  const aside = new Vector3(1.7, 0, 0).applyAxisAngle(up, yaw);
-  const target = new Vector3(x, DESK.top + 1.9, z - 0.5).add(aside);
-  const offset = new Vector3(0, 4.4, 7.2).applyAxisAngle(up, yaw);
-  return { position: target.clone().add(offset), target };
+const KEYS: Record<string, { u?: number; v?: number; zoom?: number }> = {
+  ArrowLeft: { u: -LOOK.keyStep },
+  ArrowRight: { u: LOOK.keyStep },
+  ArrowUp: { v: -LOOK.keyStep },
+  ArrowDown: { v: LOOK.keyStep },
+  "+": { zoom: -LOOK.keyZoom },
+  "=": { zoom: -LOOK.keyZoom },
+  "-": { zoom: LOOK.keyZoom },
 };
 
-const VIEWS: Record<ExploreView, { position: Vector3; target: Vector3 }> = {
-  board: { position: new Vector3(0, 0, 26), target: new Vector3(0, 0, 0) },
-  desk: {
-    position: new Vector3(0, DESK.top + 13.2, (DESK.back + DESK.front) / 2 + 15.6),
-    target: new Vector3(0, DESK.top - 0.2, (DESK.back + DESK.front) / 2 + 1.0),
-  },
-  typewriter: typewriterView(),
+const placeOf = (view: ExploreView): Place => (view === "desk" ? "desk" : "board");
+
+const following = () => {
+  const { focusedEvidence, exploreView } = useExperience.getState();
+  return !focusedEvidence && exploreView !== "typewriter";
 };
 
-const lookFrom = (instance: CameraControlsImpl, { position, target }: { position: Vector3; target: Vector3 }, smooth: boolean) =>
-  instance.setLookAt(position.x, position.y, position.z, target.x, target.y, target.z, smooth);
+const isEditable = (target: EventTarget | null) =>
+  target instanceof HTMLElement && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
+
+const coveredByCasePanel = (viewportWidth: number) =>
+  viewportWidth >= CASE_PANEL.fromViewportPx ? CASE_PANEL.widthPx / viewportWidth : 0;
 
 export function ExploreCamera({ evidence }: { evidence: Evidence[] }) {
-  const controls = useRef<CameraControlsImpl>(null);
   const rig = useRig();
-  const focused = useExperience((state) => state.focusedEvidence);
-  const view = useExperience((state) => state.exploreView);
-  const previousView = useRef<ExploreView>(view);
+  const camera = useThree((state) => state.camera);
+  const canvas = useThree((state) => state.gl.domElement);
+  const still = useReducedMotion();
+  const look = useMemo(() => new LookAround(), []);
+  const bounds = useMemo(() => new Map(evidence.map((item) => [item.id, boundsOf(item)])), [evidence]);
+  const springs = useMemo(() => ({ position: new VectorSpring(), target: new VectorSpring() }), []);
+  const pose = useMemo(() => createPose(), []);
+  const arrived = useRef<Place>("board");
+
+  useLayoutEffect(() => {
+    springs.position.reset(camera.position);
+    springs.target.reset(rig.target);
+  }, [camera, rig, springs]);
 
   useEffect(() => {
-    const instance = controls.current;
-    if (!instance) return;
-    instance.setBoundary(roomBox);
-    const initial = useExperience.getState().exploreView;
-    if (initial !== "board") {
-      lookFrom(instance, VIEWS[initial], true);
-      return;
+    const touches = new Map<number, { x: number; y: number }>();
+    const place = () => placeOf(useExperience.getState().exploreView);
+    const spread = () => {
+      const [a, b] = [...touches.values()];
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    };
+
+    const onDown = (event: PointerEvent) => {
+      if (event.pointerType === "touch") touches.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    };
+    const onUp = (event: PointerEvent) => touches.delete(event.pointerId);
+    const onLeave = (event: PointerEvent) => {
+      if (event.pointerType !== "touch") look.leave();
+    };
+    const onMove = (event: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      if (event.pointerType !== "touch") {
+        look.point((event.clientX - rect.left) / rect.width, (event.clientY - rect.top) / rect.height);
+        return;
+      }
+      const last = touches.get(event.pointerId);
+      if (!last) return;
+      const before = touches.size === 2 ? spread() : 0;
+      touches.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      if (!following()) return;
+      if (touches.size === 1) look.nudge((last.x - event.clientX) / rect.width, (last.y - event.clientY) / rect.height);
+      else if (touches.size === 2 && before > 0) look.zoom(Math.log(before / Math.max(1, spread())), place());
+    };
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      if (!following()) return;
+      const pixels = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? event.deltaY * WHEEL_LINE_PIXELS : event.deltaY;
+      look.zoom(pixels * WHEEL_ZOOM_PER_PIXEL * (event.ctrlKey ? PINCH_GAIN : 1), place());
+    };
+    const onKey = (event: KeyboardEvent) => {
+      const step = KEYS[event.key];
+      if (!step || !following() || isEditable(event.target)) return;
+      event.preventDefault();
+      if (step.zoom) look.zoom(step.zoom, place());
+      else look.nudge(step.u ?? 0, step.v ?? 0);
+    };
+
+    const pointer: Array<[string, (event: PointerEvent) => void]> = [
+      ["pointerdown", onDown],
+      ["pointermove", onMove],
+      ["pointerup", onUp],
+      ["pointercancel", onUp],
+      ["pointerleave", onLeave],
+    ];
+    for (const [type, listener] of pointer) canvas.addEventListener(type, listener as EventListener);
+    canvas.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("keydown", onKey);
+    return () => {
+      for (const [type, listener] of pointer) canvas.removeEventListener(type, listener as EventListener);
+      canvas.removeEventListener("wheel", onWheel);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [canvas, look]);
+
+  useFrame((state, delta) => {
+    const store = useExperience.getState();
+    const place = placeOf(store.exploreView);
+    if (place !== arrived.current) {
+      look.arrive(place);
+      arrived.current = place;
     }
-    const position = new Vector3();
-    instance.camera.getWorldPosition(position);
-    lookFrom(instance, { position, target: rig.target }, false);
-  }, [rig]);
+    if (following()) {
+      const request = look.update(place, delta);
+      if (request === "leave") store.setMode("route");
+      else if (request) store.setExploreView(request);
+    }
 
-  useEffect(() => {
-    const instance = controls.current;
-    if (!instance || view === previousView.current) return;
-    previousView.current = view;
-    lookFrom(instance, VIEWS[view], true);
-  }, [view]);
+    const aspect = state.size.width / state.size.height;
+    const turn = still ? 0 : 1;
+    const card = store.focusedEvidence ? bounds.get(store.focusedEvidence) : undefined;
+    if (card) cardPose(card, aspect, coveredByCasePanel(state.size.width), pose);
+    else if (store.exploreView === "typewriter") {
+      pose.position.copy(TYPEWRITER_POSE.position);
+      pose.target.copy(TYPEWRITER_POSE.target);
+    } else if (place === "desk") deskPose(look.aim, look.deskScale * look.pullback(), aspect, turn, pose);
+    else boardPose(look.aim, look.boardDistance * look.pullback(), aspect, turn, pose);
 
-  useEffect(() => {
-    const instance = controls.current;
-    if (!instance || !focused) return;
-    const item = evidence.find((candidate) => candidate.id === focused);
-    if (!item) return;
-    const bounds = boundsOf(item);
-    const box = new Box3(new Vector3(bounds.minX, bounds.minY, 0), new Vector3(bounds.maxX, bounds.maxY, 0.2));
-    instance.fitToBox(box, true, { paddingTop: 0.4, paddingBottom: 0.9, paddingLeft: 0.4, paddingRight: 0.4 });
-  }, [focused, evidence]);
-
-  useFrame(() => {
-    controls.current?.getTarget(rig.target);
+    state.camera.position.copy(springs.position.update(pose.position, SMOOTH_TIME, delta));
+    rig.target.copy(springs.target.update(pose.target, SMOOTH_TIME, delta));
+    state.camera.lookAt(rig.target);
   });
 
-  return (
-    <CameraControls
-      ref={controls}
-      minDistance={MIN_DISTANCE}
-      maxDistance={34}
-      minPolarAngle={Math.PI / 2 - 1.05}
-      maxPolarAngle={Math.PI / 2 + 0.25}
-      minAzimuthAngle={-0.45}
-      maxAzimuthAngle={0.45}
-      dollyToCursor
-      smoothTime={0.35}
-      mouseButtons={{ left: ACTION.TRUCK, middle: ACTION.DOLLY, right: ACTION.ROTATE, wheel: ACTION.DOLLY }}
-      touches={{ one: ACTION.TOUCH_TRUCK, two: ACTION.TOUCH_DOLLY_TRUCK, three: ACTION.NONE }}
-    />
-  );
+  return null;
 }

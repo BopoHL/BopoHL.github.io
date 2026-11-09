@@ -77,7 +77,7 @@ export function Experience({ locale }: { locale: Locale }) {
 
   return (
     <>
-      <div ref={stageRef} className={stage.canvas} inert={dossierOpen}>
+      <div ref={stageRef} className={stage.canvas} data-mode={mode} inert={dossierOpen}>
         <Canvas
           frameloop={ready ? "always" : "demand"}
           shadows={{ type: PCFShadowMap }}
