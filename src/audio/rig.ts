@@ -42,6 +42,12 @@ export const audioRig = (): AudioRig | null => {
   return shared;
 };
 
+export const activatesAudio = (event: Event) => {
+  if (event instanceof KeyboardEvent) return event.key !== "Escape";
+  if (event instanceof PointerEvent) return event.type === "pointerdown" ? event.pointerType === "mouse" : event.pointerType !== "mouse";
+  return event.type === "touchend";
+};
+
 export const unlockAudio = () => {
   audioRig();
 };

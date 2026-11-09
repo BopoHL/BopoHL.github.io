@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
-import { boardLoaded, disableWebGL, loseWebGLContext, skipTitleCard } from "./case";
+import { boardLoaded, disableWebGL, loseWebGLContext, muteSound, quietVisit } from "./case";
 
 test.describe("for a recruiter in a hurry", () => {
   test.beforeEach(async ({ page }) => {
-    await skipTitleCard(page);
+    await quietVisit(page);
   });
 
   test("skipping the investigation opens the dossier with the résumé", async ({ page, request }) => {
@@ -51,7 +51,7 @@ test.describe("when the 3D board cannot run", () => {
   });
 
   test("a lost GPU context falls back to the dossier", async ({ page }) => {
-    await skipTitleCard(page);
+    await quietVisit(page);
     await page.goto("/ru/");
     await boardLoaded(page);
     expect(await loseWebGLContext(page)).toBe(true);
@@ -61,7 +61,19 @@ test.describe("when the 3D board cannot run", () => {
 });
 
 test.describe("the investigation", () => {
-  test("the title card shows once and any key skips it", async ({ page }) => {
+  test("with the sound on, the entrance waits for the visitor", async ({ page }) => {
+    await page.goto("/ru/");
+    const prompt = page.getByText("Нажмите любую клавишу или кликните, чтобы войти");
+    await expect(prompt).toBeVisible({ timeout: 300_000 });
+    await page.waitForTimeout(4_000);
+    await expect(prompt).toBeVisible();
+    await page.keyboard.press("Space");
+    await boardLoaded(page);
+    await expect(page.getByRole("button", { name: "Звук включён" })).toBeVisible();
+  });
+
+  test("with the sound off, the title card shows once and any key skips it", async ({ page }) => {
+    await muteSound(page);
     await page.goto("/ru/");
     const hint = page.getByText("Любая клавиша или касание — пропустить");
     await expect(hint).toBeVisible({ timeout: 300_000 });
@@ -73,7 +85,7 @@ test.describe("the investigation", () => {
   });
 
   test("the last chapter solves the case and lets the visitor look around", async ({ page }) => {
-    await skipTitleCard(page);
+    await quietVisit(page);
     await page.goto("/ru/");
     await boardLoaded(page);
     await page.locator("ol button").last().click({ force: true });

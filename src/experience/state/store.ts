@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { TrackedClick } from "@/analytics/track";
 import type { Locale } from "@/content/types";
 import type { StatementDraft } from "@/contact/statement";
+import { soundPreferred } from "./soundPreference";
 import { DEFAULT_VARIANT, type PilotVariant } from "./variant";
 
 export type CameraMode = "route" | "explore";
@@ -30,6 +31,7 @@ interface ExperienceState {
   stationIndex: number;
   revealed: boolean;
   ready: boolean;
+  entered: boolean;
   paintedCount: number;
   dossierOpen: boolean;
   boardAvailable: boolean;
@@ -52,6 +54,7 @@ interface ExperienceState {
   setShot: (shotIndex: number, stationIndex: number) => void;
   setRevealed: (revealed: boolean) => void;
   setPainted: (count: number, ready: boolean) => void;
+  enter: () => void;
   setDossierOpen: (open: boolean) => void;
   setBoardAvailable: (available: boolean) => void;
   toggleSound: () => void;
@@ -79,10 +82,11 @@ export const useExperience = create<ExperienceState>()((set) => ({
   stationIndex: 0,
   revealed: false,
   ready: false,
+  entered: false,
   paintedCount: 0,
   dossierOpen: false,
   boardAvailable: true,
-  soundOn: false,
+  soundOn: soundPreferred(),
   focusedEvidence: null,
   exploreView: "board",
   statementOpen: false,
@@ -105,6 +109,7 @@ export const useExperience = create<ExperienceState>()((set) => ({
   setShot: (shotIndex, stationIndex) => set({ shotIndex, stationIndex }),
   setRevealed: (revealed) => set({ revealed }),
   setPainted: (paintedCount, ready) => set({ paintedCount, ready }),
+  enter: () => set({ entered: true }),
   setDossierOpen: (dossierOpen) => set((state) => ({ dossierOpen: dossierOpen || !state.boardAvailable })),
   setBoardAvailable: (boardAvailable) => set({ boardAvailable }),
   toggleSound: () => set((state) => ({ soundOn: !state.soundOn })),

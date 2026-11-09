@@ -16,6 +16,7 @@ export const ui = {
   titleCard: {
     scene: l("Ташкент · ночь · дождь", "Tashkent · night · rain"),
     skip: l("Любая клавиша или касание — пропустить", "Any key or tap to skip"),
+    enter: l("Нажмите любую клавишу или кликните, чтобы войти", "Press any key or click to enter"),
   },
   scrollHint: l("Листайте, чтобы начать расследование", "Scroll to start the investigation"),
   skip: l("Пропустить расследование", "Skip the investigation"),

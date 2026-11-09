@@ -12,7 +12,8 @@ const TRAVEL_DURATION = 2.2;
 
 const maxScroll = () => Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
 
-const isPaused = (state: { mode: string; dossierOpen: boolean }) => state.mode === "explore" || state.dossierOpen;
+const isPaused = (state: { mode: string; dossierOpen: boolean; entered: boolean }) =>
+  state.mode === "explore" || state.dossierOpen || !state.entered;
 
 export const useScrollDriver = (shotCount: number) => {
   const lenis = useRef<Lenis | null>(null);

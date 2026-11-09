@@ -1,9 +1,14 @@
 import { expect, type Page } from "@playwright/test";
 
 const TITLE_SEEN_KEY = "case404:title-seen";
+const SOUND_KEY = "case404:sound";
 
-export const skipTitleCard = (page: Page) =>
-  page.addInitScript((key) => window.sessionStorage.setItem(key, "1"), TITLE_SEEN_KEY);
+export const muteSound = (page: Page) => page.addInitScript((key) => window.localStorage.setItem(key, "off"), SOUND_KEY);
+
+export const quietVisit = async (page: Page) => {
+  await muteSound(page);
+  await page.addInitScript((key) => window.sessionStorage.setItem(key, "1"), TITLE_SEEN_KEY);
+};
 
 export const disableWebGL = (page: Page) =>
   page.addInitScript(() => {

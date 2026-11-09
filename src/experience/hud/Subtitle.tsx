@@ -19,14 +19,14 @@ const delayAfter = (char: string | undefined) => {
 
 export function Subtitle({ stations, locale, hidden }: { stations: Station[]; locale: Locale; hidden: boolean }) {
   const stationIndex = useExperience((state) => state.stationIndex);
-  const ready = useExperience((state) => state.ready);
+  const entered = useExperience((state) => state.entered);
   const soundOn = useExperience((state) => state.soundOn);
   const reduceMotion = useReducedMotion();
   const [bed] = useState(() => new TypingBed());
   const text = stations[stationIndex]?.subtitle[locale] ?? "";
   const [typed, setTyped] = useState({ text: "", count: 0 });
   const count = reduceMotion ? text.length : typed.text === text ? typed.count : 0;
-  const typing = ready && !hidden && count < text.length;
+  const typing = entered && !hidden && count < text.length;
 
   useEffect(() => {
     if (soundOn) preloadTypingBed();
@@ -39,7 +39,7 @@ export function Subtitle({ stations, locale, hidden }: { stations: Station[]; lo
   }, [bed, typing, soundOn]);
 
   useEffect(() => {
-    if (!ready || reduceMotion || !text) return;
+    if (!entered || reduceMotion || !text) return;
     let index = 0;
     let timer = 0;
     const typeNext = () => {
@@ -50,7 +50,7 @@ export function Subtitle({ stations, locale, hidden }: { stations: Station[]; lo
     };
     timer = window.setTimeout(typeNext, CHAR_DELAY);
     return () => window.clearTimeout(timer);
-  }, [text, ready, reduceMotion]);
+  }, [text, entered, reduceMotion]);
 
   return (
     <>

@@ -6,13 +6,13 @@ import { useExperience } from "../state/store";
 import styles from "./hud.module.css";
 import { useTitleCard } from "./useTitleCard";
 
-function TitleCard({ locale }: { locale: Locale }) {
+function TitleCard({ locale, gated }: { locale: Locale; gated: boolean }) {
   return (
     <div className={styles.titleCard}>
       <p className={styles.titleScene}>{ui.titleCard.scene[locale]}</p>
       <p className={styles.titleCase}>{ui.caseLabel[locale]}</p>
       <p className={styles.titleSubject}>{ui.caseOpen[locale]}</p>
-      <p className={styles.titleSkip}>{ui.titleCard.skip[locale]}</p>
+      <p className={gated ? styles.titleEnter : styles.titleSkip}>{(gated ? ui.titleCard.enter : ui.titleCard.skip)[locale]}</p>
     </div>
   );
 }
@@ -20,12 +20,12 @@ function TitleCard({ locale }: { locale: Locale }) {
 export function Loader({ locale, total }: { locale: Locale; total: number }) {
   const ready = useExperience((state) => state.ready);
   const painted = useExperience((state) => state.paintedCount);
-  const { phase, titled } = useTitleCard(ready);
+  const { phase, titled, gated } = useTitleCard(ready);
   const done = phase === "done";
   return (
     <div className={`${styles.loader} ${done ? styles.loaderDone : ""}`} role="status" aria-hidden={done}>
       {ready && titled ? (
-        <TitleCard locale={locale} />
+        <TitleCard locale={locale} gated={gated} />
       ) : (
         <div className={styles.loaderInner}>
           <p className={styles.loaderTitle}>{ui.loading[locale]}</p>

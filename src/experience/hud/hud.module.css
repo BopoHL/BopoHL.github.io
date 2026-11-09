@@ -502,6 +502,29 @@
   animation: titleIn 900ms ease-out 1600ms forwards;
 }
 
+.titleEnter {
+  position: fixed;
+  bottom: 40px;
+  left: 0;
+  right: 0;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--paper);
+  animation:
+    titleIn 900ms ease-out 1600ms forwards,
+    titleBreath 2400ms ease-in-out 2500ms infinite;
+}
+
+@keyframes titleBreath {
+  from,
+  to {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
 @keyframes titleIn {
   from {
     opacity: 0;
@@ -657,6 +680,11 @@
   .caret,
   .scrollHint::after {
     animation: none;
+  }
+
+  .titleCard p {
+    animation: none;
+    opacity: 1;
   }
 
   .finale {

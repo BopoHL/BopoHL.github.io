@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { activatesAudio, unlockAudio } from "@/audio/rig";
+import { useExperience } from "../state/store";
 import { useReducedMotion } from "../useReducedMotion";
 
 const TITLE_MS = 3200;
 const SEEN_KEY = "case404:title-seen";
 const SKIP_EVENTS = ["keydown", "pointerdown", "wheel", "touchstart"] as const;
+const GESTURES = ["keydown", "pointerdown", "pointerup", "touchend"] as const;
 
 export type TitlePhase = "loading" | "title" | "done";
 
@@ -25,23 +28,38 @@ const rememberSeen = () => {
 
 export const useTitleCard = (ready: boolean) => {
   const still = useReducedMotion();
+  const gated = useExperience((state) => state.soundOn);
+  const entered = useExperience((state) => state.entered);
+  const enter = useExperience((state) => state.enter);
   const [fresh] = useState(() => !seenThisSession());
-  const [over, setOver] = useState(false);
-  const titled = fresh && !still;
-  const showing = ready && titled && !over;
+  const titled = gated || (fresh && !still);
 
   useEffect(() => {
-    if (!showing) return;
+    if (!ready || entered) return;
+    if (!titled) {
+      enter();
+      return;
+    }
     rememberSeen();
-    const finish = () => setOver(true);
-    const timer = window.setTimeout(finish, TITLE_MS);
-    for (const event of SKIP_EVENTS) window.addEventListener(event, finish, { passive: true });
+    if (gated) {
+      const onGesture = (event: Event) => {
+        if (!activatesAudio(event)) return;
+        unlockAudio();
+        enter();
+      };
+      for (const type of GESTURES) window.addEventListener(type, onGesture);
+      return () => {
+        for (const type of GESTURES) window.removeEventListener(type, onGesture);
+      };
+    }
+    const timer = window.setTimeout(enter, TITLE_MS);
+    for (const type of SKIP_EVENTS) window.addEventListener(type, enter, { passive: true });
     return () => {
       window.clearTimeout(timer);
-      for (const event of SKIP_EVENTS) window.removeEventListener(event, finish);
+      for (const type of SKIP_EVENTS) window.removeEventListener(type, enter);
     };
-  }, [showing]);
+  }, [ready, entered, titled, gated, enter]);
 
-  const phase: TitlePhase = !ready ? "loading" : showing ? "title" : "done";
-  return { phase, titled };
+  const phase: TitlePhase = !ready ? "loading" : entered ? "done" : "title";
+  return { phase, titled, gated };
 };
