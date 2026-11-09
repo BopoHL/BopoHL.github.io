@@ -7,12 +7,13 @@ import type { PinStyle } from "../state/variant";
 import { cardShapesFor, localHeight, type CardShape } from "./cardGeometry";
 import { cardZ, pinAxis } from "./layout3d";
 import { PIN_WRAP } from "./pinModel";
-import { hangingTail, threadPath, winding, type PinPost, type WindingOptions } from "./threadPath";
+import { hangingTail, simplify, threadPath, winding, type PinPost, type WindingOptions } from "./threadPath";
 import { THREAD_RADIUS } from "./threadShader";
 
 const THREAD_DRAPE = { radius: THREAD_RADIUS, clearance: 0.0025, sagPerUnit: 0.035, maxSag: 0.6, samplesPerUnit: 24 };
 const HINGE_MARGIN = 0.1;
-const WINDING = { turns: 2.5, pitch: THREAD_RADIUS * 2.05, pointsPerTurn: 18 };
+const WINDING = { turns: 2.5, pitch: THREAD_RADIUS * 2.05, pointsPerTurn: 10 };
+const DRAPE_TOLERANCE = 0.0015;
 const LAYER = { rise: THREAD_RADIUS * 1.1, grow: THREAD_RADIUS * 1.7 };
 const TAIL = {
   chance: 0.75,
@@ -111,7 +112,7 @@ export class BoardSurface {
     const hangsFrom = -Math.PI / 2 + (random() * 2 - 1) * TAIL.spread;
     const start = winding(from.post, to.post.base, from.options);
     const end = winding(to.post, from.post.base, tailed ? { ...to.options, startAngle: hangsFrom } : to.options).reverse();
-    const run = threadPath(this, start[start.length - 1], end[0], THREAD_DRAPE);
+    const run = simplify(threadPath(this, start[start.length - 1], end[0], THREAD_DRAPE), DRAPE_TOLERANCE);
     const points = [...start, ...run.slice(1, -1), ...end];
     if (!tailed) return points;
     const tail = hangingTail(this, end[end.length - 1], pinOf(this.shapeOf(thread.to).item, thread.toSpot), {

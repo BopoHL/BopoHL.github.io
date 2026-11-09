@@ -1,7 +1,7 @@
 import { Vector3 } from "three";
 import { describe, expect, it } from "vitest";
 import type { Vec2 } from "@/content/types";
-import { hangingTail, threadPath, winding } from "../threadPath";
+import { hangingTail, simplify, threadPath, winding } from "../threadPath";
 
 const options = { radius: 0.005, clearance: 0.002, sagPerUnit: 0, maxSag: 0, samplesPerUnit: 20 };
 const flat = { heightAt: () => 0 };
@@ -92,5 +92,40 @@ describe("hangingTail", () => {
 
   it("ends lying on the paper", () => {
     expect(tail.at(-1)!.z).toBeCloseTo(options.lift);
+  });
+});
+
+describe("simplify", () => {
+  const line = (count: number) => Array.from({ length: count }, (_, i) => new Vector3(i / (count - 1), 0, 0));
+
+  it("drops points that lie on a straight run and keeps its ends", () => {
+    const points = simplify(line(50), 0.001);
+    expect(points).toHaveLength(2);
+    expect(points[0].x).toBe(0);
+    expect(points[1].x).toBe(1);
+  });
+
+  it("keeps the corner where the thread climbs over paper", () => {
+    const ridge = [...line(20), ...Array.from({ length: 20 }, (_, i) => new Vector3(1 + i / 19, 0, (i / 19) * 0.3))];
+    const points = simplify(ridge, 0.001);
+    expect(points.some((point) => point.x === 1 && point.z === 0)).toBe(true);
+    expect(points.length).toBeLessThanOrEqual(4);
+  });
+
+  it("stays within the tolerance of every dropped point", () => {
+    const sag = Array.from({ length: 200 }, (_, i) => new Vector3(i / 20, -0.2 * 4 * (i / 199) * (1 - i / 199), 0));
+    const points = simplify(sag, 0.002);
+    expect(points.length).toBeLessThan(30);
+    for (const original of sag) {
+      const nearest = Math.min(
+        ...points.slice(1).map((end, i) => {
+          const start = points[i];
+          const along = end.clone().sub(start);
+          const t = Math.max(0, Math.min(1, original.clone().sub(start).dot(along) / along.lengthSq()));
+          return start.clone().addScaledVector(along, t).distanceTo(original);
+        }),
+      );
+      expect(nearest).toBeLessThanOrEqual(0.002 + 1e-9);
+    }
   });
 });
