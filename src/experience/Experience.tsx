@@ -90,7 +90,7 @@ export function Experience({ locale }: { locale: Locale }) {
           onCreated={({ gl }) => watchContext(gl.domElement)}
         >
           <Scene content={content} shots={shots} motion={motion} locale={locale} quality={quality} />
-          {ready ? <PacedFrames rate={quality.frameRate} /> : null}
+          {ready ? <PacedFrames quality={quality} /> : null}
         </Canvas>
       </div>
       <div className={stage.track} style={{ height: `${(shots.length - 1) * SCROLL_PER_SHOT_VH[cameraStyle] + 100}vh` }} aria-hidden="true" />
