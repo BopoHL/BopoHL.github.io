@@ -1,3 +1,4 @@
+import { loadRecording } from "./recordings";
 import { audioRig, type AudioRig } from "./rig";
 
 export interface TapeRecording {
@@ -20,23 +21,6 @@ const WOW = { rate: 0.55, depth: 0.004 };
 const FLUTTER = { rate: 6.5, depth: 0.0015 };
 const WHIRR = { level: 0.05, low: 700, high: 1700, fade: 0.12 };
 const SATURATION_STEPS = 512;
-const DECODE_SAMPLE_RATE = 44100;
-
-const recordings = new Map<string, Promise<AudioBuffer | null>>();
-
-const decode = async (src: string) => {
-  const response = await fetch(src);
-  if (!response.ok) throw new Error(`Tape recording ${src} answered ${response.status}`);
-  return new OfflineAudioContext(1, 1, DECODE_SAMPLE_RATE).decodeAudioData(await response.arrayBuffer());
-};
-
-const loadRecording = (src: string) => {
-  const cached = recordings.get(src);
-  if (cached) return cached;
-  const loading = decode(src).catch(() => null);
-  recordings.set(src, loading);
-  return loading;
-};
 
 const softClip = (drive: number) => {
   const curve = new Float32Array(SATURATION_STEPS);
