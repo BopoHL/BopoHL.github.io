@@ -2,8 +2,8 @@
 
 import { RoundedBox } from "@react-three/drei";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
-import { useCallback, useEffect, useMemo, useRef } from "react";
-import { CatmullRomCurve3, DoubleSide, MathUtils, PlaneGeometry, Vector3, type Group, type Texture } from "three";
+import { useCallback, useEffect, useMemo } from "react";
+import { CatmullRomCurve3, DoubleSide, MathUtils, PlaneGeometry, Vector3, type Texture } from "three";
 import { pick } from "@/content/localize";
 import type { Locale } from "@/content/types";
 import { ui } from "@/content/ui";
@@ -15,11 +15,9 @@ import { useExperience } from "../state/store";
 import { pointerCursor } from "./deskState";
 import { onDesk, PROPS } from "./layout";
 import { StatementSheet, type SheetText } from "./statementSheet";
-import { createCapGeometry, keyIndexFor, keySpots, paintKeyAtlas, TYPEWRITER } from "./typewriterModel";
+import { keySpots, paintKeyAtlas, TYPEWRITER } from "./typewriterModel";
+import { TypewriterKeys } from "./TypewriterKeys";
 
-const KEY_TRAVEL = 0.07;
-const KEY_RETURN = 18;
-const SPACE_INDEX = -1;
 const PAPER_BEND = 0.35;
 
 const createPaper = () => {
@@ -61,23 +59,12 @@ export function Typewriter({ locale }: { locale: Locale }) {
     [spots],
   );
   const textures = useFontPainted(paint, disposeTextures);
-  const caps = useMemo(() => spots.map((spot) => createCapGeometry(spot.cell)), [spots]);
   const paper = useMemo(() => createPaper(), []);
   const lever = useMemo(() => returnLever(), []);
-  useEffect(
-    () => () => {
-      for (const cap of caps) cap.dispose();
-    },
-    [caps],
-  );
   useEffect(() => () => paper.dispose(), [paper]);
-  const keys = useRef<Array<Group | null>>([]);
-  const spaceBar = useRef<Group>(null);
-  const struck = useRef({ serial: 0, index: null as number | null, depth: 0 });
 
-  useFrame((_, delta) => {
-    const state = useExperience.getState();
-    const { statement, statementFiled, keystroke } = state;
+  useFrame(() => {
+    const { statement, statementFiled } = useExperience.getState();
     if (textures) {
       const sheet: SheetText = {
         heading: pick(ui.statement.sheetHeading, locale),
@@ -88,17 +75,6 @@ export function Typewriter({ locale }: { locale: Locale }) {
       };
       textures.sheet.show(sheet);
     }
-    const strike = struck.current;
-    if (keystroke.serial !== strike.serial) {
-      strike.serial = keystroke.serial;
-      strike.index = keystroke.char === " " ? SPACE_INDEX : (keyIndexFor(spots, keystroke.char) ?? Math.floor(Math.random() * spots.length));
-      strike.depth = KEY_TRAVEL;
-    }
-    strike.depth = MathUtils.damp(strike.depth, 0, KEY_RETURN, delta);
-    keys.current.forEach((key, index) => {
-      if (key) key.position.y = strike.index === index ? -strike.depth : 0;
-    });
-    if (spaceBar.current) spaceBar.current.position.y = strike.index === SPACE_INDEX ? -strike.depth : 0;
   });
 
   const open = (event: ThreeEvent<MouseEvent>) => {
@@ -130,34 +106,7 @@ export function Typewriter({ locale }: { locale: Locale }) {
         {chrome}
       </mesh>
 
-      {spots.map((spot, index) => (
-        <group
-          key={spot.char}
-          ref={(group) => {
-            keys.current[index] = group;
-          }}
-        >
-          <group position={spot.position}>
-            <mesh position={[0, -0.12, 0]}>
-              <cylinderGeometry args={[0.025, 0.025, 0.24, 6]} />
-              {chrome}
-            </mesh>
-            <mesh castShadow>
-              <cylinderGeometry args={[TYPEWRITER.capRadius, TYPEWRITER.capRadius * 0.95, 0.05, 28]} />
-              {chrome}
-            </mesh>
-            <mesh geometry={caps[index]} position={[0, 0.026, 0]}>
-              <meshPhysicalMaterial {...worldShader} map={textures?.atlas ?? null} color="#ffffff" roughness={0.2} clearcoat={1} />
-            </mesh>
-          </group>
-        </group>
-      ))}
-      <group ref={spaceBar}>
-        <mesh position={[0, TYPEWRITER.baseHeight + 0.08, TYPEWRITER.frontRow + 0.36]} castShadow>
-          <boxGeometry args={[2.4, 0.06, 0.14]} />
-          {chrome}
-        </mesh>
-      </group>
+      <TypewriterKeys spots={spots} atlas={textures?.atlas ?? null} />
 
       <group position={[0, platen.y, platen.z]}>
         <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
