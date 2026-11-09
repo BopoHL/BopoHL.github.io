@@ -12,7 +12,7 @@ test.describe("for a recruiter in a hurry", () => {
     await page.getByRole("button", { name: "Пропустить расследование" }).click();
     const dossier = page.getByRole("dialog", { name: "Леонид Воронин" });
     await expect(dossier).toBeVisible();
-    const pdf = dossier.getByRole("link", { name: "Скачать резюме, PDF" });
+    const pdf = dossier.getByRole("link", { name: "Скачать резюме" });
     await expect(pdf).toHaveAttribute("href", "/cv/leonid-voronin-cv-ru.pdf");
     const file = await request.get("/cv/leonid-voronin-cv-ru.pdf");
     expect(file.ok()).toBe(true);
@@ -72,15 +72,30 @@ test.describe("the investigation", () => {
     await expect(hint).toHaveCount(0);
   });
 
-  test("the last chapter solves the case and lets the visitor explore the desk", async ({ page }) => {
+  test("the last chapter solves the case and lets the visitor look around", async ({ page }) => {
     await skipTitleCard(page);
     await page.goto("/ru/");
     await boardLoaded(page);
     await page.locator("ol button").last().click({ force: true });
     const finale = page.getByRole("heading", { name: "Леонид Воронин", level: 2 });
     await expect(finale).toBeVisible({ timeout: 120_000 });
+    const card = page.locator("section", { has: finale });
+    await expect(card.getByRole("button", { name: "Осмотреть доску" })).toBeVisible();
+    await expect(card.getByRole("link", { name: "Скачать резюме" })).toBeVisible();
+    await expect(card.getByRole("button", { name: "Связаться" })).toBeVisible();
+    await expect(card.getByRole("button", { name: "Досье" })).toHaveCount(0);
+
     await page.getByRole("button", { name: "Осмотреть доску" }).click();
-    await page.getByRole("button", { name: "К столу" }).click();
     await expect(page.getByText(/Тайные улики: \d\/4/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "К столу" })).toHaveCount(0);
+
+    const caseIndex = page.getByRole("navigation", { name: "Дела на доске" });
+    await caseIndex.getByRole("button").first().focus();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#case-file-title")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.locator("#case-file-title")).toHaveCount(0);
+    await page.keyboard.press("Escape");
+    await expect(finale).toBeVisible();
   });
 });

@@ -359,7 +359,7 @@
   align-items: center;
   gap: 20px;
   width: max-content;
-  max-width: calc(100vw - 32px);
+  max-width: min(860px, calc(100vw - 32px));
   padding: 12px 14px 12px 20px;
   background: rgba(10, 8, 6, 0.82);
   border: 1px solid rgba(232, 220, 192, 0.18);
@@ -376,11 +376,37 @@
   white-space: nowrap;
 }
 
-.exploreBar .secondary {
-  border-color: var(--paper);
-  color: var(--paper);
-  text-shadow: none;
+.caseIndex {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  padding: 10px;
+  background: rgba(10, 8, 6, 0.92);
+  border: 1px solid rgba(232, 220, 192, 0.18);
+}
+
+.caseIndex:not(:focus-within) {
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
   white-space: nowrap;
+}
+
+.caseIndex button {
+  padding: 8px 12px;
+  border: 1.5px solid var(--paper);
+  background: transparent;
+  color: var(--paper);
+  font: inherit;
+  text-shadow: none;
+  cursor: pointer;
 }
 
 .loader {

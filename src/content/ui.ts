@@ -22,13 +22,17 @@ export const ui = {
   soundOn: l("Звук включён", "Sound on"),
   soundOff: l("Звук выключен", "Sound off"),
   explore: l("Осмотреть доску", "Explore the board"),
-  backToRoute: l("Вернуться к расследованию", "Back to the investigation"),
-  exploreHint: l(
-    "Тяните, чтобы двигать доску. Колесо или щипок — приблизить. Нажмите на улику, чтобы рассмотреть её.",
-    "Drag to move the board. Scroll or pinch to zoom. Tap a piece of evidence to look closer.",
-  ),
-  toDesk: l("К столу", "To the desk"),
-  toBoard: l("К доске", "To the board"),
+  exploreHint: {
+    pointer: l(
+      "Камера идёт за курсором · колесо — ближе и дальше · курсор вниз — стол, вверх — доска · клик по улике — её дело · выйти — Esc или отдалить до упора",
+      "The camera follows your cursor · scroll to zoom · cursor down for the desk, up for the board · click evidence to open its file · Esc or zoom all the way out to leave",
+    ),
+    touch: l(
+      "Ведите пальцем, чтобы осмотреться · щипок — ближе и дальше · до низа — стол, до верха — доска · касание улики — её дело · отдалите до упора, чтобы выйти",
+      "Drag to look around · pinch to zoom · drag down for the desk, up for the board · tap evidence to open its file · zoom all the way out to leave",
+    ),
+  },
+  caseIndex: l("Дела на доске", "Case files on the board"),
   stationsLabel: l("Ход расследования", "Investigation progress"),
   contactTitle: l("Связаться", "Get in touch"),
   copy: l("скопировать", "copy"),
@@ -49,7 +53,7 @@ export const ui = {
     download: l("Скачать", "Download"),
   },
   statement: {
-    open: l("Дать показания", "Give a statement"),
+    open: l("Связаться", "Get in touch"),
     kicker: l("Показания", "Statement"),
     title: l("Связаться с автором", "Contact the author"),
     intro: l(
@@ -92,7 +96,7 @@ export const ui = {
   dossier: {
     title: l("Досье", "Dossier"),
     close: l("Вернуться к доске", "Back to the board"),
-    download: l("Скачать резюме, PDF", "Download résumé, PDF"),
+    download: l("Скачать резюме", "Download résumé"),
     summary: l("Коротко", "Summary"),
     skills: l("Навыки", "Skills"),
     languages: l("Языки", "Languages"),

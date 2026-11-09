@@ -15,7 +15,6 @@ export function FinaleCard({ locale }: { locale: Locale }) {
   const mode = useExperience((state) => state.mode);
   const exploreEnabled = useExperience((state) => state.variant.explore);
   const setMode = useExperience((state) => state.setMode);
-  const setDossierOpen = useExperience((state) => state.setDossierOpen);
   const openStatement = useExperience((state) => state.openStatement);
   const visible = revealed && mode === "route";
   useRevealSound();
@@ -50,6 +49,11 @@ export function FinaleCard({ locale }: { locale: Locale }) {
         ))}
       </ul>
       <div className={styles.actions}>
+        {exploreEnabled ? (
+          <button type="button" className={styles.secondary} onClick={() => setMode("explore")}>
+            {ui.explore[locale]}
+          </button>
+        ) : null}
         <a
           className={styles.primary}
           href={pick(resume.href, locale)}
@@ -58,17 +62,9 @@ export function FinaleCard({ locale }: { locale: Locale }) {
         >
           {ui.dossier.download[locale]}
         </a>
-        <button type="button" className={styles.secondary} onClick={() => setDossierOpen(true)}>
-          {ui.dossier.title[locale]}
-        </button>
         {exploreEnabled ? (
           <button type="button" className={styles.secondary} onClick={() => openStatement(true)}>
             {ui.statement.open[locale]}
-          </button>
-        ) : null}
-        {exploreEnabled ? (
-          <button type="button" className={styles.secondary} onClick={() => setMode("explore")}>
-            {ui.explore[locale]}
           </button>
         ) : null}
       </div>
