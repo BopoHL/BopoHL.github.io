@@ -18,14 +18,17 @@ export type StatementCheck = { ok: true; statement: Statement } | { ok: false; p
 
 const CONTROL_CHARACTERS = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g;
 
+const LINE_BREAKS = /\s*[\r\n\t]+\s*/g;
+
 const clean = (value: unknown) => (typeof value === "string" ? value.replace(CONTROL_CHARACTERS, "").trim() : "");
+const cleanLine = (value: unknown) => clean(value).replace(LINE_BREAKS, " ");
 
 export const checkStatement = (input: unknown): StatementCheck => {
   if (typeof input !== "object" || input === null) return { ok: false, problem: "format" };
   const fields = input as Record<string, unknown>;
   const statement: Statement = {
-    name: clean(fields.name),
-    contact: clean(fields.contact),
+    name: cleanLine(fields.name),
+    contact: cleanLine(fields.contact),
     message: clean(fields.message),
     locale: fields.locale === "ru" ? "ru" : "en",
   };

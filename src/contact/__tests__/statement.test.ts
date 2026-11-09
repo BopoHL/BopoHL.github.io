@@ -15,6 +15,11 @@ describe("checkStatement", () => {
     expect(check.ok && check.statement.message).toBe("line one\nline two");
   });
 
+  it("keeps the name and contact on one line", () => {
+    const check = checkStatement({ name: "Anna\r\nHR", contact: "@anna\n\tor mail", message: "Hello there" });
+    expect(check.ok && [check.statement.name, check.statement.contact]).toEqual(["Anna HR", "@anna or mail"]);
+  });
+
   it("needs a way to answer and something to say", () => {
     expect(checkStatement({ contact: " ", message: "Hello there" })).toEqual({ ok: false, problem: "contact" });
     expect(checkStatement({ contact: "@anna", message: "hi" })).toEqual({ ok: false, problem: "message" });
