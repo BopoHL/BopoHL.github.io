@@ -5,6 +5,8 @@ import type { Locale } from "@/content/types";
 import { ui } from "@/content/ui";
 import styles from "./resume.module.css";
 
+const printedSections = dossierSections.filter((section) => !section.siteOnly);
+
 export function ResumePrint({ locale }: { locale: Locale }) {
   return (
     <article className={styles.page}>
@@ -29,7 +31,7 @@ export function ResumePrint({ locale }: { locale: Locale }) {
         <p className={styles.summary}>{pick(dossierSummary, locale)}</p>
       </section>
 
-      {dossierSections.map((section) => (
+      {printedSections.map((section) => (
         <section key={section.id} className={styles.section}>
           <h2 className={styles.heading}>{pick(section.title, locale)}</h2>
           {section.entries.map((entry) => (

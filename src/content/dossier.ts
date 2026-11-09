@@ -12,11 +12,12 @@ export interface DossierSection {
   id: string;
   title: Localized;
   entries: DossierEntry[];
+  siteOnly?: boolean;
 }
 
 export const dossierSummary = l(
-  "Backend-разработчик на PHP/Laravel, 2,5 года в финтехе и медтехе, бакалавр программной инженерии (IT Park University, школа EPAM, 2026). Декомпозирую сложные системы в масштабируемую архитектуру с фокусом на производительности кода и стоимости его работы в облаке. Активно использую AI-инструменты в работе.",
-  "Backend developer working in PHP/Laravel, with 2.5 years in fintech and medtech and a BSc in Software Engineering (IT Park University, EPAM school, 2026). I break complex systems down into scalable architecture, with a focus on code performance and its cost to run in the cloud. I use AI tools heavily in daily work.",
+  "Backend-разработчик на PHP/Laravel, 3 года в финтехе и медтехе, бакалавр программной инженерии (IT Park University, школа EPAM, 2026). Декомпозирую сложные системы в масштабируемую архитектуру с фокусом на производительности кода и стоимости его работы в облаке. Активно использую AI-инструменты в работе.",
+  "Backend developer working in PHP/Laravel, with 3 years in fintech and medtech and a BSc in Software Engineering (IT Park University, EPAM school, 2026). I break complex systems down into scalable architecture, with a focus on code performance and its cost to run in the cloud. I use AI tools heavily in daily work.",
 );
 
 export const dossierSections: DossierSection[] = [
@@ -77,6 +78,7 @@ export const dossierSections: DossierSection[] = [
   {
     id: "projects",
     title: l("Личные проекты", "Side projects"),
+    siteOnly: true,
     entries: [
       {
         title: l("Split the Bill", "Split the Bill"),
@@ -258,14 +260,12 @@ export const dossierSkills = l(
     "Docker, Kubernetes, Redis, Kafka, ElasticSearch",
     "DDD, CQRS, микросервисы, SOLID",
     "Grafana, Prometheus, Sentry",
-    "FastAPI, NestJS, Next.js, React — в личных проектах",
   ],
   [
     "PHP, Laravel, PostgreSQL, MySQL",
     "Docker, Kubernetes, Redis, Kafka, ElasticSearch",
     "DDD, CQRS, microservices, SOLID",
     "Grafana, Prometheus, Sentry",
-    "FastAPI, NestJS, Next.js, React — in side projects",
   ],
 );
 
