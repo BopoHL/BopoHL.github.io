@@ -3,7 +3,7 @@ import type { PinStyle } from "../state/variant";
 
 export const NEEDLE_RADIUS = 0.0065;
 const NEEDLE_DEPTH = 0.05;
-const RADIAL_SEGMENTS = 40;
+const RADIAL_SEGMENTS = 24;
 
 const PUSH_PIN_PROFILE: Array<[number, number]> = [
   [0, 0.024],
@@ -39,7 +39,7 @@ export interface PinParts {
 }
 
 const needle = (top: number) => {
-  const geometry = new CylinderGeometry(NEEDLE_RADIUS, NEEDLE_RADIUS * 0.6, top + NEEDLE_DEPTH, 10);
+  const geometry = new CylinderGeometry(NEEDLE_RADIUS, NEEDLE_RADIUS * 0.6, top + NEEDLE_DEPTH, 8);
   geometry.rotateX(Math.PI / 2);
   geometry.translate(0, 0, (top - NEEDLE_DEPTH) / 2);
   return geometry;
@@ -47,7 +47,7 @@ const needle = (top: number) => {
 
 export const createPinParts = (style: PinStyle): PinParts => {
   if (style === "map") {
-    const head = new SphereGeometry(MAP_PIN.radius, 32, 24);
+    const head = new SphereGeometry(MAP_PIN.radius, 24, 16);
     head.translate(0, 0, MAP_PIN.height);
     return { head, needle: needle(MAP_PIN.height) };
   }

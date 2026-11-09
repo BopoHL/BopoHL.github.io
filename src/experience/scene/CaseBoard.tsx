@@ -11,6 +11,7 @@ import { BoardSurface } from "./boardSurface";
 import { EvidenceCard } from "./EvidenceCard";
 import { THREAD_COLORS } from "./layout3d";
 import { MugshotCard } from "./MugshotCard";
+import { Pins } from "./Pins";
 import { Thread } from "./Thread";
 
 interface CaseBoardProps {
@@ -30,6 +31,11 @@ export function CaseBoard({ content, textures, bumpMap, locale, onSelect }: Case
   const surface = useMemo(
     () => new BoardSurface(content.evidence, content.threads, pinStyle),
     [content.evidence, content.threads, pinStyle],
+  );
+
+  const pinned = useMemo(
+    () => surface.shapes.filter((shape) => textures.front.has(shape.item.id)),
+    [surface, textures.front],
   );
 
   if (textures.front.size === 0) return null;
@@ -64,6 +70,7 @@ export function CaseBoard({ content, textures, bumpMap, locale, onSelect }: Case
           />
         );
       })}
+      <Pins shapes={pinned} />
       {surface.runs.map(({ thread, points }) => (
         <Thread key={`${thread.from}->${thread.to}`} points={points} color={THREAD_COLORS[thread.area]} />
       ))}
