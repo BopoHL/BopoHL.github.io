@@ -1,0 +1,51 @@
+{
+  "voice": "qNkzaJoHLLdpvgh5tISm",
+  "model": "eleven_v4",
+  "takes": 1,
+  "lines": {
+    "intro": {
+      "ru": "В этом городе объявился таинственный разработчик… Кто же он такой?",
+      "en": "A mysterious developer has turned up in this city… Who is he?"
+    },
+    "alif": {
+      "ru": "Улика номер 1. Финтех Алиф, 2024–2025.",
+      "en": "Exhibit 1. /ɑˈlif/ fintech, 2024 to 2025."
+    },
+    "alif-deep": {
+      "ru": "Следы ведут глубже: архитектура, интеграции, наставничество.",
+      "en": "The trail goes deeper: architecture, integrations, mentoring."
+    },
+    "dmed": {
+      "ru": "Улика номер 2. Государственная медсистема /dʲiˈmʲɛt/, 2026.",
+      "en": "Exhibit 2. /diːˈmɛd/, the national medical system, 2026."
+    },
+    "projects": {
+      "ru": "Улика номер 3. Личные проекты. Работает даже по ночам.",
+      "en": "Exhibit 3. Side projects. Works even at night."
+    },
+    "study": {
+      "ru": "Улика номер 4. Университет, курсы, первый стартап.",
+      "en": "Exhibit 4. University, courses, a first startup."
+    },
+    "spain": {
+      "ru": "Восемь студентов. Испания. Один из них — подозреваемый.",
+      "en": "Eight students. Spain. One of them is our suspect."
+    },
+    "graduation": {
+      "ru": "Улика номер 5. Диплом, стипендия и характеристика из университета.",
+      "en": "Exhibit 5. A degree, a scholarship and a reference from the university."
+    },
+    "hobby": {
+      "ru": "Улика номер 6. Горы и ночные забеги. Выносливость подтверждена.",
+      "en": "Exhibit 6. Mountains and night races. Stamina confirmed."
+    },
+    "overview": {
+      "ru": "Все нити ведут к одному человеку.",
+      "en": "Every thread leads to one man."
+    },
+    "finale": {
+      "ru": "Дело раскрыто.",
+      "en": "Case closed."
+    }
+  }
+}
