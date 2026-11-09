@@ -117,7 +117,7 @@ Lowering the cursor to the bottom edge in free exploration turns the camera to t
 
 - The banker's lamp switches with a click on it.
 - The 1970s fan switches with a click, spins up and down, oscillates slowly and bends the cigarette smoke when it faces the ashtray.
-- The heavy glass ashtray is modelled in code (`src/experience/desk/ashtrayModel.ts`): three cigarette rests cut into the rim, a bed of ash, stubbed-out butts and fallen ash. The cigarette in the rest is built from sections (filter, paper, char, ember, ash) in `cigaretteModel.ts`, so its length and how far it has burnt are data. The glass refracts the desk on high quality and falls back to tinted transparent glass on phones.
+- The heavy glass ashtray is modelled in code (`src/experience/desk/ashtrayModel.ts`): three cigarette rests cut into the rim, a bed of ash, stubbed-out butts and fallen ash. The cigarette in the rest is built from sections (filter, paper, char, ember, ash) in `cigaretteModel.ts`, so its length and how far it has burnt are data. The glass is a thin transparent shell that reflects the room: clear and greenish on desktop, smoked on phones. It deliberately has no `transmission`, which would make three.js render the whole scene a second time every frame the ashtray is visible.
 - The cassette recorder has working piano keys: REC (the tape is write-protected), REW, PLAY, FF, STOP and PAUSE. The reels, the tape packs and the counter follow the tape position, rewinding or fast-forwarding stops by itself at either end of the tape. The deck starts playing the jazz quietly as soon as you enter the site; when playback reaches the end it pops the key, rewinds and plays again, until you press a key yourself. PLAY turns the site sound on.
 - The typewriter takes a statement: "Get in touch" (in the finale card, or a click on the machine) turns the camera to it, and what you type in the form appears on the sheet in the platen, key by key. Sending goes to the contact handler (see below).
 - The rotary phone dials 404 when clicked and offers to continue in Telegram.
@@ -139,6 +139,16 @@ On touch screens, a tap that ends a drag is ignored, so dragging across a prop d
 A narrator reads each stop's subtitle as the camera arrives there, over the rain and the jazz (`src/experience/hud/useNarration.ts`, `src/audio/narrator.ts`); moving on cuts the previous line short with a quick fade. The lines are ElevenLabs recordings in `public/audio/narration/<locale>/<station>.mp3`, one per stop and language, and `src/content/__tests__/narration.test.ts` fails if a stop has none.
 
 `tools/narration/script.json` holds the spoken text, the voice and the model. The text follows the subtitles, with numbers as digits and the names the voice could misread written in IPA. To redo a line, generate it with that voice and model, save it as `<locale>-<station>.mp3` in a folder and run `tools/narration/prepare.sh <folder>`: it trims the silence, evens out the loudness and puts the file in place.
+
+## Performance
+
+The scene is drawn only as often as something on screen changes (`src/experience/PacedFrames.tsx`, `framePacer.ts`): 60 fps while the visitor scrolls, points or types and while the camera is still moving, 30 fps (20 on the low tier) once everything has settled, and not at all while the dossier covers the stage. While the visitor is interacting, `resolutionGovernor.ts` watches how late those frames arrive and lowers the pixel ratio in steps of 0.25 (never below 1×) on a device that cannot keep up, then raises it again after a calm stretch. The high tier renders at 1.5× at most.
+
+- Draw calls: pins are five instanced meshes (`Pins.tsx`, placement in `pinField.ts`); the threads of one colour are one merged tube, two segments per control point of a drape simplified to the points that bend it (`threadGeometry.ts`, `simplify` in `threadPath.ts`); the typewriter keyboard is two instanced meshes and a batched mesh (`TypewriterKeys.tsx`). Many small meshes cost far more than their triangles, three times over: once in the main pass and once per shadow map.
+- Shadows: the key light follows the camera, so its map updates every frame; the desk lamp's map updates only while the desk is in view (`src/experience/scene/inView.ts`).
+- Post: the lens depth of field stops rendering once it has faded out in exploration, and the peripheral blur skips pixels it would move by less than a quarter of a pixel.
+
+`npm run perf:measure -- --url http://localhost:3000` drives a real Chrome through the intro, a stop, the overview, a close-up and the desk and prints, for each, the rendered frame rate against the display's, draw calls and triangles per frame and main-thread load (`--software` for SwiftShader, `--out report.json` to keep the numbers).
 
 ## Case files
 
