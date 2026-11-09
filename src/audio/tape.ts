@@ -13,7 +13,7 @@ export const TAPE_KEYS: TapeKey[] = ["record", "rewind", "play", "forward", "sto
 
 const WIND_SPEED = 12;
 const END_MARGIN = 0.05;
-const LEVEL = 0.55;
+const LEVEL = 0.32;
 const HISS_LEVEL = 0.012;
 const START_SLUR = 0.12;
 const STOP_SLUR = 0.09;
@@ -135,16 +135,24 @@ const stopPlayback = (playback: Playback) => {
   release(playback, STOP_SLUR);
 };
 
+export interface TapeDeckOptions {
+  repeat?: boolean;
+}
+
 export class TapeDeck {
   position = 0;
   private transport: Transport = "stopped";
   private paused = false;
+  private replay = false;
   private buffer: AudioBuffer | null = null;
   private unavailable = false;
   private playback: Playback | null = null;
   private whirr: Whirr | null = null;
 
-  constructor(private readonly recording: TapeRecording) {}
+  constructor(
+    private readonly recording: TapeRecording,
+    private readonly options: TapeDeckOptions = {},
+  ) {}
 
   get duration() {
     return this.buffer?.duration ?? this.recording.seconds;
@@ -187,6 +195,7 @@ export class TapeDeck {
   press(key: TapeKey): boolean {
     const atStart = this.position <= 0;
     const atEnd = this.position >= this.duration - END_MARGIN;
+    this.replay = false;
     switch (key) {
       case "play":
         this.prepare();
@@ -224,7 +233,15 @@ export class TapeDeck {
 
     const ranOut = this.transport === "rewinding" ? this.position <= 0 : this.transport !== "stopped" && this.position >= this.duration - END_MARGIN;
     if (!ranOut) return false;
-    this.transport = "stopped";
+    if (this.transport === "playing" && this.options.repeat) {
+      this.transport = "rewinding";
+      this.replay = true;
+    } else if (this.transport === "rewinding" && this.replay) {
+      this.transport = "playing";
+      this.replay = false;
+    } else {
+      this.transport = "stopped";
+    }
     this.syncAudio();
     return true;
   }

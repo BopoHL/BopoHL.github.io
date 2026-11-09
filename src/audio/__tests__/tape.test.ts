@@ -63,4 +63,26 @@ describe("TapeDeck", () => {
     expect(deck.press("record")).toBe(false);
     expect(deck.isLatched("record")).toBe(false);
   });
+
+  it("on repeat, rewinds at the end of the tape and plays it again", () => {
+    const deck = new TapeDeck(RECORDING, { repeat: true });
+    deck.press("play");
+    deck.position = deck.duration - 0.5;
+    expect(run(deck, 1)).toBe(true);
+    expect(deck.isLatched("rewind")).toBe(true);
+    run(deck, deck.duration / 10);
+    expect(deck.isLatched("play")).toBe(true);
+    expect(deck.position).toBeLessThan(5);
+  });
+
+  it("forgets the replay once a key is pressed", () => {
+    const deck = new TapeDeck(RECORDING, { repeat: true });
+    deck.press("play");
+    deck.position = deck.duration - 0.5;
+    run(deck, 1);
+    deck.press("stop");
+    run(deck, deck.duration / 10);
+    expect(deck.isLatched("play")).toBe(false);
+    expect(deck.engaged).toBe(false);
+  });
 });

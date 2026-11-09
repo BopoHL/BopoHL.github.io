@@ -44,13 +44,21 @@ export function CassetteRecorder({ locale }: { locale: Locale }) {
   const worldShader = useWorldShader();
   const accentShader = useAccentShader();
   const textures = useRecorderTextures(locale);
-  const [deck] = useState(() => new TapeDeck(cassette.recording));
+  const [deck] = useState(() => new TapeDeck(cassette.recording, { repeat: true }));
   const led = useRef<MeshStandardMaterial>(null);
   const handle = useMemo(() => handlePath(), []);
+  const entered = useExperience((state) => state.entered);
+  const soundOn = useExperience((state) => state.soundOn);
+  const started = useRef(false);
   useEffect(() => () => deck.dispose(), [deck]);
 
+  useEffect(() => {
+    if (!entered || !soundOn || started.current) return;
+    started.current = true;
+    deck.press("play");
+  }, [deck, entered, soundOn]);
+
   useFrame((_, delta) => {
-    if (useExperience.getState().mode !== "explore" && deck.engaged) deck.press("stop");
     if (deck.update(delta)) playKeyClunk(false);
     if (led.current) {
       led.current.emissiveIntensity = MathUtils.damp(led.current.emissiveIntensity, deck.speed !== 0 ? LED.glow : 0, 12, delta);
