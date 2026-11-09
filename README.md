@@ -98,22 +98,33 @@ docs/plan.md        concept, route, visual system and image prompts
 
 Both camera styles keep one height above the board for every investigation stop and glide sideways between stops; only the overview and the finale step back. The camera eases into each stop and rests there for a moment before moving on, at a pace measured in frame heights per second, so a fast scroll never skips anything: the scroll itself is held within about one section of what the camera has shown. Clicking a chapter on the progress thread travels there directly and faster. Scrolling non-stop from the first stop to the finale takes about 45 seconds on desktop. Tuning lives in `src/experience/camera/motion.ts` (`dwell`, `browse`, `travelSettle`) and `SCROLL_LEAD` in `src/experience/useScrollDriver.ts`.
 
-In free exploration the camera never comes closer than `MIN_DISTANCE` in `src/experience/camera/ExploreCamera.tsx`. The cinematic lens blur belongs to the story: it fades out while exploring so every note stays readable, and its focus range grows as the camera pulls back (`src/experience/scene/lens.ts`). Paper textures are sampled with a slight negative mip bias (`PAPER_LOD_BIAS` in `src/experience/scene/look.ts`) so small type stays crisp at a distance.
+## Free exploration
+
+The finale card offers three actions: explore the board, download the résumé, get in touch. Exploring has no buttons of its own; the camera follows the cursor (`src/experience/camera/lookAround.ts`, driven by `ExploreCamera.tsx`):
+
+- The cursor position maps onto the board, so the spot under the cursor stays put while you zoom, and the camera turns slightly towards it. When the whole board fits on screen it only turns.
+- The wheel (or a pinch) zooms, between `LOOK.boardDistance.min` and `max`. Pushing on past the farthest zoom leaves exploration; on the desk it steps back to the board.
+- Resting the cursor at the bottom edge for a moment (`LOOK.deskEdge`, `LOOK.dwell`) lowers the camera to the desk; resting it at the top edge raises it back to the board. The bands are far apart, so the cursor can travel across the desk to a prop without the view flipping back.
+- On touch screens a drag moves the view, dragging past the bottom or top switches between board and desk, and a pinch zooms.
+- From the keyboard, the arrow keys move the view, `+` and `-` zoom, Esc closes an open case file and then leaves exploration. Tab reaches a list of the case files on the board, hidden until it has focus.
+- With reduced motion the camera follows without turning.
+
+The cinematic lens blur belongs to the story: it fades out while exploring so every note stays readable, and its focus range grows as the camera pulls back (`src/experience/scene/lens.ts`). Paper textures are sampled with a slight negative mip bias (`PAPER_LOD_BIAS` in `src/experience/scene/look.ts`) so small type stays crisp at a distance.
 
 ## The desk
 
-"To the desk" in free exploration turns the camera to the wooden desk under the board. Layout is in `src/experience/desk/layout.ts`; positions are `[x, z]` on the desk top, z grows towards the viewer. The loose clippings are ordinary evidence in `src/content/desk.ts` and support the same ink as the board.
+Lowering the cursor to the bottom edge in free exploration turns the camera to the wooden desk under the board. Layout is in `src/experience/desk/layout.ts`; positions are `[x, z]` on the desk top, z grows towards the viewer. The loose clippings are ordinary evidence in `src/content/desk.ts` and support the same ink as the board.
 
 - The banker's lamp switches with a click on it.
 - The 1970s fan switches with a click, spins up and down, oscillates slowly and bends the cigarette smoke when it faces the ashtray.
 - The heavy glass ashtray is modelled in code (`src/experience/desk/ashtrayModel.ts`): three cigarette rests cut into the rim, a bed of ash, stubbed-out butts and fallen ash. The cigarette in the rest is built from sections (filter, paper, char, ember, ash) in `cigaretteModel.ts`, so its length and how far it has burnt are data. The glass refracts the desk on high quality and falls back to tinted transparent glass on phones.
 - The cassette recorder has working piano keys: REC (the tape is write-protected), REW, PLAY, FF, STOP and PAUSE. The reels, the tape packs and the counter follow the tape position, the deck auto-stops at either end and stops when you leave free exploration. PLAY turns the site sound on.
-- The typewriter takes a statement: "Give a statement" (in the finale card, or a click on the machine) turns the camera to it, and what you type in the form appears on the sheet in the platen, key by key. Sending goes to the contact handler (see below).
+- The typewriter takes a statement: "Get in touch" (in the finale card, or a click on the machine) turns the camera to it, and what you type in the form appears on the sheet in the platen, key by key. Sending goes to the contact handler (see below).
 - The rotary phone dials 404 when clicked and offers to continue in Telegram.
 - The right-hand drawer slides out with the résumé folder; clicking the folder downloads the PDF.
 - Four pieces of hidden evidence lie among the props (`secrets` in `src/content/desk.ts`). Each reveals a fact when clicked; the count of found ones is shown in the exploration bar and remembered in the browser.
 
-Clicks that end a camera drag are ignored, so dragging across a prop does not switch it.
+On touch screens, a tap that ends a drag is ignored, so dragging across a prop does not switch it.
 
 ## Atmosphere
 
