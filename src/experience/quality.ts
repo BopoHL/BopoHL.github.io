@@ -21,7 +21,7 @@ export interface Quality {
 
 const HIGH: Quality = {
   tier: "high",
-  dpr: [1, 2],
+  dpr: [1, 1.5],
   shadowMapSize: 2048,
   pixelsPerUnit: 300,
   dustCount: 900,
