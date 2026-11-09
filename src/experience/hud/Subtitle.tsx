@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { playKeystroke } from "@/audio/typewriter";
+import { TypingBed, preloadTypingBed } from "@/audio/typingBed";
 import type { Locale, Station } from "@/content/types";
 import { useExperience } from "../state/store";
 import { useReducedMotion } from "../useReducedMotion";
@@ -20,10 +20,23 @@ const delayAfter = (char: string | undefined) => {
 export function Subtitle({ stations, locale, hidden }: { stations: Station[]; locale: Locale; hidden: boolean }) {
   const stationIndex = useExperience((state) => state.stationIndex);
   const ready = useExperience((state) => state.ready);
+  const soundOn = useExperience((state) => state.soundOn);
   const reduceMotion = useReducedMotion();
+  const [bed] = useState(() => new TypingBed());
   const text = stations[stationIndex]?.subtitle[locale] ?? "";
   const [typed, setTyped] = useState({ text: "", count: 0 });
   const count = reduceMotion ? text.length : typed.text === text ? typed.count : 0;
+  const typing = ready && !hidden && count < text.length;
+
+  useEffect(() => {
+    if (soundOn) preloadTypingBed();
+  }, [soundOn]);
+
+  useEffect(() => {
+    if (!typing || !soundOn) return;
+    void bed.start();
+    return () => bed.stop();
+  }, [bed, typing, soundOn]);
 
   useEffect(() => {
     if (!ready || reduceMotion || !text) return;
@@ -33,8 +46,6 @@ export function Subtitle({ stations, locale, hidden }: { stations: Station[]; lo
       const char = text[index];
       index += 1;
       setTyped({ text, count: index });
-      const { soundOn, variant } = useExperience.getState();
-      if (soundOn) playKeystroke(variant.typing, char === " " ? "space" : "key");
       if (index < text.length) timer = window.setTimeout(typeNext, delayAfter(char));
     };
     timer = window.setTimeout(typeNext, CHAR_DELAY);
