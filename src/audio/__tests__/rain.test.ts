@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { seededRandom } from "@/lib/random";
-import { renderRain } from "../rain";
+import { renderGlassDrop, renderRain } from "../rain";
 
 const SAMPLE_RATE = 8000;
 
@@ -29,3 +29,20 @@ describe("rain loop", () => {
     expect(renderRain(SAMPLE_RATE, seededRandom("same"), 1)).toEqual(renderRain(SAMPLE_RATE, seededRandom("same"), 1));
   });
 });
+
+describe("a drop on the glass", () => {
+  const drop = renderGlassDrop(SAMPLE_RATE * 6, seededRandom("one drop"));
+
+  it("is a short tick that peaks at full scale and dies away", () => {
+    const peak = drop.reduce((max, sample) => Math.max(max, Math.abs(sample)), 0);
+    expect(peak).toBeCloseTo(1, 5);
+    expect(drop.length / (SAMPLE_RATE * 6)).toBeLessThan(0.15);
+    const tail = drop.subarray(Math.floor(drop.length * 0.9));
+    expect(tail.reduce((max, sample) => Math.max(max, Math.abs(sample)), 0)).toBeLessThan(0.02);
+  });
+
+  it("is reproducible", () => {
+    expect(renderGlassDrop(SAMPLE_RATE, seededRandom("same"))).toEqual(renderGlassDrop(SAMPLE_RATE, seededRandom("same")));
+  });
+});
+

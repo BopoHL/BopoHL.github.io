@@ -8,13 +8,29 @@ const DROP_HZ: [number, number] = [1600, 4800];
 const DROP_DECAY: [number, number] = [0.0015, 0.005];
 const DROP_LEVEL: [number, number] = [0.08, 0.45];
 const PEAK = 0.9;
-const LEVEL = 0.075;
+const LEVEL = 0.09;
 const FADE_IN = 2.5;
 const FADE_OUT = 0.6;
 const GLASS_LOWPASS = 2600;
 const ROOM_HIGHPASS = 180;
 const GUST_HZ = 0.06;
 const GUST_DEPTH = 0.3;
+const GLASS = {
+  perSecond: 3.5,
+  variants: 12,
+  level: 0.16,
+  gain: [0.35, 1],
+  pitch: [0.85, 1.2],
+  pan: 0.6,
+  click: 0.0008,
+  ring: [2200, 4200],
+  ringDecay: [0.004, 0.011],
+  overtone: 2.37,
+  body: [480, 900],
+  bodyDecay: [0.008, 0.016],
+  lookahead: 0.25,
+  tickMs: 100,
+} as const;
 
 const between = (random: Random, [min, max]: readonly [number, number]) => min + random() * (max - min);
 
@@ -52,10 +68,61 @@ export const renderRain = (sampleRate: number, random: Random = seededRandom("ra
   return loop;
 };
 
+export const renderGlassDrop = (sampleRate: number, random: Random) => {
+  const ring = (2 * Math.PI * between(random, GLASS.ring)) / sampleRate;
+  const ringDecay = between(random, GLASS.ringDecay) * sampleRate;
+  const body = (2 * Math.PI * between(random, GLASS.body)) / sampleRate;
+  const bodyDecay = between(random, GLASS.bodyDecay) * sampleRate;
+  const click = Math.max(1, Math.round(GLASS.click * sampleRate));
+  const drop = new Float32Array(Math.ceil(Math.max(ringDecay, bodyDecay) * 7));
+  let peak = 0;
+  for (let i = 0; i < drop.length; i++) {
+    const tap = i < click ? (random() * 2 - 1) * (1 - i / click) : 0;
+    const glass = Math.sin(ring * i) * Math.exp(-i / ringDecay) * 0.7;
+    const overtone = Math.sin(ring * GLASS.overtone * i) * Math.exp((-2 * i) / ringDecay) * 0.25;
+    const thud = Math.sin(body * i) * Math.exp(-i / bodyDecay) * 0.5;
+    drop[i] = tap * 0.6 + glass + overtone + thud;
+    peak = Math.max(peak, Math.abs(drop[i]));
+  }
+  for (let i = 0; i < drop.length; i++) drop[i] /= peak;
+  return drop;
+};
+
+const glassDrops = new WeakMap<BaseAudioContext, AudioBuffer[]>();
+
+const glassDropBuffers = (context: AudioContext) => {
+  const cached = glassDrops.get(context);
+  if (cached) return cached;
+  const random = seededRandom("drops on the glass");
+  const buffers = Array.from({ length: GLASS.variants }, () => {
+    const samples = renderGlassDrop(context.sampleRate, random);
+    const buffer = context.createBuffer(1, samples.length, context.sampleRate);
+    buffer.copyToChannel(samples, 0);
+    return buffer;
+  });
+  glassDrops.set(context, buffers);
+  return buffers;
+};
+
+const nextDropIn = () => -Math.log(1 - Math.random()) / GLASS.perSecond;
+
+const strikeGlass = (context: AudioContext, target: AudioNode, buffers: AudioBuffer[], at: number) => {
+  const source = context.createBufferSource();
+  source.buffer = buffers[Math.floor(Math.random() * buffers.length)];
+  source.playbackRate.value = between(Math.random, GLASS.pitch);
+  const gain = context.createGain();
+  gain.gain.value = between(Math.random, GLASS.gain);
+  const pan = context.createStereoPanner();
+  pan.pan.value = (Math.random() * 2 - 1) * GLASS.pan;
+  source.connect(gain).connect(pan).connect(target);
+  source.start(at);
+};
+
 interface RainVoice {
   context: AudioContext;
   sources: AudioScheduledSourceNode[];
   output: GainNode;
+  timer: number;
 }
 
 const buffers = new WeakMap<BaseAudioContext, AudioBuffer>();
@@ -80,8 +147,11 @@ export class RainAmbience {
     const { context } = rig;
     const output = context.createGain();
     output.gain.value = 0;
-    output.gain.setTargetAtTime(LEVEL, context.currentTime, FADE_IN / 3);
+    output.gain.setTargetAtTime(1, context.currentTime, FADE_IN / 3);
     output.connect(rig.output);
+    const wash = context.createGain();
+    wash.gain.value = LEVEL;
+    wash.connect(output);
 
     const rain = context.createBufferSource();
     rain.buffer = rainBuffer(context);
@@ -93,7 +163,7 @@ export class RainAmbience {
     lowpass.type = "lowpass";
     lowpass.frequency.value = GLASS_LOWPASS;
     const gust = context.createGain();
-    rain.connect(highpass).connect(lowpass).connect(gust).connect(output);
+    rain.connect(highpass).connect(lowpass).connect(gust).connect(wash);
 
     const wind = context.createOscillator();
     wind.frequency.value = GUST_HZ;
@@ -101,14 +171,26 @@ export class RainAmbience {
     windDepth.gain.value = GUST_DEPTH;
     wind.connect(windDepth).connect(gust.gain);
 
+    const glass = context.createGain();
+    glass.gain.value = GLASS.level;
+    glass.connect(output);
+    const drops = glassDropBuffers(context);
+    let next = context.currentTime + nextDropIn();
+    const timer = window.setInterval(() => {
+      const horizon = context.currentTime + GLASS.lookahead;
+      next = Math.max(next, context.currentTime);
+      for (; next < horizon; next += nextDropIn()) strikeGlass(context, glass, drops, next);
+    }, GLASS.tickMs);
+
     const sources = [rain, wind];
     for (const source of sources) source.start();
-    this.voice = { context, sources, output };
+    this.voice = { context, sources, output, timer };
   }
 
   stop() {
     if (!this.voice) return;
-    const { context, sources, output } = this.voice;
+    const { context, sources, output, timer } = this.voice;
+    window.clearInterval(timer);
     const end = context.currentTime + FADE_OUT;
     output.gain.cancelScheduledValues(context.currentTime);
     output.gain.setTargetAtTime(0, context.currentTime, FADE_OUT / 3);
