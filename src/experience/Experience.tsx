@@ -47,6 +47,7 @@ export function Experience({ locale }: { locale: Locale }) {
   const mode = useExperience((state) => state.mode);
   const revealed = useExperience((state) => state.revealed);
   const ready = useExperience((state) => state.ready);
+  const dossierOpen = useExperience((state) => state.dossierOpen);
   const setVariant = useExperience((state) => state.setVariant);
   const setLocale = useExperience((state) => state.setLocale);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -76,7 +77,7 @@ export function Experience({ locale }: { locale: Locale }) {
 
   return (
     <>
-      <div ref={stageRef} className={stage.canvas}>
+      <div ref={stageRef} className={stage.canvas} inert={dossierOpen}>
         <Canvas
           frameloop={ready ? "always" : "demand"}
           shadows={{ type: PCFShadowMap }}
@@ -89,7 +90,7 @@ export function Experience({ locale }: { locale: Locale }) {
         </Canvas>
       </div>
       <div className={stage.track} style={{ height: `${(shots.length - 1) * SCROLL_PER_SHOT_VH[cameraStyle] + 100}vh` }} aria-hidden="true" />
-      <div className={styles.layer}>
+      <div className={styles.layer} inert={dossierOpen}>
         <TopBar locale={locale} />
         {mode === "route" ? (
           <>
