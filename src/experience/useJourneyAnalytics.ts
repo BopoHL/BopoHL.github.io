@@ -7,7 +7,7 @@ import { useExperience } from "./state/store";
 
 export const useJourneyAnalytics = (stations: number) => {
   useEffect(() => {
-    let deepest = 0;
+    let deepest = -1;
     return useExperience.subscribe((state, previous) => {
       if (state.mode === "route" && state.stationIndex > deepest) {
         deepest = state.stationIndex;
