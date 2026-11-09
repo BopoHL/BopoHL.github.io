@@ -134,6 +134,12 @@ On touch screens, a tap that ends a drag is ignored, so dragging across a prop d
 - With the sound on, rain against the window plays quietly under everything (`src/audio/rain.ts`), synthesized once and looped.
 - While a subtitle types itself out, a recorded typewriter plays under it (`public/audio/typewriter.mp3`, a 13-second stretch without the carriage-return bell, looped from a random point by `src/audio/typingBed.ts`). It follows the text as a whole rather than each letter; the statement form still strikes a synthesized key for every character you type.
 
+## Narration
+
+A narrator reads each stop's subtitle as the camera arrives there, over the rain and the jazz (`src/experience/hud/useNarration.ts`, `src/audio/narrator.ts`); moving on cuts the previous line short with a quick fade. The lines are ElevenLabs recordings in `public/audio/narration/<locale>/<station>.mp3`, one per stop and language, and `src/content/__tests__/narration.test.ts` fails if a stop has none.
+
+`tools/narration/script.json` holds the spoken text, the voice and the model. The text follows the subtitles, with numbers as digits and the names the voice could misread written in IPA. To redo a line, generate it with that voice and model, save it as `<locale>-<station>.mp3` in a folder and run `tools/narration/prepare.sh <folder>`: it trims the silence, evens out the loudness and puts the file in place.
+
 ## Case files
 
 In free exploration a click on the main evidence of a job opens its case file: what was done, a small diagram where it helps (a before/after bar, a request flow) and the stack. Files live in `src/content/caseFiles.ts`; `evidence` lists the cards that open each one.

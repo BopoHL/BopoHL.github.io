@@ -16,6 +16,7 @@ import { FinaleCard } from "./hud/FinaleCard";
 import { Loader } from "./hud/Loader";
 import { PilotPanel } from "./hud/PilotPanel";
 import { ProgressThread } from "./hud/ProgressThread";
+import { useNarration } from "./hud/useNarration";
 import { useRainAmbience } from "./hud/useRainAmbience";
 import { ScrollHint } from "./hud/ScrollHint";
 import { StatementPanel } from "./hud/StatementPanel";
@@ -68,6 +69,7 @@ export function Experience({ locale }: { locale: Locale }) {
 
   const content = useMemo(() => boardContentFor(finale), [finale]);
   useJourneyAnalytics(content.stations.length);
+  useNarration(content.stations, locale);
   const shots = useMemo(
     () => buildShots(content.stations, content.evidence, framingFor(aspect, cameraStyle), cameraStyle),
     [content, aspect, cameraStyle],
