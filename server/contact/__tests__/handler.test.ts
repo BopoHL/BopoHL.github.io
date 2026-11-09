@@ -41,6 +41,11 @@ describe("contact handler", () => {
     expect(response.status).toBe(413);
   });
 
+  it("counts the cap in bytes, not characters", async () => {
+    const response = await handler()(post({ contact: "@anna", message: "я".repeat(4500) }), "1.2.3.4");
+    expect(response.status).toBe(413);
+  });
+
   it("quietly drops bots that fill the hidden field", async () => {
     const sent: string[] = [];
     const response = await handler(async (text) => {

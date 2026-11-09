@@ -13,6 +13,24 @@ export interface ContactHandlerOptions {
   log?: (message: string) => void;
 }
 
+const readCapped = async (request: Request, limit: number): Promise<string | null> => {
+  if (!request.body) return "";
+  const reader = request.body.getReader();
+  const decoder = new TextDecoder();
+  let size = 0;
+  let text = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) return text + decoder.decode();
+    size += value.byteLength;
+    if (size > limit) {
+      await reader.cancel();
+      return null;
+    }
+    text += decoder.decode(value, { stream: true });
+  }
+};
+
 const isBot = (payload: unknown) =>
   typeof payload === "object" && payload !== null && "website" in payload && Boolean((payload as { website: unknown }).website);
 
@@ -36,11 +54,12 @@ export const createContactHandler = ({ send, allow, allowedOrigin, log = () => {
       });
     }
     if (request.method !== "POST" || new URL(request.url).pathname !== PATH) return reply(404, { error: "not-found" });
-    if (Number(request.headers.get("content-length") ?? 0) > MAX_BODY_BYTES) return reply(413, { error: "too-large" });
+    const declared = Number(request.headers.get("content-length"));
+    if (Number.isFinite(declared) && declared > MAX_BODY_BYTES) return reply(413, { error: "too-large" });
     if (!(await allow(client))) return reply(429, { error: "slow-down" });
 
-    const body = await request.text();
-    if (body.length > MAX_BODY_BYTES) return reply(413, { error: "too-large" });
+    const body = await readCapped(request, MAX_BODY_BYTES);
+    if (body === null) return reply(413, { error: "too-large" });
     let payload: unknown;
     try {
       payload = JSON.parse(body);
