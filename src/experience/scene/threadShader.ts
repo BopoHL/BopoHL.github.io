@@ -21,12 +21,11 @@ vThreadUv = uv;
 `;
 
 const FRAGMENT_HEAD = /* glsl */ `
-uniform float uLength;
 varying vec2 vThreadUv;
 `;
 
 const FRAGMENT_BODY = /* glsl */ `
-float twistPhase = vThreadUv.x * uLength * ${TWISTS_PER_UNIT.toFixed(1)} - vThreadUv.y * ${STRANDS.toFixed(1)};
+float twistPhase = vThreadUv.x * ${TWISTS_PER_UNIT.toFixed(1)} - vThreadUv.y * ${STRANDS.toFixed(1)};
 float strand = fract(twistPhase);
 float groove = smoothstep(0.0, 0.18, strand) * smoothstep(1.0, 0.7, strand);
 float aliasing = clamp(fwidth(twistPhase) * 1.5 - 0.5, 0.0, 1.0);
@@ -40,15 +39,9 @@ export class ThreadShader {
   private readonly uniforms = {
     uRadius: { value: THREAD_RADIUS },
     uPixelAngle: { value: 0.001 },
-    uLength: { value: 1 },
   };
 
-  constructor(
-    private readonly accent: SaturationShader,
-    length: number,
-  ) {
-    this.uniforms.uLength.value = length;
-  }
+  constructor(private readonly accent: SaturationShader) {}
 
   readonly onBeforeCompile = (shader: WebGLProgramParametersWithUniforms) => {
     this.accent.onBeforeCompile(shader);
