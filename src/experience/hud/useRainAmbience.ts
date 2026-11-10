@@ -6,12 +6,12 @@ import { useExperience } from "../state/store";
 
 export const useRainAmbience = () => {
   const soundOn = useExperience((state) => state.soundOn);
-  const ready = useExperience((state) => state.ready);
+  const entered = useExperience((state) => state.entered);
   const [rain] = useState(() => new RainAmbience());
 
   useEffect(() => {
-    if (!soundOn || !ready) return;
+    if (!soundOn || !entered) return;
     rain.start();
     return () => rain.stop();
-  }, [rain, soundOn, ready]);
+  }, [rain, soundOn, entered]);
 };
