@@ -25,6 +25,7 @@ import { TopBar } from "./hud/TopBar";
 import styles from "./hud/hud.module.css";
 import { PacedFrames } from "./PacedFrames";
 import { detectQuality } from "./quality";
+import { ResolutionGovernor, pixelRatioRange } from "./resolutionGovernor";
 import { Scene } from "./scene/Scene";
 import { useExperience } from "./state/store";
 import { usePilotAccess } from "./state/usePilotAccess";
@@ -41,6 +42,8 @@ const SCROLL_PER_SHOT_VH = { classic: 120, cinema: 110 } as const;
 
 export function Experience({ locale }: { locale: Locale }) {
   const [quality] = useState(detectQuality);
+  const [governor] = useState(() => new ResolutionGovernor(pixelRatioRange(quality.dpr, window.devicePixelRatio)));
+  const [sharpest, setSharpest] = useState(quality.dpr[1]);
   const finale = useExperience((state) => state.variant.finale);
   const palette = useExperience((state) => state.variant.palette);
   const cameraStyle = useExperience((state) => state.variant.camera);
@@ -84,13 +87,13 @@ export function Experience({ locale }: { locale: Locale }) {
         <Canvas
           frameloop={ready ? "never" : "demand"}
           shadows={{ type: PCFShadowMap }}
-          dpr={quality.dpr}
+          dpr={[quality.dpr[0], sharpest]}
           camera={{ fov: CAMERA_FOV, near: 0.1, far: 200, position: [0, 0, 20] }}
           gl={{ antialias: false, powerPreference: "high-performance", alpha: false, stencil: false }}
           onCreated={({ gl }) => watchContext(gl.domElement)}
         >
           <Scene content={content} shots={shots} motion={motion} locale={locale} quality={quality} />
-          {ready ? <PacedFrames quality={quality} /> : null}
+          {ready ? <PacedFrames rate={quality.frameRate} governor={governor} onPixelRatio={setSharpest} /> : null}
         </Canvas>
       </div>
       <div className={stage.track} style={{ height: `${(shots.length - 1) * SCROLL_PER_SHOT_VH[cameraStyle] + 100}vh` }} aria-hidden="true" />

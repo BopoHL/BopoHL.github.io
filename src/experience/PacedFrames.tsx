@@ -3,9 +3,8 @@
 import { useThree } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
 import type { Matrix4 } from "three";
-import { FramePacer } from "./framePacer";
-import type { Quality } from "./quality";
-import { ResolutionGovernor, pixelRatioRange } from "./resolutionGovernor";
+import { FramePacer, type FrameRate } from "./framePacer";
+import type { ResolutionGovernor } from "./resolutionGovernor";
 import { useExperience } from "./state/store";
 
 const WAKING_EVENTS = ["pointermove", "pointerdown", "wheel", "keydown", "touchstart", "touchmove"] as const;
@@ -16,16 +15,17 @@ const WARM_UP_FRAMES = 3;
 const moved = (now: Matrix4, before: Matrix4) =>
   now.elements.some((value, i) => Math.abs(value - before.elements[i]) > STILL);
 
-export function PacedFrames({ quality }: { quality: Quality }) {
+interface PacedFramesProps {
+  rate: FrameRate;
+  governor: ResolutionGovernor;
+  onPixelRatio: (ratio: number) => void;
+}
+
+export function PacedFrames({ rate, governor, onPixelRatio }: PacedFramesProps) {
   const advance = useThree((state) => state.advance);
-  const setDpr = useThree((state) => state.setDpr);
   const camera = useThree((state) => state.camera);
   const size = useThree((state) => state.size);
-  const pacer = useMemo(() => new FramePacer(quality.frameRate), [quality.frameRate]);
-  const governor = useMemo(
-    () => new ResolutionGovernor(pixelRatioRange(quality.dpr, window.devicePixelRatio)),
-    [quality.dpr],
-  );
+  const pacer = useMemo(() => new FramePacer(rate), [rate]);
 
   useEffect(() => {
     pacer.request();
@@ -49,7 +49,7 @@ export function PacedFrames({ quality }: { quality: Quality }) {
       const busy = pacer.awake(now);
       if (busy && lastBusyFrame !== null && now - lastBusyFrame < GAP_MS) {
         const ratio = governor.frame(now - lastBusyFrame);
-        if (ratio !== null) setDpr(ratio);
+        if (ratio !== null) onPixelRatio(ratio);
       }
       lastBusyFrame = busy ? now : null;
       advance(time);
@@ -62,7 +62,7 @@ export function PacedFrames({ quality }: { quality: Quality }) {
       unsubscribe();
       for (const type of WAKING_EVENTS) window.removeEventListener(type, wake);
     };
-  }, [advance, camera, governor, pacer, setDpr]);
+  }, [advance, camera, governor, pacer, onPixelRatio]);
 
   return null;
 }
