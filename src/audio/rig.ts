@@ -32,13 +32,14 @@ const createRig = (): (AudioRig & { master: GainNode }) | null => {
   const master = context.createGain();
   master.gain.value = muted ? 0 : 1;
   master.connect(limiter);
+  document.addEventListener("visibilitychange", () => void (document.hidden ? context.suspend() : context.resume()));
   return { context, noise: whiteNoise(context), output: master, master };
 };
 
 export const audioRig = (): AudioRig | null => {
   if (typeof window === "undefined") return null;
   shared ??= createRig();
-  if (shared?.context.state === "suspended") void shared.context.resume();
+  if (shared?.context.state === "suspended" && !document.hidden) void shared.context.resume();
   return shared;
 };
 
