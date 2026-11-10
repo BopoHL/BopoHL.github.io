@@ -11,6 +11,7 @@ import { useExperience } from "./state/store";
 const WAKING_EVENTS = ["pointermove", "pointerdown", "wheel", "keydown", "touchstart", "touchmove"] as const;
 const STILL = 1e-5;
 const GAP_MS = 250;
+const WARM_UP_FRAMES = 3;
 
 const moved = (now: Matrix4, before: Matrix4) =>
   now.elements.some((value, i) => Math.abs(value - before.elements[i]) > STILL);
@@ -37,10 +38,14 @@ export function PacedFrames({ quality }: { quality: Quality }) {
     const unsubscribe = useExperience.subscribe(wake);
     const seen = camera.matrixWorld.clone();
     let lastBusyFrame: number | null = null;
+    let warmUp = WARM_UP_FRAMES;
     let frame = requestAnimationFrame(function loop(now) {
       frame = requestAnimationFrame(loop);
-      const time = pacer.next(now, useExperience.getState().dossierOpen);
+      const { dossierOpen, entered } = useExperience.getState();
+      const covered = dossierOpen || (!entered && warmUp === 0);
+      const time = pacer.next(now, covered);
       if (time === null) return;
+      warmUp = Math.max(0, warmUp - 1);
       const busy = pacer.awake(now);
       if (busy && lastBusyFrame !== null && now - lastBusyFrame < GAP_MS) {
         const ratio = governor.frame(now - lastBusyFrame);
