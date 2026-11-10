@@ -24,7 +24,7 @@ function Instances({ geometry, matrices, receiveShadow = false, children }: Inst
     matrices.forEach((matrix, i) => mesh.current?.setMatrixAt(i, matrix));
     mesh.current.instanceMatrix.needsUpdate = true;
     mesh.current.computeBoundingSphere();
-  }, [matrices]);
+  }, [geometry, matrices]);
 
   return (
     <instancedMesh ref={mesh} args={[geometry, undefined, matrices.length]} castShadow receiveShadow={receiveShadow}>
