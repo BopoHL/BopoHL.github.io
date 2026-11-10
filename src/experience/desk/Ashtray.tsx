@@ -30,6 +30,10 @@ import { Smoke } from "./Smoke";
 const ASH_SEED = 404;
 const UP = new Vector3(0, 1, 0);
 const EMBER_COLOR = "#ff5a1a";
+const GLASS: Record<Quality["tier"], { color: string; opacity: number; envMapIntensity: number }> = {
+  high: { color: "#28302c", opacity: 0.22, envMapIntensity: 1.1 },
+  low: { color: "#1d201e", opacity: 0.42, envMapIntensity: 0.9 },
+};
 
 const SMOULDERING: CigaretteSpec = {
   seed: "smouldering",
@@ -147,39 +151,24 @@ export function Ashtray({ quality }: { quality: Quality }) {
     if (glow.current) glow.current.intensity = 0.45 * breath;
   });
 
-  const transmissive = quality.tier === "high";
+  const glass = GLASS[quality.tier];
 
   return (
     <>
       <group position={base} rotation={[0, MathUtils.degToRad(PROPS.ashtray.yaw), 0]} scale={PROPS.ashtray.scale}>
         <mesh geometry={parts.glass} receiveShadow>
-          {transmissive ? (
-            <meshPhysicalMaterial
-              {...worldShader}
-              color="#ffffff"
-              envMap={environment}
-              envMapIntensity={0.3}
-              roughness={0.02}
-              ior={1.5}
-              thickness={0.25}
-              attenuationColor="#c3d3c8"
-              attenuationDistance={1.4}
-              transmission={1}
-            />
-          ) : (
-            <meshPhysicalMaterial
-              {...worldShader}
-              color="#1d201e"
-              envMap={environment}
-              envMapIntensity={0.9}
-              roughness={0.04}
-              clearcoat={1}
-              clearcoatRoughness={0.03}
-              transparent
-              opacity={0.42}
-              depthWrite={false}
-            />
-          )}
+          <meshPhysicalMaterial
+            {...worldShader}
+            color={glass.color}
+            envMap={environment}
+            envMapIntensity={glass.envMapIntensity}
+            roughness={0.04}
+            clearcoat={1}
+            clearcoatRoughness={0.03}
+            transparent
+            opacity={glass.opacity}
+            depthWrite={false}
+          />
         </mesh>
         <mesh geometry={parts.ash.geometry} receiveShadow>
           <meshStandardMaterial {...worldShader} map={parts.ash.map} vertexColors roughness={1} />

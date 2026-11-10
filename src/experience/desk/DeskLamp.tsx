@@ -5,19 +5,22 @@ import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BackSide,
+  Box3,
   CylinderGeometry,
   DoubleSide,
   MathUtils,
   type MeshStandardMaterial,
   type Object3D,
   type SpotLight,
+  Vector3,
 } from "three";
 import { playSwitchClick } from "@/audio/foley";
 import type { Quality } from "../quality";
 import { useLook, useWorldShader } from "../scene/look";
 import { isTap } from "../scene/pointer";
+import { InView } from "../scene/inView";
 import { pointerCursor } from "./deskState";
-import { onDesk, PROPS } from "./layout";
+import { DESK, onDesk, PROPS } from "./layout";
 
 const SHADE = { radius: 0.62, length: 3.1, height: 3.6, forward: 0.3 };
 const STEM_TOP = 3.75;
@@ -25,6 +28,10 @@ const LIGHT_INTENSITY = 90;
 const SWITCH_SPEED = 18;
 const CHAIN_LINKS = 14;
 const CHAIN_STEP = 0.055;
+const LIT = new Box3(
+  new Vector3(DESK.minX, DESK.floor, DESK.back),
+  new Vector3(DESK.maxX, DESK.top + STEM_TOP + 1, DESK.front),
+).expandByScalar(1.5);
 
 export function DeskLamp({ quality }: { quality: Quality }) {
   const worldShader = useWorldShader();
@@ -41,13 +48,15 @@ export function DeskLamp({ quality }: { quality: Quality }) {
     return geometry;
   }, []);
   useEffect(() => () => shade.dispose(), [shade]);
+  const desk = useMemo(() => new InView(LIT), []);
   useEffect(() => {
     if (light.current && aim.current) light.current.target = aim.current;
   }, []);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     level.current = MathUtils.damp(level.current, on ? 1 : 0, SWITCH_SPEED, delta);
     if (light.current) {
+      light.current.shadow.needsUpdate = desk.seenBy(state.camera);
       light.current.intensity = LIGHT_INTENSITY * level.current;
       light.current.color.copy(look.lampColor);
     }
@@ -138,6 +147,7 @@ export function DeskLamp({ quality }: { quality: Quality }) {
           intensity={LIGHT_INTENSITY}
           castShadow={quality.tier === "high"}
           shadow-mapSize={[1024, 1024]}
+          shadow-autoUpdate={false}
           shadow-bias={-0.0006}
           shadow-normalBias={0.02}
         />

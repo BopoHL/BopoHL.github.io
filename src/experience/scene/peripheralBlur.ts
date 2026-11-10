@@ -2,6 +2,7 @@ import { BlendFunction, Effect, EffectAttribute } from "postprocessing";
 import { Uniform, Vector2 } from "three";
 
 const TAPS = 12;
+const MIN_RADIUS_PX = 0.25;
 
 const fragmentShader = /* glsl */ `
 uniform vec2 uFocus;
@@ -11,12 +12,11 @@ uniform float uRadius;
 
 void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
   vec2 offset = (uv - uFocus) * vec2(aspect, 1.0);
-  float amount = smoothstep(uInner, uOuter, length(offset));
-  if (amount < 0.01) {
+  float radius = smoothstep(uInner, uOuter, length(offset)) * uRadius * resolution.y / 1000.0;
+  if (radius < ${MIN_RADIUS_PX}) {
     outputColor = inputColor;
     return;
   }
-  float radius = amount * uRadius * resolution.y / 1000.0;
   vec4 sum = inputColor;
   for (int i = 0; i < ${TAPS}; i++) {
     float t = (float(i) + 0.5) / ${TAPS}.0;

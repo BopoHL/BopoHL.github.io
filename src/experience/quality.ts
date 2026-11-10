@@ -1,3 +1,5 @@
+import type { FrameRate } from "./framePacer";
+
 export interface FocusBlur {
   resolutionScale: number;
   bokehScale: number;
@@ -14,11 +16,12 @@ export interface Quality {
   multisampling: number;
   flashlightShadows: boolean;
   focusBlur: FocusBlur;
+  frameRate: FrameRate;
 }
 
 const HIGH: Quality = {
   tier: "high",
-  dpr: [1, 2],
+  dpr: [1, 1.5],
   shadowMapSize: 2048,
   pixelsPerUnit: 300,
   dustCount: 900,
@@ -26,6 +29,7 @@ const HIGH: Quality = {
   multisampling: 4,
   flashlightShadows: false,
   focusBlur: { resolutionScale: 0.5, bokehScale: 2.4, peripheralRadius: 5 },
+  frameRate: { active: 60, idle: 30 },
 };
 
 const LOW: Quality = {
@@ -38,6 +42,7 @@ const LOW: Quality = {
   multisampling: 0,
   flashlightShadows: false,
   focusBlur: { resolutionScale: 0.3, bokehScale: 1.6, peripheralRadius: 4 },
+  frameRate: { active: 60, idle: 20 },
 };
 
 export const detectQuality = (): Quality => {
@@ -45,5 +50,7 @@ export const detectQuality = (): Quality => {
   const coarse = window.matchMedia("(pointer: coarse)").matches;
   const small = Math.min(window.screen.width, window.screen.height) < 820;
   const weakCpu = (navigator.hardwareConcurrency ?? 8) <= 4;
-  return coarse || small || weakCpu ? LOW : HIGH;
+  if (coarse || small || weakCpu) return LOW;
+  // A dense screen is rendered at 1.5×, where two samples smooth a thread as well as four for half the memory.
+  return { ...HIGH, multisampling: window.devicePixelRatio >= 1.5 ? 2 : 4 };
 };

@@ -20,6 +20,7 @@ import type { Palette } from "../state/variant";
 import { FilmGrainEffect } from "./filmGrain";
 import { Lens } from "./lens";
 import { LOOKS } from "./look";
+import { plainPassBuffer } from "./passBuffer";
 
 interface EffectsProps {
   quality: Quality;
@@ -63,7 +64,7 @@ export function Effects({ quality, palette, lensFocus }: EffectsProps) {
   return (
     <>
       {lens ? <LensFocus lens={lens} /> : null}
-      <EffectComposer key={lensFocus ? "focus" : "flat"} multisampling={quality.multisampling}>
+      <EffectComposer ref={plainPassBuffer} key={lensFocus ? "focus" : "flat"} multisampling={quality.multisampling}>
         {effects}
       </EffectComposer>
     </>

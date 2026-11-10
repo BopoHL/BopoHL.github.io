@@ -1,4 +1,4 @@
-import { MathUtils, Vector3 } from "three";
+import { Line3, MathUtils, Vector3 } from "three";
 import type { Vec2 } from "@/content/types";
 
 export interface Surface {
@@ -120,4 +120,30 @@ export const threadPath = (surface: Surface, from: Vector3, to: Vector3, options
   }
   const hull = upperHull(samples);
   return points.map((point, i) => point.setZ(heightOnHull(hull, samples[i].distance)));
+};
+
+const segment = new Line3();
+const closest = new Vector3();
+
+export const simplify = (points: Vector3[], tolerance: number): Vector3[] => {
+  if (points.length < 3) return points;
+  const keep = points.map((_, i) => i === 0 || i === points.length - 1);
+  const spans: Array<[number, number]> = [[0, points.length - 1]];
+  for (let span = spans.pop(); span; span = spans.pop()) {
+    const [first, last] = span;
+    segment.set(points[first], points[last]);
+    let farthest = -1;
+    let worst = tolerance;
+    for (let i = first + 1; i < last; i++) {
+      const away = segment.closestPointToPoint(points[i], true, closest).distanceTo(points[i]);
+      if (away > worst) {
+        worst = away;
+        farthest = i;
+      }
+    }
+    if (farthest < 0) continue;
+    keep[farthest] = true;
+    spans.push([first, farthest], [farthest, last]);
+  }
+  return points.filter((_, i) => keep[i]);
 };

@@ -2,6 +2,8 @@ import type { WebGLProgramParametersWithUniforms } from "three";
 import type { SaturationShader } from "./look";
 
 export const THREAD_RADIUS = 0.0045;
+export const THREAD_SIDES = 4;
+const AS_WIDE_AS_ROUND = Math.PI / (THREAD_SIDES * Math.sin(Math.PI / THREAD_SIDES));
 const MIN_SCREEN_RADIUS_PX = 0.55;
 const TWISTS_PER_UNIT = 38;
 const STRANDS = 3;
@@ -16,17 +18,16 @@ const VERTEX_BODY = /* glsl */ `
 vec3 threadCenter = position - normal * uRadius;
 float cameraDistance = distance((modelMatrix * vec4(threadCenter, 1.0)).xyz, cameraPosition);
 float threadRadius = max(uRadius, ${MIN_SCREEN_RADIUS_PX.toFixed(2)} * uPixelAngle * cameraDistance);
-vec3 transformed = threadCenter + normal * threadRadius;
+vec3 transformed = threadCenter + normal * threadRadius * ${AS_WIDE_AS_ROUND.toFixed(4)};
 vThreadUv = uv;
 `;
 
 const FRAGMENT_HEAD = /* glsl */ `
-uniform float uLength;
 varying vec2 vThreadUv;
 `;
 
 const FRAGMENT_BODY = /* glsl */ `
-float twistPhase = vThreadUv.x * uLength * ${TWISTS_PER_UNIT.toFixed(1)} - vThreadUv.y * ${STRANDS.toFixed(1)};
+float twistPhase = vThreadUv.x * ${TWISTS_PER_UNIT.toFixed(1)} - vThreadUv.y * ${STRANDS.toFixed(1)};
 float strand = fract(twistPhase);
 float groove = smoothstep(0.0, 0.18, strand) * smoothstep(1.0, 0.7, strand);
 float aliasing = clamp(fwidth(twistPhase) * 1.5 - 0.5, 0.0, 1.0);
@@ -40,15 +41,9 @@ export class ThreadShader {
   private readonly uniforms = {
     uRadius: { value: THREAD_RADIUS },
     uPixelAngle: { value: 0.001 },
-    uLength: { value: 1 },
   };
 
-  constructor(
-    private readonly accent: SaturationShader,
-    length: number,
-  ) {
-    this.uniforms.uLength.value = length;
-  }
+  constructor(private readonly accent: SaturationShader) {}
 
   readonly onBeforeCompile = (shader: WebGLProgramParametersWithUniforms) => {
     this.accent.onBeforeCompile(shader);

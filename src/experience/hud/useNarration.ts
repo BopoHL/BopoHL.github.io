@@ -8,13 +8,14 @@ import { useExperience } from "../state/store";
 
 export const useNarration = (stations: Station[], locale: Locale) => {
   const [narrator] = useState(() => new Narrator());
+  const soundOn = useExperience((state) => state.soundOn);
   const listening = useExperience((state) => state.entered && state.soundOn);
   const route = useExperience((state) => state.mode === "route");
   const station = useExperience((state) => stations[state.stationIndex]?.id);
 
   useEffect(() => {
-    if (listening) narrator.preload(stations.map(({ id }) => narrationFor(id, locale)));
-  }, [narrator, listening, stations, locale]);
+    if (soundOn) narrator.preload(stations.map(({ id }) => narrationFor(id, locale)));
+  }, [narrator, soundOn, stations, locale]);
 
   useEffect(() => {
     if (!listening || !route || !station) return;

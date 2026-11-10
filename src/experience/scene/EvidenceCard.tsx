@@ -10,7 +10,6 @@ import { useExperience } from "../state/store";
 import { createCardGeometry, minimumGap, type CardShape } from "./cardGeometry";
 import { usePaperShader } from "./look";
 import { cardZ } from "./layout3d";
-import { Pin } from "./Pin";
 import { isTap } from "./pointer";
 import { useSurfaceBump } from "./useSurfaceBump";
 
@@ -93,9 +92,6 @@ export function EvidenceCard({ shape, texture, accentMask, canLift, bumpMap, onS
           />
         </mesh>
       </group>
-      {shape.pins.map((spot) => (
-        <Pin key={spot} item={item} spot={spot} />
-      ))}
     </group>
   );
 }

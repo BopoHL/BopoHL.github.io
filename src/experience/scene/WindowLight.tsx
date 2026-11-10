@@ -44,7 +44,7 @@ export function WindowLight({ quality }: { quality: Quality }) {
     target.current.position.set(WINDOW.aim.x + across, WINDOW.aim.y + down, WINDOW.aim.z);
     light.current.intensity = WINDOW.intensity * look.windowLight;
     light.current.color.copy(look.lampColor);
-    if (look.windowLight > 0.01 && !still) blinds.update(delta);
+    blinds.update(state.gl, look.windowLight > 0.01 && !still ? delta : 0);
   });
 
   return (

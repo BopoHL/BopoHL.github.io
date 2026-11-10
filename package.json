@@ -14,6 +14,7 @@
     "tape:render": "node tools/tape/render-tape.mjs",
     "resume:render": "node tools/resume/render-resume.mjs",
     "og:render": "node tools/og/render-og.mjs",
+    "perf:measure": "node tools/perf/measure.mjs",
     "e2e": "playwright test",
     "contact:dev": "wrangler dev --config server/contact/wrangler.jsonc",
     "contact:deploy": "wrangler deploy --config server/contact/wrangler.jsonc"
