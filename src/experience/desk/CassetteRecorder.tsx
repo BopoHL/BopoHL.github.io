@@ -53,6 +53,10 @@ export function CassetteRecorder({ locale }: { locale: Locale }) {
   useEffect(() => () => deck.dispose(), [deck]);
 
   useEffect(() => {
+    if (soundOn) deck.prepare();
+  }, [deck, soundOn]);
+
+  useEffect(() => {
     if (!entered || !soundOn || started.current) return;
     started.current = true;
     deck.press("play");
