@@ -19,6 +19,8 @@ const createTops = (spots: KeySpot[]) => {
   const vertices = caps.reduce((sum, cap) => sum + cap.getAttribute("position").count, 0);
   const indices = caps.reduce((sum, cap) => sum + (cap.index?.count ?? 0), 0);
   const tops = new BatchedMesh(caps.length, vertices, indices);
+  tops.perObjectFrustumCulled = false;
+  tops.sortObjects = false;
   for (const cap of caps) {
     tops.addInstance(tops.addGeometry(cap));
     cap.dispose();
