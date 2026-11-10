@@ -33,6 +33,7 @@ export const useEvidenceTextures = (evidence: Evidence[], locale: Locale, pixels
       const texture = new CanvasTexture(canvas);
       texture.colorSpace = colorSpace;
       texture.anisotropy = anisotropy;
+      gl.initTexture(texture);
       created.push(texture);
       return texture;
     };
