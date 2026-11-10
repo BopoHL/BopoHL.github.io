@@ -50,5 +50,7 @@ export const detectQuality = (): Quality => {
   const coarse = window.matchMedia("(pointer: coarse)").matches;
   const small = Math.min(window.screen.width, window.screen.height) < 820;
   const weakCpu = (navigator.hardwareConcurrency ?? 8) <= 4;
-  return coarse || small || weakCpu ? LOW : HIGH;
+  if (coarse || small || weakCpu) return LOW;
+  // A dense screen is rendered at 1.5×, where two samples smooth a thread as well as four for half the memory.
+  return { ...HIGH, multisampling: window.devicePixelRatio >= 1.5 ? 2 : 4 };
 };
